@@ -1,27 +1,116 @@
 const User = require("../models/user.model");
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
+const Otp = require('../models/otp.model');
 const registerUser = async (userData) => {
+    const { name, email, password } = userData;
 
-    const email = userData.email;
     const existingUser = await User.findOne({ email });
+
     if (existingUser) {
         return {
-            message: "User already exists",
             success: false,
-        }
+            message: "User already exists"
+        };
     }
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const { name } = userData;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
         name,
         email,
         password: hashedPassword
     });
-    return user;
 
+    const otp = Math.floor(
+        100000 + Math.random() * 900000
+    );
 
+    const hashedOtp = await bcrypt.hash(
+        otp.toString(),
+        10
+    );
+
+    await Otp.create({
+        userId: user._id,
+        otp: hashedOtp,
+        purpose: "verify-email",
+        expiresAt: new Date(
+            Date.now() + 5 * 60 * 1000
+        )
+    });
+
+    // TODO:
+    // Send OTP through email
+
+    return {
+        success: true,
+        message: "User registered successfully",
+        otp // remove after nodemailer integration
+    };
 };
+const verifyEmailService = async (userData) => {
+    const { email, otp } = userData;
 
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        return {
+            success: false,
+            message: "User not found"
+        };
+    }
+
+    if (user.isVerified) {
+        return {
+            success: false,
+            message: "Email already verified"
+        };
+    }
+
+    const otpEntry = await Otp.findOne({
+        userId: user._id,
+        purpose: "verify-email",
+        isUsed: false
+    });
+
+    if (!otpEntry) {
+        return {
+            success: false,
+            message: "OTP not found"
+        };
+    }
+
+    if (otpEntry.expiresAt < new Date()) {
+        return {
+            success: false,
+            message: "OTP has expired"
+        };
+    }
+
+    const isOtpValid = await bcrypt.compare(
+        otp,
+        otpEntry.otp
+    );
+
+    if (!isOtpValid) {
+        return {
+            success: false,
+            message: "Invalid OTP"
+        };
+    }
+
+    otpEntry.isUsed = true;
+    user.isVerified = true;
+
+    await otpEntry.save();
+    await user.save();
+
+    return {
+        success: true,
+        message: "Email verified successfully"
+    };
+};
 module.exports = {
-    registerUser
+    registerUser,
+    verifyEmailService
 };

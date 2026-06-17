@@ -19,11 +19,15 @@ const otpSchema = new mongoose.Schema(
             required: true
         },
 
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
         expiresAt: {
             type: Date,
-            required: true
+            required: true,
+            expires: 0
         },
-
         isUsed: {
             type: Boolean,
             default: false
