@@ -1,6 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require('bcrypt');
 const Otp = require('../models/otp.model');
+const generateToken = require('../utils/generateToken');
 const registerUser = async (userData) => {
     const { name, email, password } = userData;
 
@@ -9,6 +10,7 @@ const registerUser = async (userData) => {
     if (existingUser) {
         return {
             success: false,
+            statusCode: 409,
             message: "User already exists"
         };
     }
@@ -52,10 +54,10 @@ const verifyEmailService = async (userData) => {
     const { email, otp } = userData;
 
     const user = await User.findOne({ email });
-
     if (!user) {
         return {
             success: false,
+            statusCode: 404,
             message: "User not found"
         };
     }
@@ -63,6 +65,7 @@ const verifyEmailService = async (userData) => {
     if (user.isVerified) {
         return {
             success: false,
+            statusCode: 400,
             message: "Email already verified"
         };
     }
@@ -90,6 +93,7 @@ const verifyEmailService = async (userData) => {
     const isOtpValid = await bcrypt.compare(
         otp,
         otpEntry.otp
+
     );
 
     if (!isOtpValid) {
@@ -105,12 +109,57 @@ const verifyEmailService = async (userData) => {
     await otpEntry.save();
     await user.save();
 
+    const token = generateToken(
+        user._id,
+        user.role
+    );
+
     return {
         success: true,
-        message: "Email verified successfully"
+        message: "Email verified successfully",
+        token
+    };
+};
+const LoginService = async (email, password) => {
+    const user = await User.findOne({ email });
+    if (!user) {
+        return {
+            success: false,
+            message: "Invalid Credentials"
+        };
+    }
+    if (user.accountStatus !== "active") {
+        return {
+            success: false,
+            message: "Account is not active"
+        };
+    }
+    if (!user.isVerified) {
+        return {
+            success: false,
+            message: "Please verify your email first"
+        };
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+
+    if (!isPasswordValid) {
+        return {
+            success: false,
+            statusCode: 401,
+            message: "Invalid Credentials"
+        };
+    }
+    const token = generateToken(user._id, user.role);
+    return {
+        success: true,
+        message: "Login successful",
+        token
     };
 };
 module.exports = {
     registerUser,
-    verifyEmailService
+    verifyEmailService,
+    LoginService
 };
