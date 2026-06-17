@@ -1,5 +1,5 @@
 const { registerUser, verifyEmailService, LoginService } = require("../services/auth.service");
-
+const User = require("../models/user.model");
 const register = async (req, res) => {
 
     const result = await registerUser(req.body);
@@ -40,7 +40,7 @@ const Login = async (req, res) => {
 
     res.cookie("token", result.token, {
         httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        maxAge: 10 * 24 * 60 * 60 * 1000
     });
 
     return res.status(200).json({
@@ -48,9 +48,22 @@ const Login = async (req, res) => {
         message: result.message
     });
 };
+const getCurrentUser = async (req, res) => {
 
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+        return res.status(404).json({
+            message: "User not found"
+        });
+    }
+    res.status(200).json({
+        success: true,
+        user: user
+    });
+};
 module.exports = {
     register,
     verifyEmail,
-    Login
+    Login,
+    getCurrentUser
 };
