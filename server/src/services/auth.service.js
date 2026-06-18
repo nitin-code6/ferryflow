@@ -97,6 +97,7 @@ const verifyEmailService = async (userData) => {
     const isOtpValid = await bcrypt.compare(
         otp,
         otpEntry.otp
+
     );
 
     if (!isOtpValid) {
@@ -105,6 +106,7 @@ const verifyEmailService = async (userData) => {
             message: "Invalid OTP"
         };
     }
+
 
     user.isVerified = true;
 
@@ -161,13 +163,10 @@ const LoginService = async (email, password) => {
     };
 };
 const LogoutService = async (token) => {
-    const decoded = jwt.decode(token);
-    const remainingTime = decoded ? (decoded.exp - Math.floor(Date.now() / 1000)) : 0;
-    if (remainingTime > 0) {
-        await client.set(`blacklist:${token}`, 1, {
-            EX: remainingTime,
-        });
-    }
+    const remainingTime = decoded.exp - Math.floor(Date.now() / 1000);
+    await client.set(`blacklist:${token}`, 1, {
+        EX: remainingTime,
+    });
     return {
         success: true,
         message: "Logged out successfully"
@@ -220,7 +219,6 @@ const forgotPasswordService = async (email) => {
         otp
     };
 };
-
 const resetPasswordService = async (userData) => {
     const { otp, email, newPassword } = userData;
     const user = await User.findOne({ email });
@@ -246,6 +244,12 @@ const resetPasswordService = async (userData) => {
             message: "Invalid or expired OTP"
         };
     }
+    if (otpEntry.expiresAt < new Date()) {
+        return {
+            success: false,
+            message: "OTP has expired"
+        };
+    }
     const isOtpValid = await bcrypt.compare(
         otp,
         otpEntry.otp
@@ -258,23 +262,52 @@ const resetPasswordService = async (userData) => {
         };
     }
 
-    if (otpEntry.expiresAt < new Date()) {
-        return {
-            success: false,
-            message: "OTP has expired"
-        };
-    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     user.password = hashedPassword;
 
+
     await user.save();
+
     await Otp.findByIdAndDelete(otpEntry._id);
     return {
         success: true,
         message: "Password reset successfully"
-    }; 
-};
+    };
+}
+
+const changePasswordService = async (userId, userData) => {
+    const { oldPassword, newPassword } = userData;
+
+    const user = await User.findById(userId);
+    if (!user) {
+        return {
+            success: false,
+            message: "User not found"
+        };
+    }
+    if (user.accountStatus !== "active") {
+        return {
+            success: false,
+            message: "Account is not active"
+        };
+    }
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) {
+        return {
+            success: false,
+            message: "Invalid password"
+        };
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+    return {
+        success: true,
+        message: "Password changed successfully"
+    };
+}
 
 module.exports = {
     registerUser,
@@ -282,5 +315,6 @@ module.exports = {
     LoginService,
     LogoutService,
     forgotPasswordService,
-    resetPasswordService
+    resetPasswordService,
+    changePasswordService
 };

@@ -1,4 +1,4 @@
-const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService } = require("../services/auth.service");
+const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService } = require("../services/auth.service");
 const User = require("../models/user.model");
 const register = async (req, res) => {
 
@@ -101,6 +101,16 @@ const resetPassword = async (req, res) => {
         message: result.message
     });
 };
+const changePassword = async (req, res) => {
+    const result = await changePasswordService(req.userId, req.body);
+    if (!result.success) {
+        return res.status(400).json(result);
+    }
+    return res.status(200).json({
+        success: true,
+        message: result.message
+    });
+}
 module.exports = {
     register,
     verifyEmail,
@@ -108,5 +118,6 @@ module.exports = {
     getCurrentUser,
     Logout,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    changePassword
 };
