@@ -1,4 +1,4 @@
-const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService } = require("../services/auth.service");
+const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService } = require("../services/auth.service");
 const User = require("../models/user.model");
 const register = async (req, res) => {
 
@@ -111,6 +111,14 @@ const changePassword = async (req, res) => {
         message: result.message
     });
 }
+const resendOTP = async (req, res) => {
+    const { email } = req.body;
+    const result = await resendOTPService(email);
+    if (!result.success) {
+        return res.status(400).json(result);
+    }
+    return res.status(200).json(result);
+}
 module.exports = {
     register,
     verifyEmail,
@@ -119,5 +127,6 @@ module.exports = {
     Logout,
     forgotPassword,
     resetPassword,
-    changePassword
+    changePassword,
+    resendOTP
 };

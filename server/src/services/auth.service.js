@@ -308,6 +308,51 @@ const changePasswordService = async (userId, userData) => {
         message: "Password changed successfully"
     };
 }
+const resendOTPService = async (email) => {
+    const user = await User.findOne({ email });
+    if (!user) {
+        return {
+            success: false,
+            message: "User not found"
+        };
+    }
+    if (user.accountStatus !== "active") {
+        return {
+            success: false,
+            message: "Account is not active"
+        };
+    }
+    if (user.isVerified) {
+        return {
+            success: false,
+            message: "Email already verified"
+        };
+    }
+    const otp = Math.floor(
+        100000 + Math.random() * 900000
+    );
+    await Otp.deleteMany({
+        userId: user._id,
+        purpose: "verify-email"
+    });
+    const hashedOtp = await bcrypt.hash(
+        otp.toString(),
+        10
+    );
+    await Otp.create({
+        userId: user._id,
+        otp: hashedOtp,
+        purpose: "verify-email",
+        expiresAt: new Date(
+            Date.now() + 5 * 60 * 1000
+        )
+    });
+    return {
+        success: true,
+        message: "OTP sent successfully",
+        otp
+    };
+}
 
 module.exports = {
     registerUser,
@@ -316,5 +361,6 @@ module.exports = {
     LogoutService,
     forgotPasswordService,
     resetPasswordService,
-    changePasswordService
+    changePasswordService,
+    resendOTPService
 };
