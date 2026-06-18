@@ -1,4 +1,4 @@
-const { registerUser, verifyEmailService, LoginService } = require("../services/auth.service");
+const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService } = require("../services/auth.service");
 const User = require("../models/user.model");
 const register = async (req, res) => {
 
@@ -63,11 +63,42 @@ const getCurrentUser = async (req, res) => {
 };
 const Logout = async (req, res) => {
 
-    res.clearCookie("token");
+    const token = req.cookies.token;
+    const result = await LogoutService(token);
 
+    if (!result.success) {
+        return res.status(result.statusCode || 400).json(result.message);
+    }
+
+    res.clearCookie("token");
     return res.status(200).json({
         success: true,
-        message: "Logged out successfully"
+        message: result.message
+    });
+};
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+    const result = await forgotPasswordService(email);
+    if (!result.success) {
+        return res.status(400).json(result);
+    }
+    return res
+        .status(result.statusCode || 200)
+        .json(result);
+};
+const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    const result = await resetPasswordService({
+        email,
+        otp,
+        newPassword
+    });
+    if (!result.success) {
+        return res.status(400).json(result);
+    }
+    return res.status(200).json({
+        success: true,
+        message: result.message
     });
 };
 module.exports = {
@@ -75,5 +106,7 @@ module.exports = {
     verifyEmail,
     Login,
     getCurrentUser,
-    Logout
+    Logout,
+    forgotPassword,
+    resetPassword
 };
