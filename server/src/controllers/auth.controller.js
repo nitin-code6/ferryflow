@@ -61,9 +61,19 @@ const getCurrentUser = async (req, res) => {
         user: user
     });
 };
+const Logout = async (req, res) => {
+
+    res.clearCookie("token");
+
+    return res.status(200).json({
+        success: true,
+        message: "Logged out successfully"
+    });
+};
 module.exports = {
     register,
     verifyEmail,
     Login,
-    getCurrentUser
+    getCurrentUser,
+    Logout
 };

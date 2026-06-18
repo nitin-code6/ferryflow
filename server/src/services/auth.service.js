@@ -158,6 +158,17 @@ const LoginService = async (email, password) => {
         token
     };
 };
+const LogoutService = async (token) => {
+    const remainingTime = decoded.exp - Math.floor(Date.now() / 1000);
+    await client.set(`blacklist:${token}`, 1, {
+        EX: remainingTime,
+    });
+    return {
+        success: true,
+        message: "Logged out successfully"
+    };
+};
+
 module.exports = {
     registerUser,
     verifyEmailService,
