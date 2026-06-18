@@ -1,4 +1,4 @@
-const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService } = require("../services/auth.service");
+const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService } = require("../services/auth.service");
 const User = require("../models/user.model");
 const register = async (req, res) => {
 
@@ -15,7 +15,11 @@ const verifyEmail = async (req, res) => {
         return res.status(result.statusCode || 400).json(result.message);
     }
 
-    res.cookie("token", result.token, {
+    res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        maxAge: 15 * 60 * 1000 // 15 min
+    });
+    res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
         maxAge: 7 * 24 * 60 * 60 * 1000
     });
@@ -38,9 +42,13 @@ const Login = async (req, res) => {
         return res.status(400).json(result);
     }
 
-    res.cookie("token", result.token, {
+    res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
-        maxAge: 10 * 24 * 60 * 60 * 1000
+        maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+    res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        maxAge: 15 * 60 * 1000
     });
 
     return res.status(200).json({
@@ -63,14 +71,20 @@ const getCurrentUser = async (req, res) => {
 };
 const Logout = async (req, res) => {
 
-    const token = req.cookies.token;
-    const result = await LogoutService(token);
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
 
+    const result =
+        await LogoutService(
+            accessToken,
+            refreshToken
+        );
     if (!result.success) {
         return res.status(result.statusCode || 400).json(result.message);
     }
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
 
-    res.clearCookie("token");
     return res.status(200).json({
         success: true,
         message: result.message
@@ -119,6 +133,66 @@ const resendOTP = async (req, res) => {
     }
     return res.status(200).json(result);
 }
+const refreshToken = async (req, res) => {
+    try {
+
+        const refreshToken = req.cookies.refreshToken;
+
+        const result = await refreshTokenService(
+            refreshToken
+        );
+
+        if (!result.success) {
+            return res.status(
+                result.statusCode || 400
+            ).json({
+                success: false,
+                message: result.message
+            });
+        }
+
+        res.cookie(
+            "accessToken",
+            result.accessToken,
+            {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: 15 * 60 * 1000 // 15 min
+            }
+        );
+
+        res.cookie(
+            "refreshToken",
+            result.refreshToken,
+            {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "strict",
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+            }
+        );
+
+        return res.status(200).json({
+            success: true,
+            message: result.message
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Refresh Token Controller Error:",
+            error
+        );
+
+        return res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
+    }
+};
+
+
 module.exports = {
     register,
     verifyEmail,
@@ -128,5 +202,6 @@ module.exports = {
     forgotPassword,
     resetPassword,
     changePassword,
-    resendOTP
+    resendOTP,
+    refreshToken
 };

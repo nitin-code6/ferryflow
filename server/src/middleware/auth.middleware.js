@@ -2,15 +2,15 @@ const jwt = require("jsonwebtoken");
 const client = require('../config/redis');
 const authMiddleware = async (req, res, next) => {
 
-    const token = req.cookies.token;
+    const accessToken = req.cookies.accessToken;
 
-    if (!token) {
+    if (!accessToken) {
         return res.status(401).json({
             success: false,
             message: "Unauthorized"
         });
     }
-    const isBlacklisted = await client.exists(`blacklist:${token}`);
+    const isBlacklisted = await client.exists(`blacklist:${accessToken}`);
     if (isBlacklisted) {
         return res.status(401).json({
             success: false,
@@ -20,8 +20,8 @@ const authMiddleware = async (req, res, next) => {
     try {
 
         const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET
+            accessToken,
+            process.env.ACCESS_TOKEN_SECRET
         );
 
         req.userId = decoded._id;

@@ -20,7 +20,8 @@ const {
     forgotPassword,
     resetPassword,
     changePassword,
-    resendOTP
+    resendOTP,
+    refreshToken
 } = require("../controllers/auth.controller");
 
 router.post("/register", validate(registerSchema), register);
@@ -32,5 +33,6 @@ router.post("/forget-password", validate(forgotPasswordSchema), forgotPassword);
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/change-password", authMiddleware, validate(changePasswordSchema), changePassword);
 router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
+router.post("/refresh-token", refreshToken);
 
 module.exports = router;

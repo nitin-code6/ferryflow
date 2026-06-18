@@ -7,6 +7,7 @@ const passwordRules = z
     .regex(/[a-z]/, "Must contain at least one lowercase letter")
     .regex(/[0-9]/, "Must contain at least one number")
     .regex(/[^A-Za-z0-9]/, "Must contain at least one special character");
+const emailRules = z.string().trim().email("Invalid email address");
 
 const registerSchema = z.object({
     name: z
@@ -15,19 +16,13 @@ const registerSchema = z.object({
         .min(3, "Name must be at least 3 characters")
         .max(50, "Name cannot exceed 50 characters"),
 
-    email: z
-        .string()
-        .trim()
-        .email("Invalid email address"),
+    email: emailRules,
 
     password: passwordRules
 });
 
 const loginSchema = z.object({
-    email: z
-        .string()
-        .trim()
-        .email("Invalid email address"),
+    email: emailRules,
 
     password: z
         .string()
@@ -35,10 +30,7 @@ const loginSchema = z.object({
 });
 
 const verifyEmailSchema = z.object({
-    email: z
-        .string()
-        .trim()
-        .email("Invalid email address"),
+    email: emailRules,
 
     otp: z
         .string()
@@ -46,17 +38,12 @@ const verifyEmailSchema = z.object({
 });
 
 const forgotPasswordSchema = z.object({
-    email: z
-        .string()
-        .trim()
-        .email("Invalid email address")
+    email: emailRules
 });
 
 const resetPasswordSchema = z.object({
-    email: z
-        .string()
-        .trim()
-        .email("Invalid email address"),
+    email: emailRules,
+
 
     otp: z
         .string()
@@ -74,10 +61,7 @@ const changePasswordSchema = z.object({
 });
 
 const resendOTPSchema = z.object({
-    email: z
-        .string()
-        .trim()
-        .email("Invalid email address")
+    email: emailRules
 });
 
 module.exports = {

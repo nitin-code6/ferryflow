@@ -1,7 +1,7 @@
 const User = require("../models/user.model");
 const bcrypt = require('bcrypt');
 const Otp = require('../models/otp.model');
-const generateToken = require('../utils/generateToken');
+const { generateAccessToken, generateRefreshToken } = require('../utils/generateToken');
 const client = require('../config/redis');
 const jwt = require('jsonwebtoken');
 const registerUser = async (userData) => {
@@ -83,6 +83,7 @@ const verifyEmailService = async (userData) => {
     if (!otpEntry) {
         return {
             success: false,
+            statusCode: 404,
             message: "OTP not found"
         };
     }
@@ -90,6 +91,7 @@ const verifyEmailService = async (userData) => {
     if (otpEntry.expiresAt < new Date()) {
         return {
             success: false,
+            statusCode: 410,
             message: "OTP has expired"
         };
     }
@@ -103,6 +105,7 @@ const verifyEmailService = async (userData) => {
     if (!isOtpValid) {
         return {
             success: false,
+            statusCode: 401,
             message: "Invalid OTP"
         };
     }
@@ -113,15 +116,29 @@ const verifyEmailService = async (userData) => {
     await Otp.findByIdAndDelete(otpEntry._id);
     await user.save();
 
-    const token = generateToken(
+    const accessToken = generateAccessToken(
         user._id,
         user.role
     );
+    const refreshToken = generateRefreshToken(
+        user._id,
+        user.role
+    );
+    // Store refresh token in Redis
+    await client.set(
+        `refresh:${user._id}`,
+        refreshToken,
+        {
+            EX: 7 * 24 * 60 * 60
+        }
+    );
+
 
     return {
         success: true,
         message: "Email verified successfully",
-        token
+        accessToken,
+        refreshToken
     };
 };
 const LoginService = async (email, password) => {
@@ -129,18 +146,21 @@ const LoginService = async (email, password) => {
     if (!user) {
         return {
             success: false,
+            statusCode: 404,
             message: "Invalid Credentials"
         };
     }
     if (user.accountStatus !== "active") {
         return {
             success: false,
+            statusCode: 403,
             message: "Account is not active"
         };
     }
     if (!user.isVerified) {
         return {
             success: false,
+            statusCode: 403,
             message: "Please verify your email first"
         };
     }
@@ -155,40 +175,96 @@ const LoginService = async (email, password) => {
             message: "Invalid Credentials"
         };
     }
-    const token = generateToken(user._id, user.role);
+    const accessToken = generateAccessToken(user._id, user.role);
+    const refreshToken = generateRefreshToken(user._id, user.role);
+    await client.set(
+        `refresh:${user._id}`,
+        refreshToken,
+        {
+            EX: 7 * 24 * 60 * 60
+        }
+    );
+
     return {
         success: true,
         message: "Login successful",
-        token
+        accessToken,
+        refreshToken
     };
 };
-const LogoutService = async (token) => {
-    const remainingTime = decoded.exp - Math.floor(Date.now() / 1000);
-    await client.set(`blacklist:${token}`, 1, {
-        EX: remainingTime,
-    });
-    return {
-        success: true,
-        message: "Logged out successfully"
-    };
+const LogoutService = async (
+    accessToken,
+    refreshToken
+) => {
+    try {
+
+        if (!accessToken) {
+            return {
+                success: false,
+                statusCode: 401,
+                message: "Access token not found"
+            };
+        }
+
+        const decoded = jwt.verify(
+            accessToken,
+            process.env.ACCESS_TOKEN_SECRET
+        );
+
+        // Remove refresh session
+        await client.del(
+            `refresh:${decoded._id}`
+        );
+
+        // Blacklist access token
+        const remainingTime =
+            decoded.exp -
+            Math.floor(Date.now() / 1000);
+
+        if (remainingTime > 0) {
+            await client.set(
+                `blacklist:${accessToken}`,
+                "true",
+                {
+                    EX: remainingTime
+                }
+            );
+        }
+
+        return {
+            success: true,
+            message: "Logged out successfully"
+        };
+
+    } catch (error) {
+
+        return {
+            success: false,
+            statusCode: 401,
+            message: "Invalid token"
+        };
+    }
 };
 const forgotPasswordService = async (email) => {
     const user = await User.findOne({ email });
     if (!user) {
         return {
             success: false,
+            statusCode: 404,
             message: "User not found"
         };
     }
     if (!user.isVerified) {
         return {
             success: false,
+            statusCode: 403,
             message: "Please verify your email first"
         };
     }
     if (user.accountStatus !== "active") {
         return {
             success: false,
+            statusCode: 403,
             message: "Account is not active"
         };
     }
@@ -225,12 +301,14 @@ const resetPasswordService = async (userData) => {
     if (!user) {
         return {
             success: false,
+            statusCode: 404,
             message: "User not found"
         };
     }
     if (user.accountStatus !== "active") {
         return {
             success: false,
+            statusCode: 403,
             message: "Account is not active"
         };
     }
@@ -241,12 +319,14 @@ const resetPasswordService = async (userData) => {
     if (!otpEntry) {
         return {
             success: false,
+            statusCode: 404,
             message: "Invalid or expired OTP"
         };
     }
     if (otpEntry.expiresAt < new Date()) {
         return {
             success: false,
+            statusCode: 400,
             message: "OTP has expired"
         };
     }
@@ -354,6 +434,88 @@ const resendOTPService = async (email) => {
     };
 }
 
+const refreshTokenService = async (refreshToken) => {
+    try {
+
+        if (!refreshToken) {
+            return {
+                success: false,
+                statusCode: 401,
+                message: "Refresh token is required"
+            };
+        }
+
+        const decoded = jwt.verify(
+            refreshToken,
+            process.env.REFRESH_TOKEN_SECRET
+        );
+        const storedToken = await client.get(`refresh:${decoded._id}`);
+
+        if (!storedToken || storedToken !== refreshToken) {
+            return {
+                success: false,
+                statusCode: 401,
+                message: "Invalid refresh token (session expired)"
+            };
+        }
+        const user = await User.findById(decoded._id);
+
+        if (!user) {
+            return {
+                success: false,
+                statusCode: 404,
+                message: "User not found"
+            };
+        }
+
+        if (user.accountStatus !== "active") {
+            return {
+                success: false,
+                statusCode: 403,
+                message: "Account is not active"
+            };
+        }
+
+        if (!user.isVerified) {
+            return {
+                success: false,
+                statusCode: 403,
+                message: "Email not verified"
+            };
+        }
+
+        const accessToken = generateAccessToken(
+            user._id,
+            user.role
+        );
+
+        const newRefreshToken = generateRefreshToken(
+            user._id,
+            user.role
+        );
+        await client.set(
+            `refresh:${user._id}`,
+            newRefreshToken,
+            {
+                EX: 7 * 24 * 60 * 60
+            }
+        );
+        return {
+            success: true,
+            message: "Tokens refreshed successfully",
+            accessToken,
+            refreshToken: newRefreshToken
+        };
+
+    } catch (error) {
+
+        return {
+            success: false,
+            statusCode: 401,
+            message: "Invalid or expired refresh token"
+        };
+    }
+};
 module.exports = {
     registerUser,
     verifyEmailService,
@@ -362,5 +524,6 @@ module.exports = {
     forgotPasswordService,
     resetPasswordService,
     changePasswordService,
-    resendOTPService
+    resendOTPService,
+    refreshTokenService
 };
