@@ -3,7 +3,7 @@ import {
     useLocation,
     useNavigate
 } from "react-router";
-import { verifyOtp } from "../../services/authService";
+import { verifyOtp, resendOtp } from "../../services/authService";
 import Navbar from "../../components/navbar/Navbar";
 const VerifyOtpPage = () => {
 
@@ -26,7 +26,39 @@ const VerifyOtpPage = () => {
 
     const [error, setError] =
         useState("");
+    const [
+        resendLoading,
+        setResendLoading
+    ] = useState(false);
+    const handleResendOtp =
+        async () => {
 
+            try {
+
+                setResendLoading(
+                    true
+                );
+
+                const data =
+                    await resendOtp(
+                        email
+                    );
+
+                console.log(data);
+
+            } catch (error) {
+
+                console.log(error);
+
+            } finally {
+
+                setResendLoading(
+                    false
+                );
+
+            }
+
+        };
     const handleSubmit =
         async (e) => {
 
@@ -158,7 +190,21 @@ const VerifyOtpPage = () => {
                                 : "Verify OTP"
                         }
                     </button>
-
+                    <button
+                        type="button"
+                        onClick={
+                            handleResendOtp
+                        }
+                        disabled={
+                            resendLoading
+                        }
+                    >
+                        {
+                            resendLoading
+                                ? "Sending..."
+                                : "Resend OTP"
+                        }
+                    </button>
                 </form>
 
             </div>

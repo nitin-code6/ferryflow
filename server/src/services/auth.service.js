@@ -25,7 +25,7 @@ const registerUser = async (userData) => {
         email,
         password: hashedPassword
     });
-    console.log("register")
+
     createAndSendOtp(
         user._id,
         email,
@@ -394,30 +394,15 @@ const resendOTPService = async (email) => {
             success: false,
             message: "Email already verified"
         };
-    }
-    const otp = Math.floor(
-        100000 + Math.random() * 900000
-    );
-    await Otp.deleteMany({
-        userId: user._id,
-        purpose: "verify-email"
-    });
-    const hashedOtp = await bcrypt.hash(
-        otp.toString(),
-        10
-    );
-    await Otp.create({
-        userId: user._id,
-        otp: hashedOtp,
-        purpose: "verify-email",
-        expiresAt: new Date(
-            Date.now() + 5 * 60 * 1000
-        )
-    });
+    } createAndSendOtp(
+        user._id,
+        email,
+        "verify-email"
+    )
     return {
         success: true,
         message: "OTP sent successfully",
-        otp
+
     };
 }
 
