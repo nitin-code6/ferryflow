@@ -5,9 +5,6 @@ const client = require('./config/redis');
 const app = require('./app.js')
 
 
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
-
-
 const port = process.env.PORT || 8000;
 
 client.connect().catch((err) => {

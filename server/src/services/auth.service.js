@@ -4,6 +4,7 @@ const Otp = require('../models/otp.model');
 const { generateAccessToken, generateRefreshToken } = require('../utils/generateToken');
 const client = require('../config/redis');
 const jwt = require('jsonwebtoken');
+const createAndSendOtp = require("../utils/createAndSendOtp");
 const registerUser = async (userData) => {
     const { name, email, password } = userData;
 
@@ -24,35 +25,18 @@ const registerUser = async (userData) => {
         email,
         password: hashedPassword
     });
-    await Otp.deleteMany({
-        userId: user._id,
-        purpose: "verify-email"
-    });
-    const otp = Math.floor(
-        100000 + Math.random() * 900000
-    );
+    console.log("register")
+    createAndSendOtp(
+        user._id,
+        email,
+        "verify-email"
+    )
 
-    const hashedOtp = await bcrypt.hash(
-        otp.toString(),
-        10
-    );
-
-    await Otp.create({
-        userId: user._id,
-        otp: hashedOtp,
-        purpose: "verify-email",
-        expiresAt: new Date(
-            Date.now() + 5 * 60 * 1000
-        )
-    });
-
-    // TODO:
-    // Send OTP through email
 
     return {
         success: true,
         message: "User registered successfully",
-        otp // remove after nodemailer integration
+
     };
 };
 const verifyEmailService = async (userData) => {
@@ -60,7 +44,9 @@ const verifyEmailService = async (userData) => {
 
     const user = await User.findOne({ email });
     if (!user) {
+        console.log("i reacher errrr")
         return {
+
             success: false,
             statusCode: 404,
             message: "User not found"
@@ -81,6 +67,7 @@ const verifyEmailService = async (userData) => {
     });
 
     if (!otpEntry) {
+        console.log("i reached errr 2")
         return {
             success: false,
             statusCode: 404,

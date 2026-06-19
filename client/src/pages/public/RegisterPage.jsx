@@ -58,7 +58,7 @@ const RegisterPage = () => {
 
             const response = await registerAPI(formData);
 
-            navigate("/verify-email", {
+            navigate("/verify-otp", {
                 state: {
                     email: formData.email
                 }

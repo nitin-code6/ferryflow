@@ -8,6 +8,7 @@ const register = async (req, res) => {
         .status(result.statusCode || 200)
         .json(result);
 };
+
 const verifyEmail = async (req, res) => {
     const result = await verifyEmailService(req.body);
 
