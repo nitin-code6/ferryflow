@@ -1,35 +1,128 @@
 const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService } = require("../services/auth.service");
 const User = require("../models/user.model");
-const register = async (req, res) => {
+const register = async (
+    req,
+    res
+) => {
 
-    const result = await registerUser(req.body);
+    try {
 
-    return res
-        .status(result.statusCode || 200)
-        .json(result);
-};
+        const result =
+            await registerUser(
+                req.body
+            );
 
-const verifyEmail = async (req, res) => {
-    const result = await verifyEmailService(req.body);
+        return res
+            .status(
+                result.statusCode || 200
+            )
+            .json(result);
 
-    if (!result.success) {
-        return res.status(result.statusCode || 400).json(result.message);
+    } catch (error) {
+
+        return res
+            .status(500)
+            .json({
+
+                success: false,
+
+                message:
+                    "Internal server error"
+
+            });
+
     }
 
-    res.cookie("accessToken", result.accessToken, {
-        httpOnly: true,
-        maxAge: 15 * 60 * 1000 // 15 min
-    });
-    res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    return res.status(200).json({
-        success: true,
-        message: result.message
-    });
 };
+
+const verifyEmail = async (
+    req,
+    res
+) => {
+
+    try {
+
+        const result =
+            await verifyEmailService(
+                req.body
+            );
+
+        if (!result.success) {
+
+            return res
+                .status(
+                    result.statusCode || 400
+                )
+                .json({
+
+                    success: false,
+
+                    message:
+                        result.message
+
+                });
+
+        }
+
+        res.cookie(
+            "accessToken",
+            result.accessToken,
+            {
+
+                httpOnly: true,
+
+                maxAge:
+                    15 * 60 * 1000
+
+            }
+        );
+
+        res.cookie(
+            "refreshToken",
+            result.refreshToken,
+            {
+
+                httpOnly: true,
+
+                maxAge:
+                    7 * 24 * 60 * 60 * 1000
+
+            }
+        );
+
+        return res
+            .status(200)
+            .json({
+
+                success: true,
+
+                message:
+                    result.message
+
+            });
+
+    } catch (error) {
+
+        console.error(
+            "Verify Email Error:",
+            error
+        );
+
+        return res
+            .status(500)
+            .json({
+
+                success: false,
+
+                message:
+                    "Internal server error"
+
+            });
+
+    }
+
+};
+
 const Login = async (req, res) => {
 
     const { email, password } = req.body;

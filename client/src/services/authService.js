@@ -22,6 +22,7 @@ export const verifyOtp = async (
 
     return response.data;
 };
+
 export const resendOtp =
     async (email) => {
 
@@ -33,3 +34,10 @@ export const resendOtp =
 
         return response.data;
     };
+export const loginAPI = async (loginData) => {
+    const response = await api.post(
+        "/auth/login",
+        loginData
+    );
+    return response.data;
+};

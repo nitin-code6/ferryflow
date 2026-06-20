@@ -26,7 +26,7 @@ const registerUser = async (userData) => {
         password: hashedPassword
     });
 
-    createAndSendOtp(
+    await createAndSendOtp(
         user._id,
         email,
         "verify-email"
@@ -35,6 +35,7 @@ const registerUser = async (userData) => {
 
     return {
         success: true,
+        statusCode: 200,
         message: "User registered successfully",
 
     };
@@ -92,7 +93,7 @@ const verifyEmailService = async (userData) => {
     if (!isOtpValid) {
         return {
             success: false,
-            statusCode: 401,
+            statusCode: 400,
             message: "Invalid OTP"
         };
     }

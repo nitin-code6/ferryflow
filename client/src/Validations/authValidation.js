@@ -20,5 +20,8 @@ const registerSchema = z.object({
 
     password: passwordRules
 });
-
-export default registerSchema;
+const loginSchema = z.object({
+    email: z.email(),
+    password: z.string().min(1)
+});
+export { loginSchema, registerSchema };
