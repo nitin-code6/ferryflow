@@ -20,7 +20,7 @@ const VerifyOtpPage = () => {
         useLocation();
 
     const {
-        email
+        email, purpose
     } = location.state || {};
 
     const [otp, setOtp] =
@@ -139,7 +139,8 @@ const VerifyOtpPage = () => {
                 await verifyOtp({
 
                     email,
-                    otp
+                    otp,
+                    purpose
 
                 });
 

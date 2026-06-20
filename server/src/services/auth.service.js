@@ -41,11 +41,10 @@ const registerUser = async (userData) => {
     };
 };
 const verifyEmailService = async (userData) => {
-    const { email, otp } = userData;
+    const { email, otp, purpose } = userData;
 
     const user = await User.findOne({ email });
     if (!user) {
-        console.log("i reacher errrr")
         return {
 
             success: false,
@@ -68,7 +67,6 @@ const verifyEmailService = async (userData) => {
     });
 
     if (!otpEntry) {
-        console.log("i reached errr 2")
         return {
             success: false,
             statusCode: 404,
@@ -234,6 +232,7 @@ const LogoutService = async (
     }
 };
 const forgotPasswordService = async (email) => {
+
     const user = await User.findOne({ email });
     if (!user) {
         return {
@@ -256,31 +255,19 @@ const forgotPasswordService = async (email) => {
             message: "Account is not active"
         };
     }
-    const otp = Math.floor(
-        100000 + Math.random() * 900000
-    );
-    await Otp.deleteMany({
-        userId: user._id,
-        purpose: "reset-password"
-    });
-    const hashedOtp = await bcrypt.hash(
-        otp.toString(),
-        10
-    );
+    await createAndSendOtp(
 
-    await Otp.create({
-        userId: user._id,
-        otp: hashedOtp,
-        purpose: "reset-password",
-        expiresAt: new Date(
-            Date.now() + 5 * 60 * 1000
-        )
-    });
+        user._id,
+
+        email,
+
+        "reset-password"
+
+    );
 
     return {
         success: true,
         message: "OTP sent successfully",
-        otp
     };
 };
 const resetPasswordService = async (userData) => {
@@ -376,37 +363,70 @@ const changePasswordService = async (userId, userData) => {
         message: "Password changed successfully"
     };
 }
-const resendOTPService = async (email) => {
-    const user = await User.findOne({ email });
+const resendOTPService = async (data) => {
+
+    const {
+        email,
+        purpose
+    } = data;
+
+    const user =
+        await User.findOne({
+            email
+        });
+
     if (!user) {
+
         return {
             success: false,
             message: "User not found"
         };
+
     }
-    if (user.accountStatus !== "active") {
+
+    if (
+        user.accountStatus !== "active"
+    ) {
+
         return {
             success: false,
             message: "Account is not active"
         };
+
     }
-    if (user.isVerified) {
+
+    if (
+        purpose === "verify-email" &&
+        user.isVerified
+    ) {
+
         return {
             success: false,
             message: "Email already verified"
         };
-    } createAndSendOtp(
+
+    }
+
+    await createAndSendOtp(
+
         user._id,
+
         email,
-        "verify-email"
-    )
+
+        purpose
+
+    );
+
     return {
+
         success: true,
-        message: "OTP sent successfully",
+
+        message:
+            "OTP sent successfully"
 
     };
-}
 
+};
 const refreshTokenService = async (refreshToken) => {
     try {
 

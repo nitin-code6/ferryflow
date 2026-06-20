@@ -191,9 +191,8 @@ duration-200
                             block
                             mb-2
                             font-semibold
-                            text-black
-                            dark:text-white
                             "
+
                             >
                                 Email Address
                             </label>
@@ -235,13 +234,10 @@ duration-200
 
                             <label
                                 className="
-    block
-    mb-2
-    text-sm
-    font-semibold
-    text-black
-    dark:text-white
-    "
+                            block
+                            mb-2
+                            font-semibold
+                            "
                             >
                                 Password
                             </label>

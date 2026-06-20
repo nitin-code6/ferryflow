@@ -220,8 +220,8 @@ const changePassword = async (req, res) => {
     });
 }
 const resendOTP = async (req, res) => {
-    const { email } = req.body;
-    const result = await resendOTPService(email);
+
+    const result = await resendOTPService(req.body);
     if (!result.success) {
         return res.status(400).json(result);
     }

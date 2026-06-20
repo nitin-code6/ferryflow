@@ -17,19 +17,20 @@ export const verifyOtp = async (
     const response =
         await api.post(
             "/auth/verify-email",
-            otpData
+            otpData,
+
         );
 
     return response.data;
 };
 
 export const resendOtp =
-    async (email) => {
+    async (data) => {
 
         const response =
             await api.post(
                 "/auth/resend-otp",
-                { email }
+                data
             );
 
         return response.data;
@@ -41,3 +42,22 @@ export const loginAPI = async (loginData) => {
     );
     return response.data;
 };
+export const forgotPasswordAPI = async (email) => {
+
+    const response = await api.post(
+        "/auth/forget-password",
+        email
+    );
+    return response.data;
+};
+export const resetPasswordAPI =
+    async (data) => {
+
+        const response =
+            await api.post(
+                "/auth/reset-password",
+                data
+            );
+
+        return response.data;
+    };
