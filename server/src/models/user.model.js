@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema(
             enum: ["local", "google"],
             default: "local",
         },
+        googleId: {
+            type: String,
+            default: null,
+        },
 
         isVerified: {
             type: Boolean,

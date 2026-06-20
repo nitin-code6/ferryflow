@@ -4,7 +4,11 @@ import { Link, useNavigate } from "react-router";
 import { registerSchema } from "../../Validations/authValidation";
 import { registerAPI } from "../../services/authService";
 import AuthLayout from "../../components/layout/AuthLayout";
-
+import { GoogleLogin } from "@react-oauth/google";
+import {
+    googleLoginAPI
+} from "../../services/authService";
+import toast from "react-hot-toast";
 const RegisterPage = () => {
 
 
@@ -35,6 +39,36 @@ const RegisterPage = () => {
             [e.target.name]: "",
             server: ""
         }));
+
+    };
+    const handleGoogleLogin = async (
+        credentialResponse
+    ) => {
+
+        try {
+
+            const result =
+                await googleLoginAPI(
+                    credentialResponse.credential
+                );
+
+            if (result.success) {
+
+                toast.success(
+                    "Welcome to FerryFlow!"
+                );
+
+                navigate("/");
+            }
+
+        } catch (error) {
+
+            toast.error(
+                error?.response?.data?.message ||
+                "Google login failed"
+            );
+
+        }
 
     };
 
@@ -478,7 +512,49 @@ duration-200
                             </p>
 
                         </div>
+                        {/* Social Registration */}
 
+                        <div className="pt-3">
+
+                            <div className="flex items-center gap-3 mb-4">
+
+                                <div className="h-px flex-1 bg-slate-600/40" />
+
+                                <span
+                                    className="
+            text-xs
+            uppercase
+            tracking-wider
+            text-slate-400
+            font-medium
+            "
+                                >
+                                    Or continue with
+                                </span>
+
+                                <div className="h-px flex-1 bg-slate-600/40" />
+
+                            </div>
+
+                            <div className="flex justify-center">
+
+                                <GoogleLogin
+                                    theme="filled_black"
+                                    size="large"
+                                    text="signup_with"
+                                    shape="pill"
+                                    width="280"
+                                    onSuccess={handleGoogleLogin}
+                                    onError={() =>
+                                        toast.error(
+                                            "Google signup failed"
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+                        </div>
                     </form>
 
                 </div>

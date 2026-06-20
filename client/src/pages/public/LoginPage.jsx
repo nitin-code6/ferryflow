@@ -4,7 +4,10 @@ import toast from "react-hot-toast";
 import AuthLayout from "../../components/layout/AuthLayout";
 import { loginSchema } from "../../Validations/authValidation";
 import { loginAPI } from "../../services/authService";
-
+import { GoogleLogin } from "@react-oauth/google";
+import {
+    googleLoginAPI
+} from "../../services/authService";
 const LoginPage = () => {
 
 
@@ -39,6 +42,38 @@ focus:ring-[#0EA5E9]/15
 transition-all
 duration-200
 `;
+
+    const handleGoogleLogin = async (
+        credentialResponse
+    ) => {
+
+        try {
+
+            const result =
+                await googleLoginAPI(
+                    credentialResponse.credential
+                );
+
+            if (result.success) {
+
+                toast.success(
+                    result.message ||
+                    "Login successful"
+                );
+
+                navigate("/");
+            }
+
+        } catch (error) {
+
+            toast.error(
+                error?.response?.data?.message ||
+                "Google login failed"
+            );
+
+        }
+
+    };
     const handleChange = (e) => {
 
         setFormData({
@@ -422,7 +457,49 @@ duration-200
                             </p>
 
                         </div>
+                        {/* Social Login */}
 
+                        <div className="pt-3">
+
+                            <div className="flex items-center gap-3 mb-4">
+
+                                <div className="h-px flex-1 bg-slate-600/40" />
+
+                                <span
+                                    className="
+            text-xs
+            uppercase
+            tracking-wider
+            text-slate-400
+            font-medium
+            "
+                                >
+                                    Continue with
+                                </span>
+
+                                <div className="h-px flex-1 bg-slate-600/40" />
+
+                            </div>
+
+                            <div className="flex justify-center">
+
+                                <GoogleLogin
+                                    theme="filled_black"
+                                    size="large"
+                                    text="continue_with"
+                                    shape="pill"
+                                    width="280"
+                                    onSuccess={handleGoogleLogin}
+                                    onError={() =>
+                                        toast.error(
+                                            "Google login failed"
+                                        )
+                                    }
+                                />
+
+                            </div>
+
+                        </div>
                     </form>
 
                 </div>

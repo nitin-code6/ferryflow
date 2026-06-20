@@ -61,3 +61,16 @@ export const resetPasswordAPI =
 
         return response.data;
     };
+export const googleLoginAPI =
+    async (idToken) => {
+
+        const response =
+            await api.post(
+                "/auth/google",
+                {
+                    idToken
+                }
+            );
+
+        return response.data;
+    };

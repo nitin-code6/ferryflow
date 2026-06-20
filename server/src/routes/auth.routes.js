@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth.middleware');
 const validate = require("../middleware/validate");
+
 const {
     registerSchema,
     loginSchema,
@@ -21,7 +22,8 @@ const {
     resetPassword,
     changePassword,
     resendOTP,
-    refreshToken
+    refreshToken,
+    googleLogin
 } = require("../controllers/auth.controller");
 
 router.post("/register", validate(registerSchema), register);
@@ -34,5 +36,5 @@ router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/change-password", authMiddleware, validate(changePasswordSchema), changePassword);
 router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
 router.post("/refresh-token", refreshToken);
-
+router.post("/google", googleLogin);
 module.exports = router;

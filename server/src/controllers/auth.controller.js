@@ -1,4 +1,5 @@
 const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService } = require("../services/auth.service");
+const { googleLoginService } = require("../services/googleLoginService");
 const User = require("../models/user.model");
 const register = async (
     req,
@@ -287,6 +288,70 @@ const refreshToken = async (req, res) => {
 };
 
 
+const googleLogin = async (
+    req,
+    res
+) => {
+    try {
+
+        const { idToken } = req.body;
+
+        const result =
+            await googleLoginService(
+                idToken
+            );
+        console.log("RESULT", result)
+
+        res.cookie(
+            "refreshToken",
+            result.refreshToken,
+            {
+                httpOnly: true,
+                maxAge:
+                    7 * 24 * 60 * 60 * 1000
+            }
+        );
+
+        res.cookie(
+            "accessToken",
+            result.accessToken,
+            {
+                httpOnly: true,
+                maxAge:
+                    15 * 60 * 1000
+            }
+        );
+
+        return res.status(200).json({
+
+            success: true,
+
+            message:
+                "Google login successful"
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Google Login Error:",
+            error
+        );
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: error.message
+
+        });
+
+    }
+
+};
+
+
+
 module.exports = {
     register,
     verifyEmail,
@@ -297,5 +362,6 @@ module.exports = {
     resetPassword,
     changePassword,
     resendOTP,
-    refreshToken
+    refreshToken,
+    googleLogin,
 };
