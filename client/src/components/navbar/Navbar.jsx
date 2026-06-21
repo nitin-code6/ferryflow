@@ -1,17 +1,23 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
 
 import logo from "../../assets/ferry-logo2.png";
 import { useAuth } from "../../context/AuthContext";
+import { logoutAPI } from "../../services/authService";
+
 const Navbar = () => {
+
+    const navigate = useNavigate();
 
     const [theme, setTheme] = useState(
         localStorage.getItem("theme") || "light"
     );
-    const { user, loading } = useAuth();
 
-    console.log(user);
+    const {
+        user,
+        setUser
+    } = useAuth();
 
     useEffect(() => {
 
@@ -26,6 +32,24 @@ const Navbar = () => {
         );
 
     }, [theme]);
+
+    const handleLogout = async () => {
+
+        try {
+
+            await logoutAPI();
+
+            setUser(null);
+
+            navigate("/login");
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
+    };
 
     const navLinks = [
         { name: "Home", path: "/" },
@@ -149,23 +173,87 @@ const Navbar = () => {
 
                 </button>
 
-                {/* Login */}
+                {
+                    user ? (
 
-                <Link
-                    to="/login"
-                    className="btn btn-outline"
-                >
-                    Login
-                </Link>
+                        <div className="dropdown dropdown-end">
 
-                {/* Register */}
+                            <div
+                                tabIndex={0}
+                                role="button"
+                                className="
+                                btn
+                                btn-ghost
+                                btn-circle
+                                avatar
+                                "
+                            >
 
-                <Link
-                    to="/register"
-                    className="btn btn-primary"
-                >
-                    Register
-                </Link>
+                                <div className="w-10 rounded-full">
+
+                                    <img
+                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
+                                        alt={user.name}
+                                    />
+
+                                </div>
+
+                            </div>
+
+                            <ul
+                                tabIndex={0}
+                                className="
+                                menu
+                                menu-sm
+                                dropdown-content
+                                mt-3
+                                z-[1]
+                                p-2
+                                shadow
+                                bg-base-100
+                                rounded-box
+                                w-52
+                                "
+                            >
+
+                                <li>
+                                    <Link to="/profile">
+                                        Profile
+                                    </Link>
+                                </li>
+
+                                <li>
+                                    <button
+                                        onClick={handleLogout}
+                                    >
+                                        Logout
+                                    </button>
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+                    ) : (
+
+                        <>
+                            <Link
+                                to="/login"
+                                className="btn btn-outline"
+                            >
+                                Login
+                            </Link>
+
+                            <Link
+                                to="/register"
+                                className="btn btn-primary"
+                            >
+                                Register
+                            </Link>
+                        </>
+
+                    )
+                }
 
             </div>
 
