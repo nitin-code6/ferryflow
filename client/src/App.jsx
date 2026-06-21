@@ -1,5 +1,7 @@
 import { Toaster } from "react-hot-toast";
 import AppRouter from "./routes/AppRouter";
+import AuthProvider from "./context/AuthContext";
+
 
 function App() {
 
@@ -19,8 +21,9 @@ function App() {
           }
         }}
       />
-
-      <AppRouter />
+      <AuthProvider>
+        <AppRouter />
+      </AuthProvider>
 
     </>
   );

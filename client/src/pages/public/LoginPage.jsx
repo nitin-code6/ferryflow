@@ -8,8 +8,9 @@ import { GoogleLogin } from "@react-oauth/google";
 import {
     googleLoginAPI
 } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 const LoginPage = () => {
-
+    const { checkAuth } = useAuth();
 
     const navigate = useNavigate();
 
@@ -30,11 +31,13 @@ input-bordered
 w-full
 h-12
 rounded-xl
-border-slate-300
-text-slate-900
+bg-white
+text-black
 placeholder:text-slate-400
+dark:bg-slate-900
 dark:text-white
 dark:placeholder:text-slate-500
+border-slate-300
 focus:border-[#0EA5E9]
 focus:outline-none
 focus:ring-4
@@ -121,7 +124,10 @@ duration-200
 
             await loginAPI(formData);
 
+            await checkAuth();
+
             toast.success("Welcome back!");
+
             navigate("/");
 
         } catch (error) {

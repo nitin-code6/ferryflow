@@ -10,6 +10,7 @@ const port = process.env.PORT || 8000;
 client.connect().catch((err) => {
     console.error("Redis connection failed! Server startup aborted.", err);
 });
+console.log("redis Connected");
 connectDB()
     .then(() => {
         app.on("error", (error) => {

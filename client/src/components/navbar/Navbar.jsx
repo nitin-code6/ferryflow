@@ -3,12 +3,15 @@ import { useState, useEffect } from "react";
 import { FiMoon, FiSun } from "react-icons/fi";
 
 import logo from "../../assets/ferry-logo2.png";
-
+import { useAuth } from "../../context/AuthContext";
 const Navbar = () => {
 
     const [theme, setTheme] = useState(
         localStorage.getItem("theme") || "light"
     );
+    const { user, loading } = useAuth();
+
+    console.log(user);
 
     useEffect(() => {
 

@@ -5,11 +5,21 @@ import RegisterPage from "../pages/public/RegisterPage";
 import VerifyOtpPage from "../pages/public/VerifyOtpPage";
 import ForgotPasswordPage from "../pages/public/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/public/ResetPasswordPage";
+import DashboardPage from "../pages/private/DashboardPage";
+import ProtectedRoute from "../components/protetedRoute";
 
 export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute>
+                            <DashboardPage />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
