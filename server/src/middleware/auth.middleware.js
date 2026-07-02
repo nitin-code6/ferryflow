@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const client = require('../config/redis');
+const client = require("../config/redis");
+
 const authMiddleware = async (req, res, next) => {
 
     const accessToken = req.cookies.accessToken;
@@ -7,16 +8,21 @@ const authMiddleware = async (req, res, next) => {
     if (!accessToken) {
         return res.status(401).json({
             success: false,
-            message: "Unauthorized"
+            message: "Access token missing"
         });
     }
-    const isBlacklisted = await client.exists(`blacklist:${accessToken}`);
+
+    const isBlacklisted = await client.exists(
+        `blacklist:${accessToken}`
+    );
+
     if (isBlacklisted) {
         return res.status(401).json({
             success: false,
-            message: "Unauthorized"
+            message: "Token has been revoked"
         });
     }
+
     try {
 
         const decoded = jwt.verify(
@@ -24,8 +30,10 @@ const authMiddleware = async (req, res, next) => {
             process.env.ACCESS_TOKEN_SECRET
         );
 
-        req.userId = decoded._id;
-        req.role = decoded.role;
+        req.user = {
+            _id: decoded._id,
+            role: decoded.role
+        };
 
         next();
 
@@ -33,9 +41,11 @@ const authMiddleware = async (req, res, next) => {
 
         return res.status(401).json({
             success: false,
-            message: "Invalid token"
+            message: "Invalid or expired token"
         });
+
     }
+
 };
 
 module.exports = authMiddleware;
