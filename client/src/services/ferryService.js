@@ -14,7 +14,7 @@ export const getFerryById = async (id) => {
 
 export const createFerry = async (ferryData) => {
     const response = await api.post(
-        "/ferries",
+        "/ferry",
         ferryData
     );
 
