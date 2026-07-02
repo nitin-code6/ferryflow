@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { getAllFerries } from "../../../services/ferryService";
-
+import toast from "react-hot-toast";
+import { deleteFerry } from "../../../services/ferryService";
 const FerryListPage = () => {
 
     const [ferries, setFerries] = useState([]);
@@ -32,7 +33,32 @@ const FerryListPage = () => {
         }
 
     };
+    const handleDelete = async (id) => {
 
+        const confirmed = window.confirm(
+            "Are you sure you want to delete this ferry?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+
+            const response = await deleteFerry(id);
+
+            toast.success(response.message);
+
+            fetchFerries();
+
+        } catch (error) {
+
+            toast.error(
+                error.response?.data?.message ||
+                "Failed to delete ferry"
+            );
+
+        }
+
+    };
     if (loading) {
         return <h1>Loading...</h1>;
     }
@@ -64,13 +90,22 @@ const FerryListPage = () => {
                                 <td>{ferry.capacity}</td>
                                 <td>{ferry.status}</td>
 
-                                <td>
+                                <td className="space-x-2">
+
                                     <Link
                                         to={`/admin/ferries/edit/${ferry._id}`}
-                                        className="btn btn-sm btn-warning"
+                                        className="btn btn-warning btn-sm"
                                     >
                                         Edit
                                     </Link>
+
+                                    <button
+                                        onClick={() => handleDelete(ferry._id)}
+                                        className="btn btn-error btn-sm"
+                                    >
+                                        Delete
+                                    </button>
+
                                 </td>
                             </tr>
                         ))}

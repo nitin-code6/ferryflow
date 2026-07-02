@@ -52,6 +52,10 @@ export default function AppRouter() {
                         path="ferries/edit/:id"
                         element={<EditFerryPage />}
                     />
+                    {/* <Route
+                        path="ferries/delete/:id"
+                        element={<DeleteFerryPage />}
+                    /> */}
                 </Route>
 
             </Routes>
