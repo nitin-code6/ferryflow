@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { Link } from "react-router";
 import { getAllFerries } from "../../../services/ferryService";
 
 const FerryListPage = () => {
@@ -53,9 +53,9 @@ const FerryListPage = () => {
                             <th>Registration</th>
                             <th>Capacity</th>
                             <th>Status</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         {ferries.map((ferry) => (
                             <tr key={ferry._id}>
@@ -63,6 +63,15 @@ const FerryListPage = () => {
                                 <td>{ferry.registrationNumber}</td>
                                 <td>{ferry.capacity}</td>
                                 <td>{ferry.status}</td>
+
+                                <td>
+                                    <Link
+                                        to={`/admin/ferries/edit/${ferry._id}`}
+                                        className="btn btn-sm btn-warning"
+                                    >
+                                        Edit
+                                    </Link>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

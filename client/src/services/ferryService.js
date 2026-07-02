@@ -7,7 +7,7 @@ export const getAllFerries = async () => {
 };
 
 export const getFerryById = async (id) => {
-    const response = await api.get(`/ferries/${id}`);
+    const response = await api.get(`/ferry/${id}`);
 
     return response.data;
 };
@@ -26,7 +26,7 @@ export const updateFerry = async (
     ferryData
 ) => {
     const response = await api.patch(
-        `/ferries/${id}`,
+        `/ferry/${id}`,
         ferryData
     );
 
@@ -35,7 +35,7 @@ export const updateFerry = async (
 
 export const deleteFerry = async (id) => {
     const response = await api.delete(
-        `/ferries/${id}`
+        `/ferry/${id}`
     );
 
     return response.data;
