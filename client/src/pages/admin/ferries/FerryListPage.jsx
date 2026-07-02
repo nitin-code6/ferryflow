@@ -105,6 +105,12 @@ const FerryListPage = () => {
                                     >
                                         Delete
                                     </button>
+                                    <Link
+                                        to={`/admin/ferries/${ferry._id}`}
+                                        className="btn btn-info btn-sm"
+                                    >
+                                        View
+                                    </Link>
 
                                 </td>
                             </tr>

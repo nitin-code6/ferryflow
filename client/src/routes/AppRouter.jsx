@@ -16,7 +16,7 @@ import DashboardPage from "../pages/admin/dashboard/DashboardPage";
 import FerryListPage from "../pages/admin/ferries/FerryListPage";
 import CreateFerryPage from "../pages/admin/ferries/CreateFerryPage";
 import EditFerryPage from "../pages/admin/ferries/EditFerryPage";
-// import FerryDetailsPage from "../pages/admin/ferries/FerryDetailsPage";
+import FerryDetailsPage from "../pages/admin/ferries/FerryDetailsPage";
 
 export default function AppRouter() {
     return (
@@ -47,7 +47,7 @@ export default function AppRouter() {
                     <Route path="ferries" element={<FerryListPage />} />
 
                     <Route path="ferries/new" element={<CreateFerryPage />} />
-                    {/* <Route path="ferries/:id" element={<FerryDetailsPage />} /> */}
+                    <Route path="ferries/:id" element={<FerryDetailsPage />} />
                     <Route
                         path="ferries/edit/:id"
                         element={<EditFerryPage />}
