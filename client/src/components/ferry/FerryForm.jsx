@@ -1,6 +1,5 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { ferrySchema } from "../../Validations/ferryValidation";
 
 const FerryForm = ({
@@ -25,119 +24,175 @@ const FerryForm = ({
     });
 
     return (
+
         <form
             onSubmit={handleSubmit(onSubmit)}
-            className="space-y-5 max-w-xl"
+            className="w-full"
         >
 
-            {/* Ferry Name */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-            <div>
-                <label className="label">
-                    <span className="label-text">
+                {/* Ferry Name */}
+
+                <div className="flex flex-col">
+
+                    <label className="text-xs font-semibold uppercase tracking-wide text-base-content/70 mb-2">
                         Ferry Name
-                    </span>
-                </label>
+                    </label>
 
-                <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    {...register("name")}
-                />
+                    <input
+                        type="text"
+                        placeholder="Enter ferry name"
+                        className="
+                        input
+                        input-bordered
+                        w-full
+                        h-12
+                        rounded-xl
+                        "
+                        {...register("name")}
+                    />
 
-                {errors.name && (
-                    <p className="text-error text-sm mt-1">
-                        {errors.name.message}
-                    </p>
-                )}
-            </div>
+                    {errors.name && (
+                        <p className="text-error text-xs mt-1">
+                            {errors.name.message}
+                        </p>
+                    )}
 
-            {/* Registration Number */}
+                </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">
+                {/* Registration */}
+
+                <div className="flex flex-col">
+
+                    <label className="text-xs font-semibold uppercase tracking-wide text-base-content/70 mb-2">
                         Registration Number
-                    </span>
-                </label>
+                    </label>
 
-                <input
-                    type="text"
-                    className="input input-bordered w-full"
-                    {...register("registrationNumber")}
-                />
+                    <input
+                        type="text"
+                        placeholder="Enter registration number"
+                        className="
+                        input
+                        input-bordered
+                        w-full
+                        h-12
+                        rounded-xl
+                        font-mono
+                        "
+                        {...register("registrationNumber")}
+                    />
 
-                {errors.registrationNumber && (
-                    <p className="text-error text-sm mt-1">
-                        {errors.registrationNumber.message}
-                    </p>
-                )}
-            </div>
+                    {errors.registrationNumber && (
+                        <p className="text-error text-xs mt-1">
+                            {errors.registrationNumber.message}
+                        </p>
+                    )}
 
-            {/* Capacity */}
+                </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">
+                {/* Capacity */}
+
+                <div className="flex flex-col">
+
+                    <label className="text-xs font-semibold uppercase tracking-wide text-base-content/70 mb-2">
                         Capacity
-                    </span>
-                </label>
+                    </label>
 
-                <input
-                    type="number"
-                    className="input input-bordered w-full"
-                    {...register("capacity")}
-                />
+                    <input
+                        type="number"
+                        placeholder="Maximum passengers"
+                        className="
+                        input
+                        input-bordered
+                        w-full
+                        h-12
+                        rounded-xl
+                        "
+                        {...register("capacity")}
+                    />
 
-                {errors.capacity && (
-                    <p className="text-error text-sm mt-1">
-                        {errors.capacity.message}
-                    </p>
-                )}
-            </div>
+                    {errors.capacity && (
+                        <p className="text-error text-xs mt-1">
+                            {errors.capacity.message}
+                        </p>
+                    )}
 
-            {/* Status */}
+                </div>
 
-            <div>
-                <label className="label">
-                    <span className="label-text">
+                {/* Status */}
+
+                <div className="flex flex-col">
+
+                    <label className="text-xs font-semibold uppercase tracking-wide text-base-content/70 mb-2">
                         Status
-                    </span>
-                </label>
+                    </label>
 
-                <select
-                    className="select select-bordered w-full"
-                    {...register("status")}
-                >
-                    <option value="available">
-                        Available
-                    </option>
+                    <select
+                        className="
+                        select
+                        select-bordered
+                        w-full
+                        h-12
+                        rounded-xl
+                        "
+                        {...register("status")}
+                    >
+                        <option value="available">
+                            Available
+                        </option>
 
-                    <option value="maintenance">
-                        Maintenance
-                    </option>
+                        <option value="maintenance">
+                            Maintenance
+                        </option>
 
-                    <option value="out_of_service">
-                        Out of Service
-                    </option>
-                </select>
+                        <option value="out_of_service">
+                            Out of Service
+                        </option>
 
-                {errors.status && (
-                    <p className="text-error text-sm mt-1">
-                        {errors.status.message}
-                    </p>
-                )}
+                    </select>
+
+                    {errors.status && (
+                        <p className="text-error text-xs mt-1">
+                            {errors.status.message}
+                        </p>
+                    )}
+
+                </div>
+
             </div>
 
             <button
                 type="submit"
                 disabled={isLoading}
-                className="btn btn-primary w-full"
+                className="
+                btn
+                w-full
+                h-12
+                mt-8
+                rounded-xl
+                border-0
+                text-white
+                bg-gradient-to-r
+                from-[#2563EB]
+                to-[#06B6D4]
+                hover:opacity-95
+                transition-all
+                "
             >
-                {isLoading ? "Saving..." : submitButtonText}
+
+                {
+                    isLoading ? (
+                        <span className="loading loading-spinner loading-sm" />
+                    ) : (
+                        submitButtonText
+                    )
+                }
+
             </button>
 
         </form>
+
     );
 };
 
