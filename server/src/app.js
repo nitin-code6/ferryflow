@@ -6,6 +6,8 @@ const routeRouter = require("./routes/route.routes.js");
 const cors = require('cors');
 const app = express();
 
+const scheduleRoutes = require("./routes/schedule.route.js");
+
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
@@ -15,5 +17,5 @@ app.use(cookieParser());
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/ferry", ferryRouter);
 app.use("/api/v1/route", routeRouter);
-
+app.use("/api/v1/schedules", scheduleRoutes);
 module.exports = app;
