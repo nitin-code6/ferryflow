@@ -11,6 +11,7 @@
     "mongoose": "^9.7.0",
     "nodemailer": "^9.0.1",
     "parser": "^0.1.4",
+    "razorpay": "^2.9.8",
     "redis": "^6.0.0",
     "zod": "^4.4.3"
   },
