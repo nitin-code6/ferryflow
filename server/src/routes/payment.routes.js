@@ -4,10 +4,10 @@ const router = express.Router();
 
 
 const authMiddleware = require("../middleware/auth.middleware");
-
-
+const validate = require("../middleware/validate");
+const { verifyPaymentSchema } = require("../validators/booking.validator");
 const {
-    createPaymentOrder
+    createPaymentOrder, verifyPayment
 } = require("../controllers/payment.controller");
 
 
@@ -19,6 +19,14 @@ router.post(
     authMiddleware,
     createPaymentOrder
 );
+
+router.post(
+    "/verify",
+    authMiddleware,
+    validate(verifyPaymentSchema),
+    verifyPayment
+);
+
 
 
 
