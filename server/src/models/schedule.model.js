@@ -35,7 +35,11 @@ const scheduleSchema = new mongoose.Schema(
             default: 0,
             min: [0, "Available seats cannot be negative"]
         },
-
+        bookedSeats: [
+            {
+                type: String
+            }
+        ],
         status: {
             type: String,
             enum: [
