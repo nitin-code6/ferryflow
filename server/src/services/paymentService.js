@@ -6,7 +6,10 @@ const crypto = require("crypto");
 
 const Booking = require("../models/booking.model");
 const Schedule = require("../models/schedule.model");
-
+const { sendBookingConfirmationEmail } = require("../utils/sendEmail");
+const User = require("../models/user.model");
+const Ferry = require("../models/ferry.model");
+const Route = require("../models/route.model");
 
 const createPaymentOrderService = async (
     bookingId,
@@ -122,18 +125,18 @@ const verifyPaymentService = async (
 
         // 1. Verify Razorpay Signature
 
-        const generatedSignature =
-            crypto
-                .createHmac(
-                    "sha256",
-                    process.env.RAZORPAY_KEY_SECRET
-                )
-                .update(
-                    razorpay_order_id +
-                    "|" +
-                    razorpay_payment_id
-                )
-                .digest("hex");
+        // const generatedSignature =
+        //     crypto
+        //         .createHmac(
+        //             "sha256",
+        //             process.env.RAZORPAY_KEY_SECRET
+        //         )
+        //         .update(
+        //             razorpay_order_id +
+        //             "|" +
+        //             razorpay_payment_id
+        //         )
+        //         .digest("hex");
 
 
 
@@ -310,8 +313,31 @@ const verifyPaymentService = async (
 
         await session.commitTransaction();
 
+        const user = await User.findById(booking.user);
 
+        const scheduleDetails = await Schedule
+            .findById(booking.schedule)
+            .populate("ferry")
+            .populate("route");
 
+        try {
+
+            await sendBookingConfirmationEmail(
+                user,
+                booking,
+                scheduleDetails,
+                scheduleDetails.ferry,
+                scheduleDetails.route
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Booking email failed:",
+                error.message
+            );
+
+        }
         return {
 
             success: true,

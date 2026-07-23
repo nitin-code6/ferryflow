@@ -1,13 +1,13 @@
 const bcrypt = require("bcrypt");
 const Otp = require("../models/otp.model");
-const sendEmail = require("./sendEmail");
+const { sendEmail } = require("./sendEmail");
 
 const createAndSendOtp = async (
     userId,
     email,
     purpose
 ) => {
-    console.log("i have reached ceateand send otp");
+    // console.log("i have reached ceateand send otp");
     await Otp.deleteMany({
         userId,
         purpose
