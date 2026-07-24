@@ -1,23 +1,36 @@
 import { Link, useNavigate } from "react-router";
 import { useState, useEffect } from "react";
-import { FiMoon, FiSun } from "react-icons/fi";
+import {
+    FiMoon,
+    FiSun,
+    FiMenu,
+    FiX
+} from "react-icons/fi";
 
 import logo from "../../assets/ferry-logo2.png";
+
 import { useAuth } from "../../context/AuthContext";
 import { logoutAPI } from "../../services/authService";
 
+
+
 const Navbar = () => {
 
+
     const navigate = useNavigate();
+
+
+    const { user, setUser } = useAuth();
+
 
     const [theme, setTheme] = useState(
         localStorage.getItem("theme") || "light"
     );
 
-    const {
-        user,
-        setUser
-    } = useAuth();
+
+    const [open, setOpen] = useState(false);
+
+
 
     useEffect(() => {
 
@@ -33,232 +46,681 @@ const Navbar = () => {
 
     }, [theme]);
 
-    const handleLogout = async () => {
 
-        try {
 
-            await logoutAPI();
 
-            setUser(null);
 
-            navigate("/login");
-
-        } catch (error) {
-
-            console.error(error);
-
+    const links = [
+        {
+            name: "Home",
+            path: "/"
+        },
+        {
+            name: "Ferry & Transportation",
+            path: "/transportation"
+        },
+        {
+            name: "Routes",
+            path: "/routes"
+        },
+        {
+            name: "Contact",
+            path: "/contact"
         }
+    ];
+
+
+
+
+
+
+    const logout = async () => {
+
+        await logoutAPI();
+
+        setUser(null);
+
+        navigate("/login");
 
     };
 
-    const navLinks = [
-        { name: "Home", path: "/" },
-        { name: "Schedules", path: "/schedules" },
-        { name: "Routes", path: "/routes" },
-        { name: "Alerts", path: "/alerts" },
-        { name: "My Bookings", path: "/bookings" },
-        { name: "About Us", path: "/about" },
-        { name: "Contact", path: "/contact" },
-    ];
+
+
+
 
     return (
+
         <header
             className="
-            navbar
-            bg-base-100/80
-            backdrop-blur-lg
-            border-b
-            border-base-300
-            sticky
-            top-0
-            z-50
-            px-8
-            "
+fixed
+top-5
+left-0
+w-full
+z-50
+"
         >
 
-            {/* Logo */}
 
-            <div className="flex-1">
+            <nav
+
+                className="
+max-w-6xl
+mx-auto
+
+flex
+items-center
+justify-between
+
+px-5
+py-3
+
+rounded-2xl
+
+bg-white/70
+dark:bg-slate-900/70
+
+backdrop-blur-xl
+
+border
+border-slate-200
+dark:border-slate-700
+
+shadow-sm
+"
+
+            >
+
+
+
+                {/* LOGO */}
+
 
                 <Link
                     to="/"
-                    className="flex items-center gap-3"
+                    className="
+flex
+items-center
+gap-2
+"
                 >
+
 
                     <img
                         src={logo}
                         alt="FerryFlow"
-                        className="h-15 w-auto object-contain"
+                        className="
+h-9
+w-auto
+"
                     />
 
-                    <div className="hidden md:block">
 
-                        <h1 className="text-3xl font-bold">
-                            Ferry
-                            <span className="text-primary">
-                                Flow
-                            </span>
-                        </h1>
+                    <span
+                        className="
+text-xl
+font-semibold
 
-                        <p className="text-xs opacity-70">
-                            Real-Time Ferry Operations
-                        </p>
+text-slate-900
+dark:text-white
+"
+                    >
 
-                    </div>
+                        Ferry
+                        <span
+                            className="
+text-sky-500
+"
+                        >
+                            Flow
+                        </span>
+
+                    </span>
+
 
                 </Link>
 
-            </div>
 
-            {/* Navigation */}
 
-            <div className="hidden lg:flex">
 
-                <ul
+
+
+
+                {/* DESKTOP LINKS */}
+
+
+
+                <div
+
                     className="
-                    menu
-                    menu-horizontal
-                    gap-2
-                    font-medium
-                    "
+hidden
+md:flex
+
+items-center
+
+gap-7
+"
+
                 >
 
-                    {
-                        navLinks.map((link) => (
-                            <li key={link.path}>
-                                <Link
-                                    to={link.path}
-                                    className="
-                                    hover:text-primary
-                                    transition-all
-                                    duration-200
-                                    "
-                                >
-                                    {link.name}
-                                </Link>
-                            </li>
-                        ))
-                    }
-
-                </ul>
-
-            </div>
-
-            {/* Right Side */}
-
-            <div className="flex items-center gap-3">
-
-                {/* Theme Toggle */}
-
-                <button
-                    className="
-                    btn
-                    btn-circle
-                    btn-ghost
-                    "
-                    onClick={() =>
-                        setTheme(
-                            theme === "light"
-                                ? "dark"
-                                : "light"
-                        )
-                    }
-                >
 
                     {
-                        theme === "light"
-                            ? <FiMoon size={18} />
-                            : <FiSun size={18} />
-                    }
 
-                </button>
+                        links.map(link => (
 
-                {
-                    user ? (
 
-                        <div className="dropdown dropdown-end">
+                            <Link
 
-                            <div
-                                tabIndex={0}
-                                role="button"
+                                key={link.path}
+
+                                to={link.path}
+
                                 className="
-                                btn
-                                btn-ghost
-                                btn-circle
-                                avatar
-                                "
+text-sm
+
+text-slate-600
+dark:text-slate-300
+
+hover:text-sky-500
+
+transition
+"
+
                             >
 
-                                <div className="w-10 rounded-full">
+                                {link.name}
 
-                                    <img
-                                        src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}`}
-                                        alt={user.name}
-                                    />
+                            </Link>
+
+
+                        ))
+
+                    }
+
+
+                </div>
+
+
+
+
+
+
+
+
+
+                {/* ACTIONS */}
+
+
+
+                <div
+
+                    className="
+hidden
+md:flex
+
+items-center
+
+gap-3
+"
+
+                >
+
+
+
+                    <button
+
+                        onClick={() => {
+
+                            setTheme(
+                                theme === "light"
+                                    ?
+                                    "dark"
+                                    :
+                                    "light"
+                            )
+
+                        }}
+
+                        className="
+h-9
+w-9
+
+flex
+items-center
+justify-center
+
+rounded-full
+
+hover:bg-slate-100
+dark:hover:bg-slate-800
+
+transition
+"
+
+                    >
+
+
+                        {
+
+                            theme === "light"
+
+                                ?
+
+                                <FiMoon size={17} />
+
+                                :
+
+                                <FiSun size={17} />
+
+                        }
+
+
+                    </button>
+
+
+
+
+
+                    {
+
+                        user
+
+                            ?
+
+                            (
+
+                                <div
+                                    className="
+dropdown
+dropdown-end
+"
+                                >
+
+
+                                    <button
+
+                                        tabIndex={0}
+
+                                        className="
+h-9
+w-9
+
+rounded-full
+
+overflow-hidden
+"
+
+                                    >
+
+                                        <img
+
+                                            src={
+                                                `https://ui-avatars.com/api/?name=${user.name}`
+                                            }
+
+                                            alt="profile"
+
+                                        />
+
+                                    </button>
+
+
+
+
+                                    <ul
+
+                                        tabIndex={0}
+
+                                        className="
+dropdown-content
+
+menu
+
+mt-3
+
+bg-white
+dark:bg-slate-900
+
+rounded-xl
+
+shadow-xl
+
+border
+
+border-slate-200
+
+dark:border-slate-700
+
+w-48
+
+p-2
+
+"
+
+                                    >
+
+
+                                        <li>
+
+                                            <Link to="/profile">
+
+                                                Profile
+
+                                            </Link>
+
+                                        </li>
+
+
+                                        <li>
+
+                                            <Link to="/bookings">
+
+                                                My Bookings
+
+                                            </Link>
+
+                                        </li>
+
+
+                                        <li>
+
+                                            <button onClick={logout}>
+
+                                                Logout
+
+                                            </button>
+
+                                        </li>
+
+
+                                    </ul>
+
 
                                 </div>
 
-                            </div>
+                            )
 
-                            <ul
-                                tabIndex={0}
-                                className="
-                                menu
-                                menu-sm
-                                dropdown-content
-                                mt-3
-                                z-[1]
-                                p-2
-                                shadow
-                                bg-base-100
-                                rounded-box
-                                w-52
-                                "
-                            >
 
-                                <li>
-                                    <Link to="/profile">
-                                        Profile
-                                    </Link>
-                                </li>
+                            :
 
-                                <li>
-                                    <button
-                                        onClick={handleLogout}
+                            (
+
+                                <>
+
+
+                                    <Link
+
+                                        to="/login"
+
+                                        className="
+text-sm
+
+px-4
+py-2
+
+rounded-full
+
+text-slate-700
+
+dark:text-slate-200
+
+hover:bg-slate-100
+
+dark:hover:bg-slate-800
+
+transition
+"
+
                                     >
-                                        Logout
-                                    </button>
-                                </li>
 
-                            </ul>
+                                        Login
+
+                                    </Link>
+
+
+
+
+
+                                    <Link
+
+                                        to="/register"
+
+                                        className="
+text-sm
+
+px-5
+py-2
+
+rounded-full
+
+bg-sky-500
+
+text-white
+
+hover:bg-sky-600
+
+transition
+
+shadow-md
+
+shadow-sky-500/20
+"
+
+                                    >
+
+                                        Register
+
+                                    </Link>
+
+
+                                </>
+
+                            )
+
+                    }
+
+
+
+                </div>
+
+
+
+
+
+
+
+
+                {/* MOBILE BUTTON */}
+
+
+
+                <button
+
+                    onClick={() => setOpen(!open)}
+
+                    className="
+md:hidden
+
+p-2
+
+rounded-lg
+
+hover:bg-slate-100
+
+dark:hover:bg-slate-800
+"
+
+                >
+
+
+                    {
+
+                        open
+
+                            ?
+
+                            <FiX />
+
+                            :
+
+                            <FiMenu />
+
+                    }
+
+
+                </button>
+
+
+
+            </nav>
+
+
+
+
+
+
+
+            {/* MOBILE MENU */}
+
+
+            {
+
+                open && (
+
+                    <div
+
+                        className="
+md:hidden
+
+max-w-6xl
+
+mx-auto
+
+mt-3
+
+px-5
+py-5
+
+rounded-2xl
+
+bg-white/90
+
+dark:bg-slate-900/90
+
+backdrop-blur-xl
+
+border
+
+border-slate-200
+
+dark:border-slate-700
+
+shadow-lg
+
+"
+
+                    >
+
+
+                        <div
+                            className="
+flex
+flex-col
+gap-4
+"
+                        >
+
+                            {
+
+                                links.map(link => (
+
+                                    <Link
+
+                                        key={link.path}
+
+                                        to={link.path}
+
+                                        onClick={() => setOpen(false)}
+
+                                        className="
+text-sm
+font-medium
+
+"
+
+                                    >
+
+                                        {link.name}
+
+                                    </Link>
+
+
+                                ))
+
+                            }
+
+
+                            <hr />
+
+
+                            {
+
+                                user
+
+                                    ?
+
+                                    <>
+
+                                        <Link to="/bookings">
+                                            My Bookings
+                                        </Link>
+
+                                        <button
+                                            onClick={logout}
+                                            className="text-left"
+                                        >
+                                            Logout
+                                        </button>
+
+                                    </>
+
+                                    :
+
+                                    <>
+
+                                        <Link to="/login">
+                                            Login
+                                        </Link>
+
+                                        <Link
+                                            to="/register"
+                                            className="text-sky-500"
+                                        >
+                                            Register
+                                        </Link>
+
+                                    </>
+
+                            }
+
 
                         </div>
 
-                    ) : (
 
-                        <>
-                            <Link
-                                to="/login"
-                                className="btn btn-outline"
-                            >
-                                Login
-                            </Link>
+                    </div>
 
-                            <Link
-                                to="/register"
-                                className="btn btn-primary"
-                            >
-                                Register
-                            </Link>
-                        </>
+                )
 
-                    )
-                }
+            }
 
-            </div>
+
 
         </header>
+
+
     );
+
+
 };
+
 
 export default Navbar;

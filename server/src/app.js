@@ -7,8 +7,8 @@ const cors = require('cors');
 const app = express();
 
 const scheduleRoutes = require("./routes/schedule.route.js");
-const bookingRoutes = require("./routes/booking.route.js");
-const paymentRoutes = require("./routes/payment.routes.js");
+const bookingRouter = require("./routes/booking.route.js");
+const paymentRouter = require("./routes/payment.routes.js");
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 // Middleware
@@ -18,6 +18,6 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/ferry", ferryRouter);
 app.use("/api/v1/route", routeRouter);
 app.use("/api/v1/schedules", scheduleRoutes);
-app.use("/api/v1/bookings", bookingRoutes);
-app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1/booking", bookingRouter);
+app.use("/api/v1/payment", paymentRouter);
 module.exports = app;

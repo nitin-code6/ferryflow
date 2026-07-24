@@ -148,7 +148,108 @@ const createBookingService = async (userId, data) => {
 
 };
 
+const getBookingsByUserService = async (userId) => {
+    try {
+        const bookings = await Booking.find({ user: userId })
+            .populate({
+                path: "schedule",
+                populate: [
+                    { path: "ferry" },
+                    { path: "route" }
+                ]
+            })
+            .sort({ createdAt: -1 });
+
+        return {
+            success: true,
+            statusCode: 200,
+            message: "Bookings retrieved successfully",
+            bookings
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getAllBookingsService = async () => {
+    try {
+        const bookings = await Booking.find()
+            .populate("user")
+            .populate({
+                path: "schedule",
+                populate: [
+                    { path: "ferry" },
+                    { path: "route" }
+                ]
+            })
+            .sort({ createdAt: -1 });
+
+        return {
+            success: true,
+            statusCode: 200,
+            message: "All bookings retrieved successfully",
+            bookings
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+const cancelBookingService = async (bookingId, userId, role) => {
+    try {
+        const booking = await Booking.findById(bookingId);
+        if (!booking) {
+            return {
+                success: false,
+                statusCode: 404,
+                message: "Booking not found"
+            };
+        }
+
+        if (role !== "admin" && booking.user.toString() !== userId.toString()) {
+            return {
+                success: false,
+                statusCode: 403,
+                message: "Unauthorized to cancel this booking"
+            };
+        }
+
+        if (booking.bookingStatus === "cancelled") {
+            return {
+                success: false,
+                statusCode: 400,
+                message: "Booking is already cancelled"
+            };
+        }
+
+        booking.bookingStatus = "cancelled";
+        booking.cancelledAt = new Date();
+        await booking.save();
+
+        const schedule = await Schedule.findById(booking.schedule);
+        if (schedule) {
+            schedule.availableSeats += booking.seatsBooked;
+            schedule.bookedSeats = schedule.bookedSeats.filter(
+                (seat) => !booking.seatNumbers.includes(seat)
+            );
+            await schedule.save();
+        }
+
+        return {
+            success: true,
+            statusCode: 200,
+            message: "Booking cancelled successfully",
+            booking
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 
 module.exports = {
-    createBookingService
+    createBookingService,
+    getBookingsByUserService,
+    getAllBookingsService,
+    cancelBookingService
 };
