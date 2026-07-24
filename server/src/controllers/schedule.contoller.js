@@ -1,98 +1,62 @@
+const asyncHandler = require("../utils/asyncHandler");
+const ApiResponse = require("../utils/ApiResponse");
 const {
-    createScheduleService, getAllSchedulesService, getScheduleByIdService, updateScheduleService, deleteScheduleService
+    createScheduleService, 
+    getAllSchedulesService, 
+    getScheduleByIdService, 
+    updateScheduleService, 
+    deleteScheduleService,
+    searchSchedulesService
 } = require("../services/schedule.service");
 
-const createSchedule = async (req, res) => {
+const createSchedule = asyncHandler(async (req, res) => {
+    const result = await createScheduleService(req.body);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.schedule, result.message)
+    );
+});
 
-    try {
+const getAllSchedules = asyncHandler(async (req, res) => {
+    const result = await getAllSchedulesService();
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.schedules, result.message)
+    );
+});
 
-        const result = await createScheduleService(req.body);
+const getScheduleById = asyncHandler(async (req, res) => {
+    const result = await getScheduleByIdService(req.params.id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.schedule, result.message)
+    );
+});
 
-        return res
-            .status(result.statusCode)
-            .json(result);
+const updateSchedule = asyncHandler(async (req, res) => {
+    const result = await updateScheduleService(req.params.id, req.body);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.schedule, result.message)
+    );
+});
 
-    } catch (error) {
+const deleteSchedule = asyncHandler(async (req, res) => {
+    const result = await deleteScheduleService(req.params.id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.schedule, result.message)
+    );
+});
 
-        console.error(error);
+const searchSchedules = asyncHandler(async (req, res) => {
+    const { origin, destination, date } = req.query;
+    const result = await searchSchedulesService({ origin, destination, date });
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.schedules, result.message)
+    );
+});
 
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const getAllSchedules = async (req, res) => {
-
-    try {
-
-        const result = await getAllSchedulesService();
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const getScheduleById = async (req, res) => {
-    try {
-        const result = await getScheduleByIdService(req.params.id);
-        return res
-            .status(result.statusCode)
-            .json(result);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-    }
-};
-const updateSchedule = async (req, res) => {
-    try {
-        const result = await updateScheduleService(req.params.id, req.body);
-        return res
-            .status(result.statusCode)
-            .json(result);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-    }
-};
-
-const deleteSchedule = async (req, res) => {
-    try {
-        const result = await deleteScheduleService(req.params.id);
-        return res
-            .status(result.statusCode)
-            .json(result);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-    }
-};
 module.exports = {
     createSchedule,
     getAllSchedules,
     getScheduleById,
     updateSchedule,
-    deleteSchedule
+    deleteSchedule,
+    searchSchedules
 };

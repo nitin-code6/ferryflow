@@ -1,3 +1,5 @@
+const asyncHandler = require("../utils/asyncHandler");
+const ApiResponse = require("../utils/ApiResponse");
 const {
     createRouteService,
     getRouteByIdService,
@@ -6,120 +8,40 @@ const {
     deleteRouteService
 } = require("../services/route.service");
 
-const createRoute = async (req, res) => {
+const createRoute = asyncHandler(async (req, res) => {
+    const result = await createRouteService(req.body);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.route, result.message)
+    );
+});
 
-    try {
+const getRouteById = asyncHandler(async (req, res) => {
+    const result = await getRouteByIdService(req.params.id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.route, result.message)
+    );
+});
 
-        const result = await createRouteService(req.body);
+const getAllRoute = asyncHandler(async (req, res) => {
+    const result = await getAllRouteService();
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.routes, result.message)
+    );
+});
 
-        return res
-            .status(result.statusCode)
-            .json(result);
+const updateRoute = asyncHandler(async (req, res) => {
+    const result = await updateRouteService(req.params.id, req.body);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.route, result.message)
+    );
+});
 
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const getRouteById = async (req, res) => {
-
-    try {
-
-        const result = await getRouteByIdService(req.params.id);
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const getAllRoute = async (req, res) => {
-
-    try {
-
-        const result = await getAllRouteService();
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const updateRoute = async (req, res) => {
-
-    try {
-
-        const result = await updateRoute(
-            req.params.id,
-            req.body
-        );
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const deleteRoute = async (req, res) => {
-
-    try {
-
-        const result = await deleteRouteService(req.params.id);
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-
+const deleteRoute = asyncHandler(async (req, res) => {
+    const result = await deleteRouteService(req.params.id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, null, result.message)
+    );
+});
 
 module.exports = {
     createRoute,

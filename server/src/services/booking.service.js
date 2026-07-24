@@ -47,6 +47,14 @@ const createBookingService = async (userId, data) => {
 
         }
 
+        if (existingSchedule.status === "cancelled") {
+            return {
+                success: false,
+                statusCode: 400,
+                message: "Cannot book a cancelled schedule"
+            };
+        }
+
         // Check ferry availability
 
         if (
@@ -247,9 +255,47 @@ const cancelBookingService = async (bookingId, userId, role) => {
 };
 
 
+const getBookingDetailsService = async (bookingId, userId, role) => {
+    try {
+        const booking = await Booking.findById(bookingId).populate({
+            path: "schedule",
+            populate: [
+                { path: "ferry" },
+                { path: "route" }
+            ]
+        });
+
+        if (!booking) {
+            return {
+                success: false,
+                statusCode: 404,
+                message: "Booking not found"
+            };
+        }
+
+        if (role !== "admin" && booking.user.toString() !== userId.toString()) {
+            return {
+                success: false,
+                statusCode: 403,
+                message: "Unauthorized to access this booking"
+            };
+        }
+
+        return {
+            success: true,
+            statusCode: 200,
+            message: "Booking details retrieved successfully",
+            booking
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
 module.exports = {
     createBookingService,
     getBookingsByUserService,
     getAllBookingsService,
-    cancelBookingService
+    cancelBookingService,
+    getBookingDetailsService
 };

@@ -1,112 +1,46 @@
+const asyncHandler = require("../utils/asyncHandler");
+const ApiResponse = require("../utils/ApiResponse");
 const { createFerryService, getFerryByIdService, getAllFerryService, updateFerryService, deleteFerryService } = require("../services/ferry.service");
 
-const createFerry = async (req, res) => {
+const createFerry = asyncHandler(async (req, res) => {
+    const result = await createFerryService(req.body);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.ferry, result.message)
+    );
+});
 
-    try {
+const getFerryById = asyncHandler(async (req, res) => {
+    const result = await getFerryByIdService(req.params.id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.ferry, result.message)
+    );
+});
 
-        const result =
-            await createFerryService(req.body);
+const getAllFerry = asyncHandler(async (req, res) => {
+    const result = await getAllFerryService();
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.ferries, result.message)
+    );
+});
 
-        return res
-            .status(result.statusCode)
-            .json(result);
+const updateFerry = asyncHandler(async (req, res) => {
+    const result = await updateFerryService(req.params.id, req.body);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.ferry, result.message)
+    );
+});
 
-    } catch (error) {
+const deleteFerry = asyncHandler(async (req, res) => {
+    const result = await deleteFerryService(req.params.id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, null, result.message)
+    );
+});
 
-        console.error(error);
-
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const getFerryById = async (req, res) => {
-
-    try {
-
-        const result =
-            await getFerryByIdService(req.params.id);
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const getAllFerry = async (req, res) => {
-
-    try {
-
-        const result =
-            await getAllFerryService();
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const updateFerry = async (req, res) => {
-
-    try {
-
-        const result =
-            await updateFerryService(req.params.id, req.body);
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
-const deleteFerry = async (req, res) => {
-
-    try {
-
-        const result =
-            await deleteFerryService(req.params.id);
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
-
-    }
-
-};
 module.exports = {
     createFerry,
     getFerryById,
     getAllFerry,
     updateFerry,
     deleteFerry
-}
+};

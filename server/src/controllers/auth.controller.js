@@ -1,156 +1,74 @@
 const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService } = require("../services/auth.service");
 const { googleLoginService } = require("../services/googleLoginService");
 const User = require("../models/user.model");
-const register = async (
-    req,
-    res
-) => {
-
-    try {
-
-        const result =
-            await registerUser(
-                req.body
-            );
-
-        return res
-            .status(
-                result.statusCode || 200
-            )
-            .json(result);
-
-    } catch (error) {
-
-        return res
-            .status(500)
-            .json({
-
-                success: false,
-
-                message:
-                    "Internal server error"
-
-            });
-
-    }
-
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict"
 };
 
-const verifyEmail = async (
-    req,
-    res
-) => {
-
+const register = async (req, res) => {
     try {
-
-        const result =
-            await verifyEmailService(
-                req.body
-            );
-
-        if (!result.success) {
-
-            return res
-                .status(
-                    result.statusCode || 400
-                )
-                .json({
-
-                    success: false,
-
-                    message:
-                        result.message
-
-                });
-
-        }
-
-        res.cookie(
-            "accessToken",
-            result.accessToken,
-            {
-
-                httpOnly: true,
-
-                maxAge:
-                    15 * 60 * 1000
-
-            }
-        );
-
-        res.cookie(
-            "refreshToken",
-            result.refreshToken,
-            {
-
-                httpOnly: true,
-
-                maxAge:
-                    7 * 24 * 60 * 60 * 1000
-
-            }
-        );
-
-        return res
-            .status(200)
-            .json({
-
-                success: true,
-
-                message:
-                    result.message
-
-            });
-
+        const result = await registerUser(req.body);
+        return res.status(result.statusCode || 200).json(result);
     } catch (error) {
-
-        console.error(
-            "Verify Email Error:",
-            error
-        );
-
-        return res
-            .status(500)
-            .json({
-
-                success: false,
-
-                message:
-                    "Internal server error"
-
-            });
-
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
+};
 
+const verifyEmail = async (req, res) => {
+    try {
+        const result = await verifyEmailService(req.body);
+        if (!result.success) {
+            return res.status(result.statusCode || 400).json({
+                success: false,
+                message: result.message
+            });
+        }
+        res.cookie("accessToken", result.accessToken, {
+            ...cookieOptions,
+            maxAge: 15 * 60 * 1000
+        });
+        res.cookie("refreshToken", result.refreshToken, {
+            ...cookieOptions,
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        return res.status(200).json({
+            success: true,
+            message: result.message
+        });
+    } catch (error) {
+        console.error("Verify Email Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
 };
 
 const Login = async (req, res) => {
-
     const { email, password } = req.body;
-
-    const result = await LoginService(
-        email,
-        password
-    );
-
+    const result = await LoginService(email, password);
     if (!result.success) {
         return res.status(400).json(result);
     }
-
     res.cookie("refreshToken", result.refreshToken, {
-        httpOnly: true,
+        ...cookieOptions,
         maxAge: 7 * 24 * 60 * 60 * 1000
     });
     res.cookie("accessToken", result.accessToken, {
-        httpOnly: true,
+        ...cookieOptions,
         maxAge: 15 * 60 * 1000
     });
-
     return res.status(200).json({
         success: true,
         message: result.message
     });
 };
+
 const getCurrentUser = async (req, res) => {
     const user = await User.findById(req.user._id).select("-password");
     if (!user) {
@@ -163,44 +81,34 @@ const getCurrentUser = async (req, res) => {
         user: user
     });
 };
-const Logout = async (req, res) => {
 
+const Logout = async (req, res) => {
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
-
-    const result =
-        await LogoutService(
-            accessToken,
-            refreshToken
-        );
+    const result = await LogoutService(accessToken, refreshToken);
     if (!result.success) {
         return res.status(result.statusCode || 400).json(result.message);
     }
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
-
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
     return res.status(200).json({
         success: true,
         message: result.message
     });
 };
+
 const forgotPassword = async (req, res) => {
     const { email } = req.body;
     const result = await forgotPasswordService(email);
     if (!result.success) {
         return res.status(400).json(result);
     }
-    return res
-        .status(result.statusCode || 200)
-        .json(result);
+    return res.status(result.statusCode || 200).json(result);
 };
+
 const resetPassword = async (req, res) => {
     const { email, otp, newPassword } = req.body;
-    const result = await resetPasswordService({
-        email,
-        otp,
-        newPassword
-    });
+    const result = await resetPasswordService({ email, otp, newPassword });
     if (!result.success) {
         return res.status(400).json(result);
     }
@@ -209,6 +117,7 @@ const resetPassword = async (req, res) => {
         message: result.message
     });
 };
+
 const changePassword = async (req, res) => {
     const result = await changePasswordService(req.userId, req.body);
     if (!result.success) {
@@ -219,66 +128,39 @@ const changePassword = async (req, res) => {
         message: result.message
     });
 }
-const resendOTP = async (req, res) => {
 
+const resendOTP = async (req, res) => {
     const result = await resendOTPService(req.body);
     if (!result.success) {
         return res.status(400).json(result);
     }
     return res.status(200).json(result);
 }
+
 const refreshToken = async (req, res) => {
     try {
-
-        const refreshToken = req.cookies.refreshToken;
-
-        const result = await refreshTokenService(
-            refreshToken
-        );
-
+        const token = req.cookies.refreshToken;
+        const result = await refreshTokenService(token);
         if (!result.success) {
-            return res.status(
-                result.statusCode || 400
-            ).json({
+            return res.status(result.statusCode || 400).json({
                 success: false,
                 message: result.message
             });
         }
-
-        res.cookie(
-            "accessToken",
-            result.accessToken,
-            {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 15 * 60 * 1000 // 15 min
-            }
-        );
-
-        res.cookie(
-            "refreshToken",
-            result.refreshToken,
-            {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === "production",
-                sameSite: "strict",
-                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-            }
-        );
-
+        res.cookie("accessToken", result.accessToken, {
+            ...cookieOptions,
+            maxAge: 15 * 60 * 1000
+        });
+        res.cookie("refreshToken", result.refreshToken, {
+            ...cookieOptions,
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
         return res.status(200).json({
             success: true,
             message: result.message
         });
-
     } catch (error) {
-
-        console.error(
-            "Refresh Token Controller Error:",
-            error
-        );
-
+        console.error("Refresh Token Controller Error:", error);
         return res.status(500).json({
             success: false,
             message: "Internal Server Error"
@@ -286,70 +168,31 @@ const refreshToken = async (req, res) => {
     }
 };
 
-
-const googleLogin = async (
-    req,
-    res
-) => {
+const googleLogin = async (req, res) => {
     try {
-
         const { idToken } = req.body;
-
-        const result =
-            await googleLoginService(
-                idToken
-            );
+        const result = await googleLoginService(idToken);
         console.log("RESULT", result)
-
-        res.cookie(
-            "refreshToken",
-            result.refreshToken,
-            {
-                httpOnly: true,
-                maxAge:
-                    7 * 24 * 60 * 60 * 1000
-            }
-        );
-
-        res.cookie(
-            "accessToken",
-            result.accessToken,
-            {
-                httpOnly: true,
-                maxAge:
-                    15 * 60 * 1000
-            }
-        );
-
+        res.cookie("refreshToken", result.refreshToken, {
+            ...cookieOptions,
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        res.cookie("accessToken", result.accessToken, {
+            ...cookieOptions,
+            maxAge: 15 * 60 * 1000
+        });
         return res.status(200).json({
-
             success: true,
-
-            message:
-                "Google login successful"
-
+            message: "Google login successful"
         });
-
     } catch (error) {
-
-        console.error(
-            "Google Login Error:",
-            error
-        );
-
+        console.error("Google Login Error:", error);
         return res.status(500).json({
-
             success: false,
-
             message: error.message
-
         });
-
     }
-
 };
-
-
 
 module.exports = {
     register,

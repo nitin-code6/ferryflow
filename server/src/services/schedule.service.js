@@ -33,7 +33,6 @@ const createScheduleService = async (data) => {
     }
 
     // 3. Check Ferry Exists
-
     const existingFerry = await Ferry.findById(ferry);
 
     if (!existingFerry) {
@@ -44,8 +43,15 @@ const createScheduleService = async (data) => {
         };
     }
 
-    // 4. Check Route Exists
+    if (existingFerry.status === "maintenance") {
+        return {
+            success: false,
+            statusCode: 400,
+            message: "Cannot schedule a ferry that is under maintenance"
+        };
+    }
 
+    // 4. Check Route Exists
     const existingRoute = await Route.findById(route);
 
     if (!existingRoute) {
@@ -57,9 +63,17 @@ const createScheduleService = async (data) => {
     }
 
     // 5. Validate Time
-
     const departure = new Date(departureTime);
     const arrival = new Date(arrivalTime);
+    const now = new Date();
+
+    if (departure < now) {
+        return {
+            success: false,
+            statusCode: 400,
+            message: "Departure time cannot be in the past"
+        };
+    }
 
     if (arrival <= departure) {
         return {
@@ -171,9 +185,7 @@ const updateScheduleService = async (id, data) => {
     }
 
     // 3. Validate Ferry (if updating)
-
     if (data.ferry) {
-
         if (!mongoose.Types.ObjectId.isValid(data.ferry)) {
             return {
                 success: false,
@@ -191,15 +203,21 @@ const updateScheduleService = async (id, data) => {
                 message: "Ferry not found"
             };
         }
+        
+        if (ferry.status === "maintenance") {
+            return {
+                success: false,
+                statusCode: 400,
+                message: "Cannot schedule a ferry that is under maintenance"
+            };
+        }
 
         // Update available seats according to new ferry
         data.availableSeats = ferry.capacity;
     }
 
     // 4. Validate Route (if updating)
-
     if (data.route) {
-
         if (!mongoose.Types.ObjectId.isValid(data.route)) {
             return {
                 success: false,
@@ -220,7 +238,6 @@ const updateScheduleService = async (id, data) => {
     }
 
     // 5. Validate Time
-
     const departure = new Date(
         data.departureTime || existingSchedule.departureTime
     );
@@ -228,6 +245,14 @@ const updateScheduleService = async (id, data) => {
     const arrival = new Date(
         data.arrivalTime || existingSchedule.arrivalTime
     );
+
+    if (data.departureTime && departure < new Date()) {
+        return {
+            success: false,
+            statusCode: 400,
+            message: "Departure time cannot be in the past"
+        };
+    }
 
     if (arrival <= departure) {
         return {
@@ -310,4 +335,65 @@ const deleteScheduleService = async (id) => {
     };
 
 };
-module.exports = { createScheduleService, getAllSchedulesService, getScheduleByIdService, updateScheduleService, deleteScheduleService }
+const searchSchedulesService = async ({ origin, destination, date }) => {
+    try {
+        const routeQuery = {};
+        if (origin) routeQuery.origin = { $regex: new RegExp(origin, "i") };
+        if (destination) routeQuery.destination = { $regex: new RegExp(destination, "i") };
+
+        let routes = [];
+        if (origin || destination) {
+            routes = await Route.find(routeQuery).select('_id');
+        }
+
+        const scheduleQuery = {};
+        if (routes.length > 0) {
+            scheduleQuery.route = { $in: routes.map(r => r._id) };
+        } else if (origin || destination) {
+            // If origin or destination provided but no routes matched, return empty
+            return {
+                success: true,
+                statusCode: 200,
+                message: "No schedules found",
+                schedules: []
+            };
+        }
+
+        if (date) {
+            const startOfDay = new Date(date);
+            startOfDay.setHours(0, 0, 0, 0);
+            
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+            
+            scheduleQuery.departureTime = {
+                $gte: startOfDay,
+                $lte: endOfDay
+            };
+        }
+
+        const schedules = await Schedule.find(scheduleQuery)
+            .populate("ferry")
+            .populate("route")
+            .sort({ departureTime: 1 })
+            .lean();
+
+        return {
+            success: true,
+            statusCode: 200,
+            message: "Schedules fetched successfully",
+            schedules
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+module.exports = { 
+    createScheduleService, 
+    getAllSchedulesService, 
+    getScheduleByIdService, 
+    updateScheduleService, 
+    deleteScheduleService,
+    searchSchedulesService
+};

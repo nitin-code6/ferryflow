@@ -5,7 +5,8 @@ const {
     getAllSchedules,
     getScheduleById,
     updateSchedule,
-    deleteSchedule
+    deleteSchedule,
+    searchSchedules
 } = require("../controllers/schedule.contoller");
 
 const authMiddleware = require("../middleware/auth.middleware");
@@ -28,6 +29,10 @@ router.post(
 router.get(
     "/",
     getAllSchedules
+);
+router.get(
+    "/search",
+    searchSchedules
 );
 router.get(
     "/:id",

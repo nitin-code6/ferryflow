@@ -57,6 +57,10 @@ const scheduleSchema = new mongoose.Schema(
     }
 );
 
+scheduleSchema.index({ route: 1 });
+scheduleSchema.index({ ferry: 1 });
+scheduleSchema.index({ departureTime: 1 });
+
 const Schedule = mongoose.model("Schedule", scheduleSchema);
 
 module.exports = Schedule;

@@ -1,90 +1,23 @@
+const asyncHandler = require("../utils/asyncHandler");
+const ApiResponse = require("../utils/ApiResponse");
 const { createPaymentOrderService, verifyPaymentService } = require('../services/paymentService');
 
+const createPaymentOrder = asyncHandler(async (req, res) => {
+    const { bookingId } = req.body;
+    const result = await createPaymentOrderService(bookingId, req.user._id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.data, result.message)
+    );
+});
 
-const createPaymentOrder = async (req, res) => {
-
-    try {
-
-        const {
-            bookingId
-        } = req.body;
-
-
-        const result =
-            await createPaymentOrderService(
-                bookingId,
-                req.user._id
-            );
-
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-
-    } catch (error) {
-
-        console.error(
-            "CREATE PAYMENT ORDER ERROR:",
-            error
-        );
-
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: "Internal server error"
-
-        });
-
-    }
-
-};
-
-
-// Verify Razorpay Payment
-
-const verifyPayment = async (req, res) => {
-
-    try {
-
-
-        const result =
-            await verifyPaymentService(
-                req.body,
-                req.user._id
-            );
-
-
-        return res
-            .status(result.statusCode)
-            .json(result);
-
-
-
-    } catch (error) {
-
-
-        console.error(
-            "VERIFY PAYMENT ERROR:",
-            error
-        );
-
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: error.message ||
-                "Internal server error"
-
-        });
-
-    }
-
-};
+const verifyPayment = asyncHandler(async (req, res) => {
+    const result = await verifyPaymentService(req.body, req.user._id);
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.data, result.message)
+    );
+});
 
 module.exports = {
-    createPaymentOrder, verifyPayment
+    createPaymentOrder,
+    verifyPayment
 };
