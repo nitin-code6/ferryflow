@@ -68,6 +68,17 @@ const resendOTPSchema = z.object({
     email: emailRules
 });
 
+const adminCreateUserSchema = z.object({
+    name: z
+        .string()
+        .trim()
+        .min(3, "Name must be at least 3 characters")
+        .max(50, "Name cannot exceed 50 characters"),
+    email: emailRules,
+    password: passwordRules,
+    role: z.enum(["citizen", "tourist", "staff", "admin"])
+});
+
 module.exports = {
     registerSchema,
     loginSchema,
@@ -75,5 +86,6 @@ module.exports = {
     forgotPasswordSchema,
     resetPasswordSchema,
     changePasswordSchema,
-    resendOTPSchema
+    resendOTPSchema,
+    adminCreateUserSchema
 };

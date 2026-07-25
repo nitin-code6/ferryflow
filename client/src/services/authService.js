@@ -87,3 +87,8 @@ export const logoutAPI = async () => {
 
     return response.data;
 };
+
+export const deleteAccountAPI = async () => {
+    const response = await api.delete("/auth/delete-account");
+    return response.data;
+};

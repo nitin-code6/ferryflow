@@ -1,7 +1,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { registerAPI } from "../../../services/authService";
-import { ShieldAlert, KeyRound, Mail, User, Lock, UserPlus } from "lucide-react";
+import { adminCreateUserAPI } from "../../../services/adminService";
+import { ShieldAlert, Mail, User, Lock, UserPlus } from "lucide-react";
 
 const AdminRegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -9,8 +9,7 @@ const AdminRegisterPage = () => {
         email: "",
         password: "",
         confirmPassword: "",
-        role: "admin",
-        adminSecretKey: ""
+        role: "admin"
     });
 
     const [errors, setErrors] = useState({});
@@ -45,9 +44,6 @@ const AdminRegisterPage = () => {
         if (formData.password !== formData.confirmPassword) {
             fieldErrors.confirmPassword = "Passwords do not match";
         }
-        if (!formData.adminSecretKey.trim()) {
-            fieldErrors.adminSecretKey = "Security Clearance Token is required for admin onboarding";
-        }
 
         if (Object.keys(fieldErrors).length > 0) {
             setErrors(fieldErrors);
@@ -58,27 +54,25 @@ const AdminRegisterPage = () => {
         setLoading(true);
 
         try {
-            const response = await registerAPI({
+            const response = await adminCreateUserAPI({
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
-                role: formData.role,
-                adminSecretKey: formData.adminSecretKey
+                role: formData.role
             });
 
-            if (response.success) {
-                toast.success("Admin/Staff account created successfully! Verification email sent.");
+            if (response.success || response.statusCode === 201) {
+                toast.success("Account created successfully!");
                 setFormData({
                     name: "",
                     email: "",
                     password: "",
                     confirmPassword: "",
-                    role: "admin",
-                    adminSecretKey: ""
+                    role: "admin"
                 });
             }
         } catch (error) {
-            const message = error.response?.data?.message || "Admin onboarding failed. Check security token.";
+            const message = error.response?.data?.message || "Failed to create account.";
             setErrors({ server: message });
         } finally {
             setLoading(false);
@@ -143,35 +137,19 @@ const AdminRegisterPage = () => {
                     </div>
 
                     {/* Role Select & Security Clearance Token */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl">
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-base-content/80 uppercase tracking-wider">Requested Role</label>
-                            <select
-                                name="role"
-                                value={formData.role}
-                                onChange={handleChange}
-                                className="w-full h-11 px-3 bg-base-200 border border-base-300 rounded-xl text-base-content focus:border-primary focus:outline-none text-sm"
-                            >
-                                <option value="admin">System Administrator</option>
-                                <option value="staff">Ferry Operational Staff</option>
-                            </select>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-bold text-base-content/80 uppercase tracking-wider flex items-center gap-1">
-                                <KeyRound size={12} className="text-primary" /> Authorization Token
-                            </label>
-                            <input
-                                type="password"
-                                name="adminSecretKey"
-                                placeholder="Security Clearance Key"
-                                value={formData.adminSecretKey}
-                                onChange={handleChange}
-                                className="w-full h-11 px-3 bg-base-200 border border-base-300 rounded-xl text-base-content placeholder:text-base-content/30 focus:border-primary focus:outline-none text-sm"
-                            />
-                        </div>
+                    {/* Role Select */}
+                    <div className="max-w-xl space-y-1.5">
+                        <label className="text-xs font-bold text-base-content/80 uppercase tracking-wider">Requested Role</label>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            className="w-full h-11 px-3 bg-base-200 border border-base-300 rounded-xl text-base-content focus:border-primary focus:outline-none text-sm"
+                        >
+                            <option value="admin">System Administrator</option>
+                            <option value="staff">Ferry Operational Staff</option>
+                        </select>
                     </div>
-                    {errors.adminSecretKey && <p className="text-xs font-semibold text-error max-w-xl">⚠ {errors.adminSecretKey}</p>}
 
                     {/* Passwords */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl">

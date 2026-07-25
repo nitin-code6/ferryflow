@@ -6,7 +6,7 @@ const client = require('../config/redis');
 const jwt = require('jsonwebtoken');
 const createAndSendOtp = require("../utils/createAndSendOtp");
 const registerUser = async (userData) => {
-    const { name, email, password, role, adminSecretKey } = userData;
+    const { name, email, password, role } = userData;
 
     const existingUser = await User.findOne({ email });
 
@@ -18,17 +18,8 @@ const registerUser = async (userData) => {
         };
     }
 
-    // Backend Security Verification for Administrative/Staff Roles
-    if (role && (role === "admin" || role === "staff")) {
-        const expectedSecretKey = process.env.ADMIN_SECRET_KEY || "FERRYFLOW_ADMIN_SECRET_2026";
-        if (!adminSecretKey || adminSecretKey !== expectedSecretKey) {
-            return {
-                success: false,
-                statusCode: 403,
-                message: "Unauthorized: Invalid Admin Authorization Security Clearance Token"
-            };
-        }
-    }
+    // Force public registration role to be citizen or tourist only (defaults to citizen)
+    const assignedRole = (role === "citizen" || role === "tourist") ? role : "citizen";
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -36,7 +27,7 @@ const registerUser = async (userData) => {
         name,
         email,
         password: hashedPassword,
-        role: role || "citizen"
+        role: assignedRole
     });
 
     await createAndSendOtp(
@@ -522,6 +513,25 @@ const refreshTokenService = async (refreshToken) => {
         };
     }
 };
+const deleteAccountService = async (userId) => {
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+        return {
+            success: false,
+            statusCode: 404,
+            message: "User not found"
+        };
+    }
+    // Delete active refresh tokens from Redis cache
+    await client.del(`refresh:${userId}`);
+
+    return {
+        success: true,
+        statusCode: 200,
+        message: "Account deleted successfully"
+    };
+};
+
 module.exports = {
     registerUser,
     verifyEmailService,
@@ -531,5 +541,6 @@ module.exports = {
     resetPasswordService,
     changePasswordService,
     resendOTPService,
-    refreshTokenService
+    refreshTokenService,
+    deleteAccountService
 };

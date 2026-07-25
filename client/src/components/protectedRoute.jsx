@@ -1,13 +1,6 @@
 import { Navigate, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext";
 
-// Utility to read cookie value
-const getCookie = (name) => {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    if (match) return match[2];
-    return null;
-};
-
 /**
  * ProtectedRoute component
  * Props:

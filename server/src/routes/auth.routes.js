@@ -23,7 +23,8 @@ const {
     changePassword,
     resendOTP,
     refreshToken,
-    googleLogin
+    googleLogin,
+    deleteAccount
 } = require("../controllers/auth.controller");
 
 router.post("/register", validate(registerSchema), register);
@@ -31,6 +32,7 @@ router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
 router.post("/login", validate(loginSchema), Login);
 router.get("/me", authMiddleware, getCurrentUser);
 router.post("/logout", authMiddleware, Logout);
+router.delete("/delete-account", authMiddleware, deleteAccount);
 router.post("/forget-password", validate(forgotPasswordSchema), forgotPassword);
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/change-password", authMiddleware, validate(changePasswordSchema), changePassword);

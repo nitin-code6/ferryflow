@@ -23,26 +23,28 @@ const AuthProvider = ({ children }) => {
     const isPassenger = user?.role === "citizen" || user?.role === "tourist";
 
     const checkAuth = async () => {
-
         try {
-
             const response = await getCurrentUser();
-
             setUser(response.user);
-
         } catch (error) {
-
             setUser(null);
-
         } finally {
-
             setLoading(false);
-
         }
     };
 
     useEffect(() => {
         checkAuth();
+
+        const handleUnauthorizedLogout = () => {
+            setUser(null);
+            setLoading(false);
+        };
+
+        window.addEventListener("unauthorized-logout", handleUnauthorizedLogout);
+        return () => {
+            window.removeEventListener("unauthorized-logout", handleUnauthorizedLogout);
+        };
     }, []);
 
     return (

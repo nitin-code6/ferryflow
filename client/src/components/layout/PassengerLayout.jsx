@@ -166,6 +166,11 @@ const PassengerLayout = () => {
                                         </Link>
                                     </li>
                                     <li>
+                                        <Link to="/profile" className="rounded-xl flex gap-2.5 items-center font-medium">
+                                            <FiUser size={15} /> Profile
+                                        </Link>
+                                    </li>
+                                    <li>
                                         <button
                                             onClick={handleLogout}
                                             className="rounded-xl flex gap-2.5 items-center font-medium text-error hover:bg-error/5"

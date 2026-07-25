@@ -4,24 +4,16 @@ import {
     useNavigate
 } from "react-router";
 
-import {
-    verifyOtp,
-    resendOtp
-} from "../../services/authService";
-
+import { verifyOtp, resendOtp } from "../../services/authService";
+import { useAuth } from "../../context/AuthContext";
 import AuthLayout from "../../components/layout/AuthLayout";
 
 const VerifyOtpPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { checkAuth } = useAuth();
 
-    const navigate =
-        useNavigate();
-
-    const location =
-        useLocation();
-
-    const {
-        email, purpose
-    } = location.state || {};
+    const { email, purpose } = location.state || {};
 
     const [otp, setOtp] =
         useState("");
@@ -135,17 +127,17 @@ const VerifyOtpPage = () => {
             setLoading(true);
 
             try {
-
-                await verifyOtp({
-
+                const response = await verifyOtp({
                     email,
                     otp,
                     purpose
-
                 });
 
-                navigate("/");
+                // Re-fetch current user profile so context state updates
+                await checkAuth();
 
+                // Redirect to dashboard page
+                navigate("/dashboard");
             } catch (error) {
 
                 setError(

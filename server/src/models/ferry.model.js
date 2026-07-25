@@ -36,16 +36,11 @@ const ferrySchema = new mongoose.Schema(
     }
 );
 
-ferrySchema.pre("save", function (next) {
+ferrySchema.pre("save", function () {
     if (this.isModified("capacity") || !this.seatConfiguration?.seatsPerFloor) {
-        try {
-            const { seatConfiguration } = require("../utils/seatLayoutGenerator").generateSeatLayout(this.capacity);
-            this.seatConfiguration = seatConfiguration;
-        } catch (err) {
-            return next(err);
-        }
+        const { seatConfiguration } = require("../utils/seatLayoutGenerator").generateSeatLayout(this.capacity);
+        this.seatConfiguration = seatConfiguration;
     }
-    next();
 });
 
 module.exports = mongoose.model("Ferry", ferrySchema);

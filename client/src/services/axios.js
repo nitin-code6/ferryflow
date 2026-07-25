@@ -5,26 +5,69 @@ const api = axios.create({
     withCredentials: true,
 });
 
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach((prom) => {
+        if (error) {
+            prom.reject(error);
+        } else {
+            prom.resolve(token);
+        }
+    });
+    failedQueue = [];
+};
+
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
+        // Check if error response is 401 Unauthorized
         if (error.response?.status === 401 && !originalRequest._retry) {
+            
+            // Avoid looping on the refresh token endpoint itself
+            if (originalRequest.url.includes("/auth/refresh-token")) {
+                return Promise.reject(error);
+            }
+
+            if (isRefreshing) {
+                // Queue requests while token is refreshing
+                return new Promise((resolve, reject) => {
+                    failedQueue.push({ resolve, reject });
+                })
+                    .then(() => {
+                        return api(originalRequest);
+                    })
+                    .catch((err) => {
+                        return Promise.reject(err);
+                    });
+            }
+
             originalRequest._retry = true;
+            isRefreshing = true;
 
             try {
-                // Call the refresh endpoint to get new cookies
+                // Call correct refresh-token endpoint
                 await axios.post(
-                    "http://localhost:8000/api/v1/auth/refresh",
+                    "http://localhost:8000/api/v1/auth/refresh-token",
                     {},
                     { withCredentials: true }
                 );
 
-                // Retry the original request
+                isRefreshing = false;
+                processQueue(null);
+
+                // Retry original request
                 return api(originalRequest);
             } catch (refreshError) {
-                // If refresh fails, it means both tokens are invalid
+                isRefreshing = false;
+                processQueue(refreshError, null);
+
+                // Dispatch global event to force logout on frontend
+                window.dispatchEvent(new Event("unauthorized-logout"));
+
                 return Promise.reject(refreshError);
             }
         }

@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import { FiUser, FiMail, FiCalendar, FiShield, FiSave, FiLock } from "react-icons/fi";
+import { deleteAccountAPI } from "../../services/authService";
+import { FiUser, FiMail, FiCalendar, FiShield, FiSave, FiLock, FiAlertTriangle } from "react-icons/fi";
 import toast from "react-hot-toast";
 
 const ProfilePage = () => {
+    const navigate = useNavigate();
     const { user, setUser } = useAuth();
     const [name, setName] = useState(user?.name || "");
     const [email, setEmail] = useState(user?.email || "");
@@ -49,6 +52,25 @@ const ProfilePage = () => {
             toast.success("Password changed successfully!");
         }, 1000);
     };
+
+    const handleDeleteAccount = async () => {
+        const confirmDelete = window.confirm("Are you sure you want to permanently delete your account? This action cannot be undone.");
+        if (!confirmDelete) return;
+
+        try {
+            const response = await deleteAccountAPI();
+            if (response.success) {
+                toast.success("Account deleted successfully");
+                setUser(null);
+                navigate("/register");
+            } else {
+                toast.error(response.message || "Failed to delete account");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to delete account");
+        }
+    };
+
 
     return (
         <div className="max-w-4xl mx-auto py-8 px-4 text-base-content space-y-8 animate-in fade-in">
@@ -184,6 +206,23 @@ const ProfilePage = () => {
                             </button>
                         </div>
                     </form>
+
+                    {/* Danger Zone */}
+                    <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/50 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-4">
+                        <div className="flex items-center gap-3 pb-3 border-b border-red-200 dark:border-red-900/40">
+                            <FiAlertTriangle className="text-red-500" size={18} />
+                            <h3 className="font-extrabold text-base text-red-600 dark:text-red-400">Danger Zone</h3>
+                        </div>
+                        <p className="text-xs text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">
+                            Permanently delete your profile account and all booking records. This action cannot be undone.
+                        </p>
+                        <button
+                            onClick={handleDeleteAccount}
+                            className="btn btn-error btn-sm text-white font-bold h-10 px-5 rounded-xl flex gap-2 items-center hover:scale-[1.01] transition-transform"
+                        >
+                            Delete My Account
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService } = require("../services/auth.service");
+const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService, deleteAccountService } = require("../services/auth.service");
 const { googleLoginService } = require("../services/googleLoginService");
 const User = require("../models/user.model");
 const cookieOptions = {
@@ -194,6 +194,22 @@ const googleLogin = async (req, res) => {
     }
 };
 
+const deleteAccount = async (req, res) => {
+    try {
+        const result = await deleteAccountService(req.user._id);
+        if (result.success) {
+            res.clearCookie("accessToken", cookieOptions);
+            res.clearCookie("refreshToken", cookieOptions);
+        }
+        return res.status(result.statusCode || 200).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+
 module.exports = {
     register,
     verifyEmail,
@@ -206,4 +222,5 @@ module.exports = {
     resendOTP,
     refreshToken,
     googleLogin,
+    deleteAccount
 };

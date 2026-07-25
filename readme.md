@@ -221,17 +221,40 @@ Creates Alerts
 
 ## Features
 
-- User Registration
-- Email Verification OTP
-- Resend OTP
-- Login
-- Google Login
-- Logout
-- Forgot Password
-- Verify Reset OTP
-- Reset Password
-- Change Password
-- Get Current User
+- **User Registration**: Public registration ONLY allows onboarding as `citizen` or `tourist`. Any role value submitted is ignored or defaulted to `citizen` to prevent unauthorized role escalation.
+- **Role-Based Access Control (RBAC)**:
+  - **Public Users**: `citizen`, `tourist`
+  - **Admin Managed Users**: `staff`, `admin` (can only be created by an authenticated administrator via the protected `/api/admin/create-user` endpoint).
+- **Email Verification OTP**
+- **Resend OTP**
+- **Login**
+- **Google Login**
+- **Logout**
+- **Forgot Password**
+- **Verify Reset OTP**
+- **Reset Password**
+- **Change Password**
+- **Get Current User**
+
+## Authentication Architecture
+
+FerryFlow implements a production-grade, highly secure authentication architecture structured around:
+
+1. **State-free JWT Verification**:
+   - **Access Token**: Short-lived (15 minutes), payload maps user `_id` and `role`. Set via `httpOnly`, secure, SameSite cookies.
+   - **Refresh Token**: Long-lived (7 days), maps unique session crypt-keys stored securely in Redis.
+
+2. **Session Persistence**:
+   - On application load, `AuthContext` executes `checkAuth()` by requesting `/api/v1/auth/me`.
+   - If the access token has expired, the **Axios Interceptor** catches the `401` error, halts requests, and runs `POST /auth/refresh-token` to rotate tokens.
+   - Concurrent requests are queued while token rotation is in progress to avoid infinite refresh loops.
+
+3. **HTTP-only Isolation**:
+   - No sensitive token metadata is accessible to browser JavaScript (`document.cookie` is avoided), effectively mitigating XSS session hijacking.
+
+4. **Role-Based Guards**:
+   - Route-level checking via `ProtectedRoute` redirects unauthorized users immediately.
+   - Backend APIs verify `req.user.role` via `authorizeRoles(...)` returning `403 Forbidden` on breach.
 
 ---
 
