@@ -203,17 +203,6 @@ const LandingPage = () => {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Secondary overlay card */}
-                        <div className="absolute -bottom-6 -left-6 bg-gradient-to-r from-[#2563EB] to-[#00A8FF] p-4 rounded-2xl shadow-xl flex items-center gap-3 border border-white/10 max-w-[200px] hidden sm:flex">
-                            <div className="p-2 bg-white/10 rounded-xl text-white">
-                                <FiTrendingUp size={16} />
-                            </div>
-                            <div>
-                                <p className="text-[9px] font-extrabold uppercase text-white/70">Commute Time</p>
-                                <p className="text-xs font-black text-white">Reduced by 25%</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </section>

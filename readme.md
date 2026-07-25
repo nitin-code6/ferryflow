@@ -606,6 +606,34 @@ This project demonstrates:
 
 ---
 
-# 📄 Resume Description
-
 Built FerryFlow, a full-stack MERN-based Real-Time Ferry Operations & Passenger Management Platform featuring JWT authentication, Google OAuth, OTP verification, role-based access control, ferry scheduling, ticket booking, payment integration, email notifications, Socket.IO real-time alerts, analytics dashboard, search, filtering, and pagination.
+
+---
+
+## Development Seed Data
+
+FerryFlow includes a database seeding utility to populate the database with realistic developer accounts, routes, ferries, daily schedules, bookings, and system alerts to verify dashboard analytics and full user workflows.
+
+### How to Run the Seed Utility
+From the `server` directory, run:
+```bash
+node seed/index.js
+```
+
+> [!WARNING]
+> This command will flush and clear all existing database records for users, ferries, routes, schedules, bookings, and alerts. Only run this in development environments.
+
+### Demo Credentials
+Use these pre-seeded accounts to explore different user portals and dashboards:
+
+* **Administrator**:
+  - Email: `admin@ferryflow.com`
+  - Password: `Password123!`
+* **Operations Staff**:
+  - Email: `staff@ferryflow.com`
+  - Password: `Password123!`
+* **Passengers (Citizens/Tourists)**:
+  - Email: `citizen1@ferryflow.com`
+  - Password: `Password123!`
+  - Email: `tourist1@ferryflow.com`
+  - Password: `Password123!`
