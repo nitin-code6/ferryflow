@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/auth.middleware');
 const validate = require("../middleware/validate");
+const { registerLimiter, loginLimiter, forgotPasswordLimiter } = require("../middleware/rateLimiter/authLimiter");
+const { verifyOtpLimiter, resendOtpLimiter } = require("../middleware/rateLimiter/otpLimiter");
 
 const {
     registerSchema,
@@ -27,16 +29,16 @@ const {
     deleteAccount
 } = require("../controllers/auth.controller");
 
-router.post("/register", validate(registerSchema), register);
-router.post("/verify-email", validate(verifyEmailSchema), verifyEmail);
-router.post("/login", validate(loginSchema), Login);
+router.post("/register", registerLimiter, validate(registerSchema), register);
+router.post("/verify-email", verifyOtpLimiter, validate(verifyEmailSchema), verifyEmail);
+router.post("/login", loginLimiter, validate(loginSchema), Login);
 router.get("/me", authMiddleware, getCurrentUser);
 router.post("/logout", authMiddleware, Logout);
 router.delete("/delete-account", authMiddleware, deleteAccount);
-router.post("/forget-password", validate(forgotPasswordSchema), forgotPassword);
+router.post("/forget-password", forgotPasswordLimiter, validate(forgotPasswordSchema), forgotPassword);
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/change-password", authMiddleware, validate(changePasswordSchema), changePassword);
-router.post("/resend-otp", validate(resendOTPSchema), resendOTP);
+router.post("/resend-otp", resendOtpLimiter, validate(resendOTPSchema), resendOTP);
 router.post("/refresh-token", refreshToken);
 router.post("/google", googleLogin);
 module.exports = router;

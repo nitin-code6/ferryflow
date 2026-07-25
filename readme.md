@@ -256,6 +256,24 @@ FerryFlow implements a production-grade, highly secure authentication architectu
    - Route-level checking via `ProtectedRoute` redirects unauthorized users immediately.
    - Backend APIs verify `req.user.role` via `authorizeRoles(...)` returning `403 Forbidden` on breach.
 
+### Authentication Security
+
+To protect FerryFlow authentication endpoints from malicious attacks and spammers, rate limiting is enforced on sensitive APIs:
+
+* **POST `/auth/register`**: Limits signup attempts to **10 requests per hour per IP** to prevent database spamming.
+* **POST `/auth/login`**: Limits sign-in requests to **5 attempts per 15 minutes per IP** to block brute-force password guessing.
+* **POST `/auth/verify-otp`**: Limits verification requests to **5 attempts per 10 minutes per IP** to stop brute-forcing of OTP tokens.
+* **POST `/auth/resend-otp`**: Limits requests to **3 requests per 5 minutes per IP** to prevent mail abuse and spam.
+* **POST `/auth/forgot-password`**: Limits requests to **3 requests per 15 minutes per IP** to mitigate reset email spamming.
+
+If a limit is exceeded, the server responds with a `429 Too Many Requests` status code and JSON:
+```json
+{
+  "success": false,
+  "message": "Too many requests. Please try again later."
+}
+```
+
 ---
 
 ## Authentication Checklist
