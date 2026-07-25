@@ -29,7 +29,7 @@ const RouteListPage = () => {
     const fetchRoutes = async () => {
         try {
             const response = await getAllRoutes();
-            setRoutes(response.routes || []);
+            setRoutes(response.data || response.routes || []);
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to fetch routes.");
         } finally {

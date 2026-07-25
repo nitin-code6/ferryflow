@@ -16,7 +16,8 @@ const AlertManagementPage = () => {
 
     // Form states
     const [type, setType] = useState("delay");
-    const [routeName, setRouteName] = useState("");
+    const [routeId, setRouteId] = useState("");
+    const [title, setTitle] = useState("");
     const [message, setMessage] = useState("");
     const [isBroadcasting, setIsBroadcasting] = useState(false);
 
@@ -35,10 +36,12 @@ const AlertManagementPage = () => {
                 getAllAlerts(),
                 getAllRoutes()
             ]);
-            setAlerts(alertsRes.alerts || []);
-            setRoutes(routesRes.routes || []);
-            if (routesRes.routes?.length > 0) {
-                setRouteName(routesRes.routes[0].name);
+            const aList = alertsRes.data || alertsRes.alerts || [];
+            const rList = routesRes.data || routesRes.routes || [];
+            setAlerts(aList);
+            setRoutes(rList);
+            if (rList.length > 0) {
+                setRouteId(rList[0]._id);
             }
         } catch (error) {
             toast.error("Failed to load active system alerts.");
@@ -49,19 +52,21 @@ const AlertManagementPage = () => {
 
     const handleBroadcastSubmit = async (e) => {
         e.preventDefault();
-        if (!message.trim() || !routeName) {
-            toast.error("Please select a route and enter an alert message.");
+        if (!message.trim() || !routeId || !title.trim()) {
+            toast.error("Please enter a title, message, and select a route.");
             return;
         }
 
         setIsBroadcasting(true);
         try {
             const response = await createAlert({
+                title,
                 type,
-                routeName,
+                route: routeId,
                 message
             });
             toast.success(response.message);
+            setTitle("");
             setMessage("");
             loadData();
         } catch (error) {
@@ -165,17 +170,30 @@ const AlertManagementPage = () => {
                         </select>
                     </div>
 
+                    {/* Alert Title */}
+                    <div className="flex flex-col">
+                        <label className="text-[11px] font-bold uppercase text-base-content/60 mb-2">Alert Title</label>
+                        <input
+                            type="text"
+                            required
+                            placeholder="e.g. Minor Delay on Route"
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            className="input input-bordered rounded-xl h-11 text-sm font-semibold"
+                        />
+                    </div>
+
                     {/* Affected Route */}
                     <div className="flex flex-col">
                         <label className="text-[11px] font-bold uppercase text-base-content/60 mb-2">Affected Route</label>
                         <select
-                            value={routeName}
-                            onChange={(e) => setRouteName(e.target.value)}
+                            value={routeId}
+                            onChange={(e) => setRouteId(e.target.value)}
                             className="select select-bordered rounded-xl h-11 text-sm font-semibold"
                         >
                             <option value="">Select a route...</option>
                             {routes.map((r) => (
-                                <option key={r._id} value={r.name}>
+                                <option key={r._id} value={r._id}>
                                     {r.name}
                                 </option>
                             ))}
@@ -233,14 +251,15 @@ const AlertManagementPage = () => {
                                             }`}>
                                                 {a.type}
                                             </span>
-                                            <span className="text-[10px] text-base-content/40 font-semibold uppercase">{a.date}</span>
+                                            <span className="text-[10px] text-base-content/40 font-semibold uppercase">{new Date(a.createdAt).toLocaleDateString()}</span>
                                         </div>
-                                        <p className="text-xs font-bold text-base-content/70 mt-1">Route: {a.routeName}</p>
+                                        <p className="text-xs font-bold text-base-content/70 mt-1">Route: {a.route?.name || a.routeName}</p>
+                                        <h4 className="text-sm font-bold mt-1">{a.title}</h4>
                                         <p className="text-sm font-medium text-base-content/85 leading-relaxed">{a.message}</p>
                                     </div>
 
                                     <button
-                                        onClick={() => triggerDelete(a.id)}
+                                        onClick={() => triggerDelete(a._id || a.id)}
                                         className="btn btn-ghost btn-square btn-sm text-error"
                                         title="Delete announcement"
                                     >

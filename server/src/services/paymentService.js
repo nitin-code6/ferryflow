@@ -46,18 +46,22 @@ const createPaymentOrderService = async (
 
 
 
-    // Already paid
-
-    if (
-        booking.paymentStatus === "paid"
-    ) {
-
+    // Already paid — guard against double payment
+    if (booking.paymentStatus === "paid") {
         return {
             success: false,
             statusCode: 400,
             message: "Payment already completed"
         };
+    }
 
+    // Only pending_payment bookings can be paid
+    if (booking.bookingStatus !== "pending_payment") {
+        return {
+            success: false,
+            statusCode: 400,
+            message: "Booking is not awaiting payment"
+        };
     }
 
 
@@ -223,36 +227,25 @@ const verifyPaymentService = async (
 
 
 
-        // 6. Check seat availability again
-
-        if (
-            schedule.availableSeats <
-            booking.seatsBooked
-        ) {
-
-            throw new Error(
-                "Seats are not available"
-            );
-
+        // 6. Check seat availability again (live count from schedule)
+        if (schedule.availableSeats < booking.seatsBooked) {
+            throw new Error("Seats are not available");
         }
 
+        // 7. Dynamic duplicate seat check via Booking collection
+        const confirmedBookings = await Booking.find({
+            schedule: booking.schedule,
+            _id: { $ne: booking._id },
+            bookingStatus: { $nin: ["cancelled"] }
+        }).session(session);
+        const occupiedSeats = confirmedBookings.flatMap(b => b.seatNumbers || []);
 
-
-        // 7. Check duplicate seats
-
-        const seatAlreadyBooked =
-            booking.seatNumbers.some(
-                seat =>
-                    schedule.bookedSeats.includes(seat)
-            );
-
+        const seatAlreadyBooked = booking.seatNumbers.some(
+            seat => occupiedSeats.includes(seat)
+        );
 
         if (seatAlreadyBooked) {
-
-            throw new Error(
-                "One or more seats already booked"
-            );
-
+            throw new Error("One or more seats already booked by another passenger");
         }
 
 
@@ -274,14 +267,9 @@ const verifyPaymentService = async (
 
 
 
-        // 9. Confirm Booking
-
-        booking.bookingStatus =
-            "confirmed";
-
-
-        booking.paymentStatus =
-            "paid";
+        // 9. Auto-confirm Booking — no admin approval needed
+        booking.bookingStatus = "confirmed";
+        booking.paymentStatus = "paid";
 
 
         booking.paymentDetails = {

@@ -14,7 +14,6 @@ const objectIdSchema = z
 // Passenger validation
 
 const passengerSchema = z.object({
-
     name: z
         .string()
         .min(
@@ -22,7 +21,6 @@ const passengerSchema = z.object({
             "Passenger name must be at least 3 characters"
         )
         .trim(),
-
 
     age: z
         .number({
@@ -34,13 +32,14 @@ const passengerSchema = z.object({
             "Age must be greater than 0"
         ),
 
-
     gender: z.enum([
         "male",
         "female",
         "other"
-    ])
-
+    ]),
+    
+    phone: z.string().optional(),
+    email: z.string().optional()
 });
 
 

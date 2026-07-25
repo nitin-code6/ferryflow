@@ -5,6 +5,11 @@ export const getAllRoutes = async () => {
     return response.data;
 };
 
+export const getPopularRoutes = async () => {
+    const response = await api.get("/route/popular");
+    return response.data;
+};
+
 export const getRouteById = async (id) => {
     const response = await api.get(`/route/${id}`);
     return response.data;

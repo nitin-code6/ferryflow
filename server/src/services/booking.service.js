@@ -16,35 +16,28 @@ const createBookingService = async (userId, data) => {
         } = data;
 
 
-        // 1. Check seat count matches
-
+        // 1. Seat count must match seat numbers array
         if (seatsBooked !== seatNumbers.length) {
-
             return {
                 success: false,
                 statusCode: 400,
                 message: "Seat count and seat numbers mismatch"
             };
-
         }
 
 
-        // 2. Find schedule
-
+        // 2. Load schedule with populated ferry + route
         const existingSchedule = await Schedule
             .findById(schedule)
             .populate("ferry")
             .populate("route");
 
-
         if (!existingSchedule) {
-
             return {
                 success: false,
                 statusCode: 404,
                 message: "Schedule not found"
             };
-
         }
 
         if (existingSchedule.status === "cancelled") {
@@ -55,103 +48,64 @@ const createBookingService = async (userId, data) => {
             };
         }
 
-        // Check ferry availability
-
-        if (
-            existingSchedule.ferry.status !== "available"
-        ) {
-
+        // 3. Ferry must be available
+        if (existingSchedule.ferry.status !== "available") {
             return {
                 success: false,
                 statusCode: 400,
                 message: `Ferry is currently ${existingSchedule.ferry.status}`
             };
-
         }
 
-        // 3. Check available seats
-
+        // 4. Enough seats on the schedule
         if (existingSchedule.availableSeats < seatsBooked) {
-
             return {
                 success: false,
                 statusCode: 400,
                 message: "Not enough seats available"
             };
-
         }
 
+        // 5. Dynamic seat conflict check — query confirmed/pending_payment bookings
+        const activeBookings = await Booking.find({
+            schedule,
+            bookingStatus: { $nin: ["cancelled"] }
+        });
+        const occupiedSeats = activeBookings.flatMap(b => b.seatNumbers || []);
 
-
-        // 4. Check selected seats already booked
-
-        const alreadyBooked = seatNumbers.some(
-            seat =>
-                existingSchedule.bookedSeats.includes(seat)
-        );
-
-
+        const alreadyBooked = seatNumbers.some(seat => occupiedSeats.includes(seat));
         if (alreadyBooked) {
-
             return {
                 success: false,
                 statusCode: 409,
-                message: "Selected seats are already booked"
+                message: "One or more selected seats are already booked"
             };
-
         }
 
+        // 6. Calculate total amount
+        const totalAmount = existingSchedule.fare * seatsBooked;
 
-
-        // 5. Calculate amount
-
-        const totalAmount =
-            existingSchedule.fare * seatsBooked;
-
-
-
-        // 6. Create pending booking
-
+        // 7. Create booking — status starts at pending_payment until Razorpay confirms
         const booking = await Booking.create({
-
             user: userId,
-
             schedule,
-
             passengerDetails,
-
             seatsBooked,
-
             seatNumbers,
-
             totalAmount,
-
-            bookingStatus: "pending",
-
+            bookingStatus: "pending_payment",
             paymentStatus: "pending"
-
         });
 
-
-
         return {
-
             success: true,
             statusCode: 201,
-
-            message:
-                "Booking created. Proceed with payment.",
-
+            message: "Booking created. Proceed with payment.",
             booking
-
         };
 
-
-    }
-    catch (error) {
-
+    } catch (error) {
         throw error;
-
     }
 
 };
@@ -234,6 +188,7 @@ const cancelBookingService = async (bookingId, userId, role) => {
         booking.cancelledAt = new Date();
         await booking.save();
 
+        // Release seats back to the schedule
         const schedule = await Schedule.findById(booking.schedule);
         if (schedule) {
             schedule.availableSeats += booking.seatsBooked;

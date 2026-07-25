@@ -43,6 +43,14 @@ const bookingSchema = new mongoose.Schema(
                         "other"
                     ],
                     required: true
+                },
+                phone: {
+                    type: String,
+                    trim: true
+                },
+                email: {
+                    type: String,
+                    trim: true
                 }
             }
         ],
@@ -73,16 +81,16 @@ const bookingSchema = new mongoose.Schema(
         },
 
 
-        // Booking lifecycle
+        // Booking lifecycle — driven by payment, no admin approval needed
         bookingStatus: {
             type: String,
             enum: [
-                "pending",
-                "confirmed",
-                "cancelled",
-                "completed"
+                "pending_payment",   // Created, waiting for Razorpay payment
+                "confirmed",         // Payment verified — auto-confirmed
+                "cancelled",         // Cancelled by passenger or admin
+                "completed"          // Journey completed
             ],
-            default: "pending"
+            default: "pending_payment"
         },
 
 

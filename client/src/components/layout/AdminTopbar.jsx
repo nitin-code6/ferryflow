@@ -19,6 +19,11 @@ const AdminTopbar = ({
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
+        if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
         localStorage.setItem("theme", theme);
         window.dispatchEvent(new Event("themeChanged"));
     }, [theme]);
@@ -36,19 +41,19 @@ const AdminTopbar = ({
     const userName = user?.name || "Admin";
 
     return (
-        <header className="h-16 bg-base-100/50 backdrop-blur-xl border-b border-base-300/30 px-6 flex items-center justify-between sticky top-0 z-30 transition-all duration-300">
+        <header className="h-16 bg-white/80 dark:bg-[#071426]/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-sky-950/20 px-6 flex items-center justify-between sticky top-0 z-30 transition-all duration-300">
             {/* Left Section */}
             <div className="flex items-center">
                 {/* Mobile hamburger menu toggle */}
                 <button
                     onClick={() => setIsMobileOpen(!isMobileOpen)}
-                    className="md:hidden p-2 rounded-xl text-base-content/85 hover:bg-base-200/50 transition-all mr-2"
+                    className="md:hidden p-2 rounded-xl text-slate-650 dark:text-slate-350 hover:bg-slate-100 dark:hover:bg-sky-950/30 transition-all mr-2"
                     aria-label="Toggle sidebar menu"
                 >
                     <Menu size={20} />
                 </button>
 
-                <h1 className="text-xl font-bold tracking-tight text-base-content">
+                <h1 className="text-lg font-bold tracking-tight text-slate-800 dark:text-white">
                     Admin Dashboard
                 </h1>
             </div>
@@ -59,31 +64,31 @@ const AdminTopbar = ({
                 <div className="relative hidden md:block">
                     <Search
                         size={16}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base-content/40"
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
                     />
                     <input
                         type="text"
                         placeholder="Type to search..."
-                        className="w-64 pl-9 pr-4 h-10 bg-base-200/40 hover:bg-base-200 border border-base-300/30 rounded-xl text-sm transition-all duration-300 placeholder:text-base-content/40 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10"
+                        className="w-64 pl-9 pr-4 h-10 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-sky-950/80 rounded-xl text-sm transition-all duration-300 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/10 text-slate-800 dark:text-white"
                     />
                 </div>
 
                 {/* Notifications */}
-                <button className="btn btn-ghost btn-circle text-base-content/75 hover:text-base-content hover:bg-base-200/50 transition-all">
+                <button className="btn btn-ghost btn-circle text-slate-650 dark:text-slate-350 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-sky-950/30 transition-all">
                     <Bell size={18} />
                 </button>
 
                 {/* Theme Toggle */}
                 <button 
                     onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-                    className="btn btn-ghost btn-circle text-base-content/75 hover:text-base-content hover:bg-base-200/50 transition-all"
+                    className="btn btn-ghost btn-circle text-slate-650 dark:text-slate-350 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-sky-950/30 transition-all"
                     aria-label="Toggle theme"
                 >
                     {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
                 </button>
 
                 {/* Profile Dropdown */}
-                <div className="dropdown dropdown-end">
+                <div className="dropdown dropdown-end text-left">
                     <div
                         tabIndex={0}
                         role="button"
@@ -98,19 +103,19 @@ const AdminTopbar = ({
                     </div>
                     <ul
                         tabIndex={0}
-                        className="dropdown-content menu menu-sm mt-3 z-30 p-2.5 shadow-xl bg-base-100/95 backdrop-blur-xl border border-white/20 rounded-2xl w-52 text-base-content"
+                        className="dropdown-content menu menu-sm mt-3 z-30 p-2.5 shadow-xl bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-2xl w-52 text-slate-750 dark:text-slate-200"
                     >
-                        <div className="px-3 py-2 border-b border-base-300/30 mb-2">
+                        <div className="px-3 py-2 border-b border-slate-100 dark:border-sky-950/30 mb-2">
                             <p className="font-bold text-sm truncate">{userName}</p>
-                            <p className="text-xs text-base-content/60 truncate">{user?.email || "Administrator"}</p>
+                            <p className="text-xs text-slate-450 dark:text-slate-400 truncate">{user?.email || "Administrator"}</p>
                         </div>
                         <li>
-                            <a href="/" className="hover:bg-base-200/50 py-2 rounded-lg font-medium">Home View</a>
+                            <a href="/" className="hover:bg-slate-100 dark:hover:bg-sky-950/30 py-2 rounded-lg font-medium">Home View</a>
                         </li>
                         <li>
-                            <a href="/admin/settings" className="hover:bg-base-200/50 py-2 rounded-lg font-medium">Settings</a>
+                            <a href="/admin/settings" className="hover:bg-slate-100 dark:hover:bg-sky-950/30 py-2 rounded-lg font-medium">Settings</a>
                         </li>
-                        <li className="border-t border-base-300/30 mt-2 pt-2">
+                        <li className="border-t border-slate-100 dark:border-sky-950/30 mt-2 pt-2">
                             <button 
                                 onClick={handleLogout}
                                 className="hover:bg-rose-500/10 text-rose-500 py-2 rounded-lg font-bold w-full text-left"

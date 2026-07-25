@@ -1,4 +1,7 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext";
+import { logoutAPI } from "../../services/authService";
+import toast from "react-hot-toast";
 import {
     LayoutDashboard,
     Ship,
@@ -45,9 +48,10 @@ const menuItems = [
         path: "/admin/alerts",
     },
     {
-        name: "Users",
+        name: "User Management",
         icon: Users,
-        path: "/admin/users",
+        path: "/admin/register",
+        role: "admin",
     },
     {
         name: "Settings",
@@ -62,6 +66,25 @@ const AdminSidebar = ({
     isCollapsed,
     setIsCollapsed,
 }) => {
+    const navigate = useNavigate();
+    const { user, setUser } = useAuth();
+
+    const handleLogout = async () => {
+        try {
+            await logoutAPI();
+            setUser(null);
+            toast.success("Successfully logged out");
+            navigate("/login");
+        } catch (error) {
+            console.error("Logout failed:", error);
+            toast.error("Logout failed. Please try again.");
+        }
+    };
+
+    const filteredMenuItems = menuItems.filter(
+        (item) => !item.role || item.role === user?.role
+    );
+
     return (
         <aside
             className={`
@@ -72,10 +95,11 @@ const AdminSidebar = ({
             z-50
             flex
             flex-col
-            bg-base-100/50
-            backdrop-blur-xl
+            bg-[#F8FAFC]/98
+            dark:bg-[#0F1D36]/90
             border-r
-            border-base-300/30
+            border-slate-200
+            dark:border-sky-950/40
             transition-all
             duration-300
             ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
@@ -83,11 +107,11 @@ const AdminSidebar = ({
             `}
         >
             {/* Header / Logo */}
-            <div className="flex items-center h-16 px-6 border-b border-base-300/20 shrink-0 select-none">
+            <div className="flex items-center h-16 px-6 border-b border-slate-200/60 dark:border-sky-950/20 shrink-0 select-none">
                 {isCollapsed ? (
                     <span className="text-2xl mx-auto" title="FerryFlow">🚢</span>
                 ) : (
-                    <h1 className="text-2xl font-black bg-gradient-to-r from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] bg-clip-text text-transparent">
+                    <h1 className="text-xl font-bold bg-gradient-to-r from-[#2563EB] to-[#00A8FF] bg-clip-text text-transparent">
                         🚢 FerryFlow
                     </h1>
                 )}
@@ -95,7 +119,7 @@ const AdminSidebar = ({
 
             {/* Menu Links */}
             <nav className="flex-1 overflow-y-auto px-4 py-6 space-y-2.5 scrollbar-thin">
-                {menuItems.map((item) => {
+                {filteredMenuItems.map((item) => {
                     const Icon = item.icon;
 
                     return (
@@ -106,17 +130,18 @@ const AdminSidebar = ({
                             className={({ isActive }) =>
                                 `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
                                     isActive
-                                        ? "bg-gradient-to-r from-[#2563EB]/15 via-[#0EA5E9]/10 to-[#22D3EE]/5 border-l-4 border-[#0EA5E9] text-primary font-bold shadow-[0_4px_20px_rgba(14,165,233,0.06)] pl-3"
-                                        : "text-base-content/70 hover:text-base-content hover:bg-base-200/50 border-l-4 border-transparent"
-                                } ${isCollapsed ? "justify-center px-0 pl-0 border-l-0" : ""}`
+                                        ? "bg-[#2563EB]/10 dark:bg-[#00A8FF]/10 text-[#2563EB] dark:text-[#00A8FF] font-bold pl-3"
+                                        : "text-slate-600 dark:text-slate-450 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-sky-950/30"
+                                } ${isCollapsed ? "justify-center px-0 pl-0" : ""}`
                             }
                             title={isCollapsed ? item.name : ""}
                         >
-                            <Icon size={20} className="shrink-0" />
+                            <Icon size={18} className="shrink-0" />
                             <span
                                 className={`
                                 transition-all
                                 duration-200
+                                text-sm
                                 ${isCollapsed ? "hidden opacity-0" : "block opacity-100"}
                                 `}
                             >
@@ -128,10 +153,11 @@ const AdminSidebar = ({
             </nav>
 
             {/* Sticky Actions Footer */}
-            <div className="p-4 border-t border-base-300/20 shrink-0 flex flex-col gap-2.5">
+            <div className="p-4 border-t border-slate-200 dark:border-sky-950/20 shrink-0 flex flex-col gap-2.5">
                 {/* Logout Button */}
                 {isCollapsed ? (
                     <button
+                        onClick={handleLogout}
                         className="flex items-center justify-center p-3 rounded-xl border border-rose-500/20 hover:border-rose-500 bg-rose-500/5 hover:bg-rose-500 text-rose-500 hover:text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] w-full"
                         title="Logout"
                         aria-label="Logout"
@@ -139,7 +165,10 @@ const AdminSidebar = ({
                         <LogOut size={18} />
                     </button>
                 ) : (
-                    <button className="btn border border-rose-500/20 hover:border-rose-500 bg-rose-500/5 hover:bg-rose-500 text-rose-500 hover:text-white rounded-xl w-full gap-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] font-semibold">
+                    <button
+                        onClick={handleLogout}
+                        className="btn border border-rose-500/20 hover:border-rose-500 bg-rose-500/5 hover:bg-rose-500 text-rose-500 hover:text-white rounded-xl w-full gap-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] font-semibold"
+                    >
                         <LogOut size={18} />
                         Logout
                     </button>
@@ -148,7 +177,7 @@ const AdminSidebar = ({
                 {/* Sidebar Collapse Toggle Button (Tablet/Desktop only) */}
                 <button
                     onClick={() => setIsCollapsed(!isCollapsed)}
-                    className="hidden md:flex items-center justify-center p-2.5 rounded-xl border border-base-300/30 bg-base-200/50 hover:bg-base-200 text-base-content/70 hover:text-base-content transition-all duration-200 w-full"
+                    className="hidden md:flex items-center justify-center p-2.5 rounded-xl border border-slate-200 dark:border-sky-950/80 bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all duration-200 w-full"
                     title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                     aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >

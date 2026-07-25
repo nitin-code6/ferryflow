@@ -10,12 +10,13 @@ const AdminPageHeader = ({
     return (
         <div
             className="
-            bg-base-100/90
-            backdrop-blur-xl
+            bg-white
+            dark:bg-[#0F1D36]
             rounded-2xl
             border
-            border-base-300/40
-            shadow-md
+            border-slate-200
+            dark:border-sky-950/80
+            shadow-sm
             p-5
             mb-6
             "
@@ -23,12 +24,13 @@ const AdminPageHeader = ({
 
             {/* Breadcrumb */}
 
-            <div className="text-sm text-base-content/60 mb-2">
+            <div className="text-sm text-slate-500 dark:text-slate-400 mb-2">
 
                 <Link
                     to="/admin/dashboard"
                     className="
-                    hover:text-primary
+                    hover:text-[#2563EB]
+                    dark:hover:text-[#00A8FF]
                     transition-colors
                     "
                 >
@@ -37,7 +39,7 @@ const AdminPageHeader = ({
 
                 <span className="mx-2">/</span>
 
-                <span className="text-base-content">
+                <span className="text-slate-800 dark:text-white font-semibold">
                     {title}
                 </span>
 
@@ -56,13 +58,15 @@ const AdminPageHeader = ({
                 "
             >
 
-                <div>
+                <div className="text-left">
 
                     <h1
                         className="
-                        text-2xl
-                        md:text-3xl
+                        text-xl
+                        md:text-2xl
                         font-bold
+                        text-slate-800
+                        dark:text-white
                         "
                     >
                         {title}
@@ -71,9 +75,10 @@ const AdminPageHeader = ({
                     <p
                         className="
                         mt-1
-                        text-sm
-                        md:text-base
-                        text-base-content/70
+                        text-xs
+                        md:text-sm
+                        text-slate-500
+                        dark:text-slate-400
                         "
                     >
                         {description}

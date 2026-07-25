@@ -1,6 +1,8 @@
 const asyncHandler = require("../utils/asyncHandler");
 const ApiResponse = require("../utils/ApiResponse");
 const { createFerryService, getFerryByIdService, getAllFerryService, updateFerryService, deleteFerryService } = require("../services/ferry.service");
+const { generateSeatLayout } = require("../utils/seatLayoutGenerator");
+const Ferry = require("../models/ferry.model");
 
 const createFerry = asyncHandler(async (req, res) => {
     const result = await createFerryService(req.body);
@@ -37,10 +39,22 @@ const deleteFerry = asyncHandler(async (req, res) => {
     );
 });
 
+const getFerryLayout = asyncHandler(async (req, res) => {
+    const ferry = await Ferry.findById(req.params.id).lean();
+    if (!ferry) {
+        return res.status(404).json(new ApiResponse(404, null, "Ferry not found"));
+    }
+    const { floors, seatConfiguration } = generateSeatLayout(ferry.capacity);
+    return res.status(200).json(
+        new ApiResponse(200, { ferry, seatConfiguration, floors }, "Seat layout generated successfully")
+    );
+});
+
 module.exports = {
     createFerry,
     getFerryById,
     getAllFerry,
     updateFerry,
-    deleteFerry
+    deleteFerry,
+    getFerryLayout
 };

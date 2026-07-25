@@ -8,16 +8,15 @@ const createFerryService = async (ferryData) => {
     });
 
     if (existingFerry) {
-
         return {
             success: false,
             statusCode: 409,
             message: "Registration number already exists"
         };
-
     }
 
-    const ferry = await Ferry.create(ferryData);
+    const ferry = new Ferry(ferryData);
+    await ferry.save(); // triggers pre-save hook → seatConfiguration computed
 
     return {
         success: true,
@@ -69,7 +68,6 @@ const getAllFerryService = async () => {
     };
 };
 const updateFerryService = async (ferryId, ferryData) => {
-    console.log(ferryId, ferryData)
     if (!mongoose.Types.ObjectId.isValid(ferryId)) {
 
         return {
@@ -80,20 +78,17 @@ const updateFerryService = async (ferryId, ferryData) => {
 
     }
 
-    const ferry = await Ferry.findByIdAndUpdate(ferryId, ferryData, {
-        new: true,
-        runValidators: true
-    });
-    console.log(ferry)
+    const ferry = await Ferry.findById(ferryId);
     if (!ferry) {
-
         return {
             success: false,
             statusCode: 404,
             message: "Ferry not found"
         };
-
     }
+
+    Object.assign(ferry, ferryData);
+    await ferry.save();
 
     return {
         success: true,

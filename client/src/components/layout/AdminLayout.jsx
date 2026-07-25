@@ -53,32 +53,30 @@ const AdminLayout = () => {
         };
     }, []);
 
-    const bgImage = theme === "dark" ? backDark : backLight;
-
     return (
         <div
             className="
             relative
             flex
             min-h-screen
-            bg-cover
-            bg-center
-            bg-no-repeat
-            bg-fixed
+            bg-slate-50
+            dark:bg-[#071426]
             transition-all
             duration-500
             overflow-x-hidden
             "
-            style={{
-                backgroundImage: `url(${bgImage})`,
-            }}
         >
-            {/* Very Light Overlay (No Blur) */}
+            {/* Ambient glows for premium professional look */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#2563EB]/5 dark:bg-[#2563EB]/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-10 left-10 w-80 h-80 bg-[#00A8FF]/5 dark:bg-[#00A8FF]/10 rounded-full blur-[100px] pointer-events-none" />
+
+            {/* Very Light Overlay */}
             <div
                 className="
                 absolute
                 inset-0
                 bg-black/5
+                dark:bg-black/20
                 pointer-events-none
                 "
             />

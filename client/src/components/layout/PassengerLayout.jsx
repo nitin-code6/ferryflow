@@ -5,6 +5,7 @@ import logo from "../../assets/ferry-logo2.png";
 import { useAuth } from "../../context/AuthContext";
 import { logoutAPI } from "../../services/authService";
 import toast from "react-hot-toast";
+import Footer from "../footer/Footer";
 
 import backLight from "../../assets/backLight3.png";
 import backDark from "../../assets/backdark2.png";
@@ -24,6 +25,11 @@ const PassengerLayout = () => {
 
     useEffect(() => {
         document.documentElement.setAttribute("data-theme", theme);
+        if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
         localStorage.setItem("theme", theme);
         // Dispatch theme changed event
         window.dispatchEvent(new Event("themeChanged"));
@@ -50,12 +56,15 @@ const PassengerLayout = () => {
     const bgImage = theme === "dark" ? backDark : backLight;
 
     return (
-        <div
-            className="relative flex flex-col min-h-screen bg-cover bg-center bg-no-repeat bg-fixed transition-all duration-500 overflow-x-hidden"
-            style={{ backgroundImage: `url(${bgImage})` }}
-        >
-            {/* Soft overlay */}
-            <div className="absolute inset-0 bg-base-300/30 dark:bg-black/40 pointer-events-none" />
+        <div className="relative flex flex-col min-h-screen bg-slate-50 dark:bg-[#0B0F19] transition-all duration-500 overflow-x-hidden">
+            {/* Background image with low opacity for depth */}
+            <div
+                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.06] dark:opacity-[0.04] pointer-events-none"
+                style={{ backgroundImage: `url(${bgImage})` }}
+            />
+            {/* Glowing radial gradient overlays */}
+            <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-sky-500/10 dark:bg-sky-500/5 rounded-full blur-[150px] pointer-events-none" />
 
             {/* Navigation Header */}
             <header className="relative z-50 sticky top-0 w-full bg-base-100/70 dark:bg-slate-900/60 backdrop-blur-xl border-b border-base-300/30 dark:border-white/5 transition-all duration-300 px-4 sm:px-6 lg:px-8">
@@ -205,21 +214,7 @@ const PassengerLayout = () => {
             </main>
 
             {/* Footer */}
-            <footer className="relative z-10 w-full bg-base-100/50 dark:bg-slate-950/40 backdrop-blur-xl border-t border-base-300/20 dark:border-white/5 py-8 mt-auto px-4 sm:px-6 lg:px-8 text-base-content/60">
-                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="text-lg">🚢</span>
-                        <span className="font-bold text-base-content dark:text-white">FerryFlow</span>
-                        <span className="text-xs font-medium">© {new Date().getFullYear()} Operations.</span>
-                    </div>
-                    <div className="flex items-center gap-6 text-xs font-semibold">
-                        <Link to="#" className="hover:text-primary transition-all">Support</Link>
-                        <Link to="#" className="hover:text-primary transition-all">Contact Us</Link>
-                        <Link to="#" className="hover:text-primary transition-all">Privacy Policy</Link>
-                        <Link to="#" className="hover:text-primary transition-all">Terms of Service</Link>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 };

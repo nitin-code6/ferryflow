@@ -37,8 +37,8 @@ const ScheduleForm = ({
                     getAllRoutes(),
                 ]);
                 // Filter ferries to only show available ones for new schedules, unless editing
-                setFerries(ferriesRes.ferries || []);
-                setRoutes(routesRes.routes || []);
+                setFerries(ferriesRes.data || ferriesRes.ferries || []);
+                setRoutes(routesRes.data || routesRes.routes || []);
             } catch (error) {
                 toast.error("Failed to load routes or ferries.");
             } finally {

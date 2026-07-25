@@ -40,3 +40,8 @@ export const deleteFerry = async (id) => {
 
     return response.data;
 };
+
+export const getFerryLayout = async (ferryId) => {
+    const response = await api.get(`/ferry/${ferryId}/seat-layout`);
+    return response.data;
+};

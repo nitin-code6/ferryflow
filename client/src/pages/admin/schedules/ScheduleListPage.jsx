@@ -29,7 +29,7 @@ const ScheduleListPage = () => {
     const fetchSchedules = async () => {
         try {
             const response = await getAllSchedules();
-            setSchedules(response.schedules || []);
+            setSchedules(response.data || response.schedules || []);
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to fetch schedules.");
         } finally {
@@ -129,7 +129,7 @@ const ScheduleListPage = () => {
                 />
             </div>
 
-            <div className="bg-base-100/90 rounded-2xl border border-base-300 shadow-lg p-5">
+            <div className="bg-white dark:bg-[#0F1D36] rounded-2xl border border-slate-200 dark:border-sky-950/80 shadow-md p-5 text-slate-800 dark:text-white">
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
                     <div className="w-full lg:max-w-md">
                         <SearchBar
@@ -138,7 +138,7 @@ const ScheduleListPage = () => {
                             placeholder="Search by ferry, route, origin port..."
                         />
                     </div>
-                    <div className="text-sm text-base-content/60 font-medium">
+                    <div className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                         {filteredSchedules.length} Schedules
                     </div>
                 </div>

@@ -6,7 +6,7 @@ const client = require('../config/redis');
 const jwt = require('jsonwebtoken');
 const createAndSendOtp = require("../utils/createAndSendOtp");
 const registerUser = async (userData) => {
-    const { name, email, password } = userData;
+    const { name, email, password, role, adminSecretKey } = userData;
 
     const existingUser = await User.findOne({ email });
 
@@ -18,12 +18,25 @@ const registerUser = async (userData) => {
         };
     }
 
+    // Backend Security Verification for Administrative/Staff Roles
+    if (role && (role === "admin" || role === "staff")) {
+        const expectedSecretKey = process.env.ADMIN_SECRET_KEY || "FERRYFLOW_ADMIN_SECRET_2026";
+        if (!adminSecretKey || adminSecretKey !== expectedSecretKey) {
+            return {
+                success: false,
+                statusCode: 403,
+                message: "Unauthorized: Invalid Admin Authorization Security Clearance Token"
+            };
+        }
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
         name,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        role: role || "citizen"
     });
 
     await createAndSendOtp(

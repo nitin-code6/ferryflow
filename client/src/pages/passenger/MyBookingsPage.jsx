@@ -18,62 +18,24 @@ const MyBookingsPage = () => {
     const [activeTab, setActiveTab] = useState("upcoming"); // 'upcoming', 'completed', 'cancelled'
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadBookings();
-    }, []);
-
     const loadBookings = async () => {
         setLoading(true);
         try {
             const response = await getUserBookings();
-            if (response.success && response.bookings) {
-                setBookings(response.bookings);
-                setLoading(false);
-                return;
-            }
+            const list = response.data || response.bookings || [];
+            setBookings(list);
         } catch (error) {
-            console.warn("Could not load real passenger bookings, loading offline cache:", error);
+            console.error("Failed to load passenger bookings:", error);
+            setBookings([]);
+        } finally {
+            setLoading(false);
         }
-
-        // Offline Fallback Seed
-        const stored = localStorage.getItem("ferryflow_bookings");
-        if (stored) {
-            setBookings(JSON.parse(stored));
-        } else {
-            const now = new Date();
-            const seedBookings = [
-                {
-                    id: "TKT-827391",
-                    seats: ["3A", "3B"],
-                    totalPrice: 30.00,
-                    date: new Date(now.getTime() - 86400000).toISOString(),
-                    schedule: {
-                        ferry: { name: "Sea Breeze", registrationNumber: "SEA-SB-1144" },
-                        route: { origin: "Seattle Terminal", destination: "Bainbridge Island" },
-                        departureTime: new Date(now.getTime() + 86400000).toISOString()
-                    },
-                    bookingStatus: "confirmed",
-                    paymentStatus: "paid"
-                },
-                {
-                    id: "TKT-192837",
-                    seats: ["12C"],
-                    totalPrice: 15.00,
-                    date: new Date(now.getTime() - 172800000).toISOString(),
-                    schedule: {
-                        ferry: { name: "Pacific Cruiser", registrationNumber: "SEA-PC-9821" },
-                        route: { origin: "Seattle Terminal", destination: "Bainbridge Island" },
-                        departureTime: new Date(now.getTime() + 345600000).toISOString()
-                    },
-                    bookingStatus: "confirmed",
-                    paymentStatus: "paid"
-                }
-            ];
-            localStorage.setItem("ferryflow_bookings", JSON.stringify(seedBookings));
-            setBookings(seedBookings);
-        }
-        setLoading(false);
     };
+
+    useEffect(() => {
+        loadBookings();
+    }, []);
+
 
     const handleCancelBooking = (bookingId) => {
         toast((t) => (
@@ -104,34 +66,24 @@ const MyBookingsPage = () => {
         try {
             if (bookingId && !bookingId.toString().startsWith("TKT-") && !bookingId.toString().startsWith("BK-")) {
                 const response = await cancelBooking(bookingId);
-                if (response.success) {
+                if (response.success !== false) {
                     toast.success("Booking cancelled successfully.");
                     loadBookings();
                     return;
+                } else {
+                    toast.error(response.message || "Failed to cancel booking.");
                 }
             }
         } catch (error) {
-            console.warn("Server cancellation failed, falling back to local simulation:", error);
+            toast.error("Failed to cancel booking. Please try again.");
         }
-
-        // Cache cancellation
-        const updated = bookings.map((b) => {
-            const id = b._id || b.id;
-            if (id === bookingId) {
-                return { ...b, bookingStatus: "cancelled" };
-            }
-            return b;
-        });
-        localStorage.setItem("ferryflow_bookings", JSON.stringify(updated));
-        setBookings(updated);
-        toast.success("Booking cancelled successfully.");
     };
 
-    // Filter by active tabs
+    // Filter by active tabs — pending_payment bookings show in upcoming
     const filteredBookings = bookings.filter((b) => {
         const rawStatus = (b.bookingStatus || b.status)?.toLowerCase();
         if (activeTab === "upcoming") {
-            return rawStatus === "scheduled" || rawStatus === "boarding" || rawStatus === "departed" || rawStatus === "confirmed" || rawStatus === "pending";
+            return ["scheduled", "boarding", "departed", "confirmed", "pending", "pending_payment"].includes(rawStatus);
         }
         if (activeTab === "completed") {
             return rawStatus === "completed";
@@ -151,21 +103,23 @@ const MyBookingsPage = () => {
     }
 
     return (
-        <div className="space-y-8 pb-12 text-base-content animate-in fade-in">
+        <div className="space-y-8 pb-12 text-slate-900 dark:text-slate-100 animate-in fade-in">
             {/* Page Header */}
             <div>
-                <p className="text-xs text-base-content/60 font-medium">Passenger Terminal</p>
-                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-base-content mt-0.5">
+                <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                    Passenger Portal
+                </span>
+                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-slate-900 dark:text-white mt-1">
                     My Booking History
                 </h1>
             </div>
 
             {/* Booking Navigation tabs */}
-            <div className="tabs tabs-boxed bg-base-100/60 border border-base-300/30 p-1.5 rounded-2xl w-fit flex gap-1">
+            <div className="tabs tabs-boxed bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-1.5 rounded-2xl w-fit flex gap-1 shadow-sm">
                 <button
                     onClick={() => setActiveTab("upcoming")}
                     className={`tab rounded-xl font-bold transition-all ${
-                        activeTab === "upcoming" ? "tab-active bg-primary text-white" : "text-base-content/60"
+                        activeTab === "upcoming" ? "tab-active bg-primary text-white" : "text-slate-600 dark:text-slate-300"
                     }`}
                 >
                     Upcoming Trips
@@ -173,7 +127,7 @@ const MyBookingsPage = () => {
                 <button
                     onClick={() => setActiveTab("completed")}
                     className={`tab rounded-xl font-bold transition-all ${
-                        activeTab === "completed" ? "tab-active bg-primary text-white" : "text-base-content/60"
+                        activeTab === "completed" ? "tab-active bg-primary text-white" : "text-slate-600 dark:text-slate-300"
                     }`}
                 >
                     Completed
@@ -181,7 +135,7 @@ const MyBookingsPage = () => {
                 <button
                     onClick={() => setActiveTab("cancelled")}
                     className={`tab rounded-xl font-bold transition-all ${
-                        activeTab === "cancelled" ? "tab-active bg-primary text-white" : "text-base-content/60"
+                        activeTab === "cancelled" ? "tab-active bg-primary text-white" : "text-slate-600 dark:text-slate-300"
                     }`}
                 >
                     Cancelled
@@ -208,14 +162,14 @@ const MyBookingsPage = () => {
                             return (
                                 <div
                                     key={bId}
-                                    className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-5 shadow-lg flex flex-col justify-between gap-5 transition-all hover:shadow-xl"
+                                    className="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-lg flex flex-col justify-between gap-5 transition-all hover:shadow-xl"
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
-                                            <h4 className="font-extrabold text-base-content text-lg">
+                                            <h4 className="font-black text-slate-900 dark:text-white text-lg">
                                                 {b.schedule?.ferry?.name || "Transit Vessel"}
                                             </h4>
-                                            <p className="text-[10px] text-base-content/40 font-bold uppercase tracking-wide mt-1">
+                                            <p className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase tracking-wide mt-1">
                                                 Booking ID: {b.ticketId || bId}
                                             </p>
                                         </div>
@@ -223,12 +177,12 @@ const MyBookingsPage = () => {
                                     </div>
 
                                     {/* Voyage details */}
-                                    <div className="space-y-3 bg-base-200/40 dark:bg-slate-800/30 p-4 rounded-2xl border border-base-300/10 text-sm font-semibold">
+                                    <div className="space-y-3 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 text-sm font-semibold">
                                         <div className="flex items-start gap-2.5">
                                             <FiMapPin className="text-primary mt-0.5 shrink-0" />
                                             <div>
-                                                <span className="text-[10px] text-base-content/40 uppercase block mb-0.5">Route</span>
-                                                <span className="text-base-content font-bold">
+                                                <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase block mb-0.5 font-bold">Route</span>
+                                                <span className="text-slate-900 dark:text-white font-black">
                                                     {b.schedule?.route?.origin} to {b.schedule?.route?.destination}
                                                 </span>
                                             </div>
@@ -237,24 +191,24 @@ const MyBookingsPage = () => {
                                         <div className="flex items-start gap-2.5">
                                             <FiCalendar className="text-primary mt-0.5 shrink-0" />
                                             <div>
-                                                <span className="text-[10px] text-base-content/40 uppercase block mb-0.5">Departure</span>
-                                                <span className="text-base-content font-bold">
+                                                <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase block mb-0.5 font-bold">Departure</span>
+                                                <span className="text-slate-900 dark:text-white font-black">
                                                     {formatDateTime(b.schedule?.departureTime)}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-base-300/10 mt-1">
+                                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-700 mt-1">
                                             <div className="flex items-start gap-2">
                                                 <FiGrid className="text-primary mt-0.5 shrink-0" />
                                                 <div>
-                                                    <span className="text-[10px] text-base-content/40 uppercase block mb-0.5">Seats</span>
-                                                    <span className="text-base-content font-mono font-bold">{bSeats?.join(", ")}</span>
+                                                    <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase block mb-0.5 font-bold">Seats</span>
+                                                    <span className="text-slate-900 dark:text-white font-mono font-bold">{bSeats?.join(", ")}</span>
                                                 </div>
                                             </div>
                                             <div>
-                                                <span className="text-[10px] text-base-content/40 uppercase block mb-0.5">Paid Amount</span>
-                                                <span className="text-base-content font-bold">${bPrice?.toFixed(2)}</span>
+                                                <span className="text-[10px] text-slate-600 dark:text-slate-400 uppercase block mb-0.5 font-bold">Paid Amount</span>
+                                                <span className="text-slate-900 dark:text-white font-black">₹{bPrice?.toFixed(2)}</span>
                                             </div>
                                         </div>
                                     </div>

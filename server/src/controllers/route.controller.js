@@ -5,7 +5,8 @@ const {
     getRouteByIdService,
     getAllRouteService,
     updateRouteService,
-    deleteRouteService
+    deleteRouteService,
+    getPopularRoutesService
 } = require("../services/route.service");
 
 const createRoute = asyncHandler(async (req, res) => {
@@ -43,10 +44,18 @@ const deleteRoute = asyncHandler(async (req, res) => {
     );
 });
 
+const getPopularRoutes = asyncHandler(async (req, res) => {
+    const result = await getPopularRoutesService();
+    return res.status(result.statusCode).json(
+        new ApiResponse(result.statusCode, result.routes, result.message)
+    );
+});
+
 module.exports = {
     createRoute,
     getAllRoute,
     getRouteById,
     updateRoute,
-    deleteRoute
+    deleteRoute,
+    getPopularRoutes
 };

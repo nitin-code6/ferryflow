@@ -45,7 +45,7 @@ const FerryListPage = () => {
 
             const response = await getAllFerries();
 
-            setFerries(response.ferries);
+            setFerries(response.data || []);
 
         } catch {
 

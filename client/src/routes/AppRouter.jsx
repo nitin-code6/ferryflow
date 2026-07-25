@@ -7,6 +7,9 @@ import VerifyOtpPage from "../pages/public/VerifyOtpPage";
 import ForgotPasswordPage from "../pages/public/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/public/ResetPasswordPage";
 
+import AdminLoginPage from "../pages/admin/auth/AdminLoginPage";
+import AdminRegisterPage from "../pages/admin/auth/AdminRegisterPage";
+
 import ProtectedRoute from "../components/protectedRoute";
 
 import AdminLayout from "../components/layout/AdminLayout";
@@ -40,25 +43,44 @@ import PaymentSuccessPage from "../pages/passenger/PaymentSuccessPage";
 import MyBookingsPage from "../pages/passenger/MyBookingsPage";
 import ProfilePage from "../pages/passenger/ProfilePage";
 
+import FerriesPage from "../pages/public/FerriesPage";
+import RoutesPage from "../pages/public/RoutesPage";
+import ContactPage from "../pages/public/ContactPage";
+import PrivacyPage from "../pages/public/PrivacyPage";
+import TermsPage from "../pages/public/TermsPage";
+import AccessibilityPage from "../pages/public/AccessibilityPage";
+
+import PublicLayout from "../components/layout/PublicLayout";
+
 export default function AppRouter() {
     return (
         <BrowserRouter>
             <Routes>
 
                 {/* Public Routes */}
+                <Route element={<PublicLayout />}>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/verify-otp" element={<VerifyOtpPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="/ferries" element={<FerriesPage />} />
+                    <Route path="/routes" element={<RoutesPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/privacy" element={<PrivacyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
+                    <Route path="/accessibility" element={<AccessibilityPage />} />
+                </Route>
 
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-                <Route path="/verify-otp" element={<VerifyOtpPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                {/* Separate Admin Public Auth Routes (Without Public Navbar) */}
+                <Route path="/admin/login" element={<AdminLoginPage />} />
 
-                {/* Passenger Routes */}
+                {/* Passenger Protected Routes */}
                 <Route
                     path="/"
                     element={
-                        <ProtectedRoute>
+                        <ProtectedRoute requiredRoles={["citizen", "tourist"]}>
                             <PassengerLayout />
                         </ProtectedRoute>
                     }
@@ -72,17 +94,18 @@ export default function AppRouter() {
                     <Route path="profile" element={<ProfilePage />} />
                 </Route>
 
-                {/* Admin Routes */}
-
+                {/* Admin Protected Routes */}
                 <Route
                     path="/admin"
                     element={
-                        <ProtectedRoute>
+                        <ProtectedRoute requiredRoles={["admin", "staff"]}>
                             <AdminLayout />
                         </ProtectedRoute>
                     }
                 >
+                    <Route index element={<DashboardPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />
+                    <Route path="register" element={<AdminRegisterPage />} />
 
                     {/* Ferry Management */}
                     <Route path="ferries" element={<FerryListPage />} />

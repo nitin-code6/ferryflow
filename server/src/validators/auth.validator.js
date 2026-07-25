@@ -18,7 +18,11 @@ const registerSchema = z.object({
 
     email: emailRules,
 
-    password: passwordRules
+    password: passwordRules,
+
+    role: z.enum(["citizen", "tourist", "staff", "admin"]).optional(),
+
+    adminSecretKey: z.string().optional()
 });
 
 const loginSchema = z.object({

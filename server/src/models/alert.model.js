@@ -14,7 +14,7 @@ const alertSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ["info", "warning", "critical"],
+            enum: ["info", "warning", "critical", "delay", "cancellation", "weather", "maintenance"],
             default: "info"
         },
         priority: {

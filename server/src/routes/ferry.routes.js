@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const validate = require("../middleware/validate");
-const { createFerry, getFerryById, getAllFerry, updateFerry, deleteFerry } = require("../controllers/ferry.controller");
+const { createFerry, getFerryById, getAllFerry, updateFerry, deleteFerry, getFerryLayout } = require("../controllers/ferry.controller");
 const { createFerrySchema, updateFerrySchema } = require("../validators/ferry.validator");
 const authMiddleware = require("../middleware/auth.middleware");
 const authorizeRoles = require("../middleware/role.middleware");
@@ -13,6 +13,7 @@ router.post(
     validate(createFerrySchema),
     createFerry
 );
+router.get("/:id/seat-layout", getFerryLayout);
 router.get("/:id", getFerryById);
 router.get("/", getAllFerry);
 

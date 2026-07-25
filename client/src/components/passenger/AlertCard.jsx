@@ -35,7 +35,7 @@ const AlertCard = ({ type = "delay", message, date, routeName }) => {
     const config = alertStyles[type] || alertStyles.delay;
 
     return (
-        <div className={`border ${config.border} ${config.bg} rounded-2xl p-4 flex gap-4 transition-all hover:scale-[1.01]`}>
+        <div className={`border ${config.border} ${config.bg} bg-white/90 dark:bg-slate-900/90 rounded-2xl p-4 flex gap-4 transition-all hover:scale-[1.01] shadow-sm`}>
             <div className="shrink-0 mt-0.5">{config.icon}</div>
             <div className="space-y-1 flex-1">
                 <div className="flex justify-between items-center">
@@ -43,13 +43,13 @@ const AlertCard = ({ type = "delay", message, date, routeName }) => {
                         {config.labelText}
                     </span>
                     {date && (
-                        <span className="text-[10px] text-base-content/40 font-semibold uppercase">{date}</span>
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase">{date}</span>
                     )}
                 </div>
                 {routeName && (
-                    <p className="text-xs font-bold text-base-content/70">Route: {routeName}</p>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200">Route: {routeName}</p>
                 )}
-                <p className="text-sm font-medium text-base-content/90 leading-relaxed mt-1">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white leading-relaxed mt-1">
                     {message}
                 </p>
             </div>

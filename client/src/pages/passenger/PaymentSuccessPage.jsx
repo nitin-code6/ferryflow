@@ -47,11 +47,15 @@ const PaymentSuccessPage = () => {
                 <div className="grid grid-cols-2 gap-4 border-y border-base-300/20 py-5 text-left text-sm font-semibold">
                     <div>
                         <span className="text-[10px] text-base-content/40 uppercase block mb-1">Ticket ID</span>
-                        <span className="font-mono font-bold text-base-content text-base">{activeBooking.id}</span>
+                        <span className="font-mono font-bold text-base-content text-base">
+                            {activeBooking.ticketId || activeBooking.id}
+                        </span>
                     </div>
                     <div>
                         <span className="text-[10px] text-base-content/40 uppercase block mb-1">Payment ID</span>
-                        <span className="font-mono font-bold text-base-content text-base truncate block">{activeBooking.paymentId}</span>
+                        <span className="font-mono font-bold text-base-content text-base truncate block">
+                            {activeBooking.paymentDetails?.paymentId || activeBooking.paymentId || "—"}
+                        </span>
                     </div>
                 </div>
 
@@ -91,7 +95,9 @@ const PaymentSuccessPage = () => {
                             <span className="text-primary mt-0.5 shrink-0">🎫</span>
                             <div>
                                 <span className="text-[10px] text-base-content/40 uppercase block mb-0.5">Seats</span>
-                                <span className="text-base-content font-mono">{activeBooking.seats?.join(", ")}</span>
+                                <span className="text-base-content font-mono">
+                                    {(activeBooking.seatNumbers || activeBooking.seats)?.join(", ") || "—"}
+                                </span>
                             </div>
                         </div>
                     </div>

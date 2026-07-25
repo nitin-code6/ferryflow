@@ -24,7 +24,7 @@ const EditFerryPage = () => {
     const fetchFerry = async () => {
         try {
             const response = await getFerryById(id);
-            setFerry(response.ferry);
+            setFerry(response.data || response.ferry);
         } catch (error) {
             toast.error(
                 error.response?.data?.message || "Failed to fetch ferry"

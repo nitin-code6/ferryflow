@@ -7,33 +7,30 @@ const StatsCard = ({
     return (
         <div
             className="
-            bg-base-100/90
-            backdrop-blur-xl
-            rounded-xl
+            bg-white
+            dark:bg-[#0F1D36]
+            rounded-2xl
             border
-            border-base-300/40
-            shadow-md
-            p-4
-
+            border-slate-200
+            dark:border-sky-950/80
+            shadow-sm
+            p-5
             transition-all
             duration-200
-
-            hover:shadow-lg
-            hover:border-primary/30
+            hover:shadow-md
             "
         >
             <div className="flex items-center justify-between">
-
                 {/* Left */}
-
                 <div>
-
                     <p
                         className="
-                        text-xs
+                        text-[10px]
+                        font-bold
                         uppercase
-                        tracking-wide
-                        text-base-content/60
+                        tracking-wider
+                        text-slate-400
+                        dark:text-slate-450
                         "
                     >
                         {title}
@@ -41,37 +38,34 @@ const StatsCard = ({
 
                     <h2
                         className="
-                        mt-1
-                        text-2xl
+                        mt-1.5
+                        text-xl
                         font-bold
                         leading-none
+                        text-slate-800
+                        dark:text-white
                         "
                     >
                         {value}
                     </h2>
-
                 </div>
 
                 {/* Right */}
-
                 <div
                     className={`
-                    h-11
-                    w-11
+                    h-10
+                    w-10
                     rounded-xl
-
                     flex
                     items-center
                     justify-center
-
                     text-white
-
+                    shrink-0
                     ${color}
                     `}
                 >
                     {icon}
                 </div>
-
             </div>
         </div>
     );

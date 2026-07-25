@@ -9,6 +9,13 @@ const statusStyles = {
     departed: "badge badge-primary badge-outline",
     completed: "badge badge-success badge-outline",
     cancelled: "badge badge-error badge-outline",
+    // Booking-specific statuses
+    pending: "badge badge-warning badge-outline",
+    pending_payment: "badge badge-warning badge-outline",
+    confirmed: "badge badge-success",
+    paid: "badge badge-success badge-outline",
+    failed: "badge badge-error badge-outline",
+    refunded: "badge badge-neutral badge-outline",
 };
 
 const statusLabels = {
@@ -22,7 +29,15 @@ const statusLabels = {
     departed: "Departed",
     completed: "Completed",
     cancelled: "Cancelled",
+    // Booking-specific
+    pending: "Pending",
+    pending_payment: "Awaiting Payment",
+    confirmed: "Confirmed",
+    paid: "Paid",
+    failed: "Failed",
+    refunded: "Refunded",
 };
+
 
 const StatusBadge = ({ status }) => {
     return (

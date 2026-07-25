@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import toast from "react-hot-toast";
 import AuthLayout from "../../components/layout/AuthLayout";
@@ -9,10 +9,22 @@ import {
     googleLoginAPI
 } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
-const LoginPage = () => {
-    const { checkAuth } = useAuth();
+import { useLocation } from "react-router";
 
+const LoginPage = () => {
+    const { checkAuth, isAuthenticated, user } = useAuth();
+    const location = useLocation();
     const navigate = useNavigate();
+
+    // If user is already authenticated, redirect them away from login
+    useEffect(() => {
+        if (isAuthenticated) {
+            const target = location.state?.from?.pathname
+                ? (location.state.from.pathname + (location.state.from.search || ""))
+                : (user?.role === "admin" || user?.role === "staff" ? "/admin" : "/dashboard");
+            navigate(target, { replace: true });
+        }
+    }, [isAuthenticated, location, navigate, user]);
 
     const [formData, setFormData] = useState({
         email: "",
@@ -32,16 +44,16 @@ w-full
 h-12
 rounded-xl
 bg-white
-text-black
+dark:bg-[#071426]
+text-[#071426]
+dark:text-[#F8FAFC]
 placeholder:text-slate-400
-dark:bg-slate-900
-dark:text-white
-dark:placeholder:text-slate-500
-border-slate-300
-focus:border-[#0EA5E9]
+border-slate-200
+dark:border-sky-950
+focus:border-primary
 focus:outline-none
 focus:ring-4
-focus:ring-[#0EA5E9]/15
+focus:ring-primary/15
 transition-all
 duration-200
 `;
@@ -128,7 +140,10 @@ duration-200
 
             toast.success("Welcome back!");
 
-            navigate("/");
+            const target = location.state?.from?.pathname
+                ? (location.state.from.pathname + (location.state.from.search || ""))
+                : (user?.role === "admin" || user?.role === "staff" ? "/admin" : "/dashboard");
+            navigate(target, { replace: true });
 
         } catch (error) {
 
@@ -160,23 +175,21 @@ duration-200
     return (
 
         <AuthLayout>
-
             <div
                 className="
-            bg-base-100/90
+            bg-white
+            dark:bg-[#0F1D36]
             backdrop-blur-xl
             rounded-[28px]
             border
-            border-white/20
+            border-slate-200
+            dark:border-sky-950/80
             shadow-[0_25px_80px_rgba(0,0,0,0.18)]
             overflow-hidden
             "
             >
-
                 <div className="p-6 lg:p-8">
-
                     <div className="text-center">
-
                         <h2
                             className="
                         text-3xl
@@ -185,22 +198,18 @@ duration-200
                         tracking-tight
                         "
                         >
-
                             Welcome
-
                             <span
                                 className="
                             bg-gradient-to-r
                             from-[#2563EB]
-                            via-[#0EA5E9]
-                            to-[#22D3EE]
+                            to-[#00A8FF]
                             bg-clip-text
                             text-transparent
                             "
                             >
                                 {" "}Back
                             </span>
-
                         </h2>
 
                         <p
@@ -415,11 +424,10 @@ duration-200
                         rounded-xl
                         bg-gradient-to-r
                         from-[#2563EB]
-                        via-[#0EA5E9]
-                        to-[#22D3EE]
+                        to-[#00A8FF]
                         text-white
                         shadow-lg
-                        shadow-sky-500/20
+                        shadow-[#2563EB]/15
                         hover:scale-[1.01]
                         transition-all
                         duration-300

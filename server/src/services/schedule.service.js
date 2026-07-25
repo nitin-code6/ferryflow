@@ -152,6 +152,14 @@ const getScheduleByIdService = async (id) => {
         };
     }
 
+    const Booking = require("../models/booking.model");
+    const activeBookings = await Booking.find({
+        schedule: id,
+        bookingStatus: { $ne: "cancelled" }
+    });
+    const occupiedSeats = activeBookings.flatMap(b => b.seatNumbers || []);
+    schedule.bookedSeats = occupiedSeats;
+
     return {
         success: true,
         statusCode: 200,

@@ -19,7 +19,7 @@ const FerryDetailsPage = () => {
     const fetchFerry = async () => {
         try {
             const response = await getFerryById(id);
-            setFerry(response.ferry);
+            setFerry(response.data);
         } catch (error) {
             toast.error(
                 error.response?.data?.message ||
@@ -176,6 +176,40 @@ const FerryDetailsPage = () => {
                                 })}
                             </p>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Generated Seat Layout Preview */}
+            <div className="max-w-3xl bg-base-100/90 backdrop-blur-xl rounded-[28px] border border-white/20 shadow-[0_25px_80px_rgba(0,0,0,0.18)] p-6 md:p-8 mt-6">
+                <div className="flex items-center gap-4 pb-6 border-b border-slate-200/40 dark:border-sky-950/20">
+                    <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#2563EB] to-[#00A8FF] flex items-center justify-center text-white shadow-md">
+                        <Users2 size={24} />
+                    </div>
+                    <div className="text-left">
+                        <h2 className="text-xl font-bold text-slate-800 dark:text-white">Generated Seat Layout</h2>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">Auto-configured cabin deck structure based on capacity</p>
+                    </div>
+                </div>
+
+                <div className="mt-6 space-y-4 text-left">
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-350">
+                        Capacity: <span className="font-bold text-[#2563EB] dark:text-[#00A8FF]">{ferry.capacity}</span> passengers
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Array.from({ length: ferry.seatConfiguration?.totalFloors || 1 }).map((_, fIdx) => {
+                            const floorNum = fIdx + 1;
+                            return (
+                                <div key={floorNum} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-sky-950/20">
+                                    <h4 className="font-bold text-sm text-[#2563EB] dark:text-[#00A8FF] mb-2">Floor {floorNum}</h4>
+                                    <ul className="text-xs space-y-1.5 text-slate-600 dark:text-slate-400 font-semibold">
+                                        <li>Seats Count: <strong>{ferry.seatConfiguration?.seatsPerFloor}</strong></li>
+                                        <li>Left Side Layout: <strong>{ferry.seatConfiguration?.leftSideSeats}</strong> seats</li>
+                                        <li>Right Side Layout: <strong>{ferry.seatConfiguration?.rightSideSeats}</strong> seats</li>
+                                    </ul>
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
             </div>

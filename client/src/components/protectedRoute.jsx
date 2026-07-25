@@ -20,29 +20,35 @@ const ProtectedRoute = ({ children, requiredRoles }) => {
 
     // Show loader while auth state is being resolved
     if (loading) {
-        return <div>Loading...</div>;
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-base-100">
+                <span className="loading loading-spinner loading-lg text-primary"></span>
+            </div>
+        );
     }
 
-    // If no auth state but a JWT cookie exists, treat as authenticated (fallback)
-    const hasAccessToken = !!getCookie("accessToken");
-    const authenticated = isAuthenticated || hasAccessToken;
-
-    if (!authenticated) {
-        // Not logged in – redirect to login preserving intended destination
+    if (!isAuthenticated) {
+        // If requesting admin route, redirect to admin login; otherwise passenger login
+        const isAdminRoute = requiredRoles?.includes("admin") || requiredRoles?.includes("staff");
+        const loginPath = isAdminRoute ? "/admin/login" : "/login";
         return (
             <Navigate
-                to="/login"
+                to={loginPath}
                 replace
                 state={{ from: location }}
             />
         );
     }
 
-    // Role based guard – if requiredRoles supplied, enforce role check
+    // Role based guard
     if (requiredRoles && requiredRoles.length > 0) {
-        const userRole = user?.role || "";
+        const userRole = user?.role || "citizen";
         if (!requiredRoles.includes(userRole)) {
-            return <Navigate to="/403" replace />;
+            // Redirect user to their appropriate portal dashboard
+            if (userRole === "admin" || userRole === "staff") {
+                return <Navigate to="/admin/dashboard" replace />;
+            }
+            return <Navigate to="/dashboard" replace />;
         }
     }
 

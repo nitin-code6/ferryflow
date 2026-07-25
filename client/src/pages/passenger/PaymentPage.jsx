@@ -61,59 +61,104 @@ const PaymentPage = () => {
 
     const priceDisplay = activeBooking.totalAmount !== undefined ? activeBooking.totalAmount : activeBooking.totalPrice;
 
+    const loadRazorpayScript = () => {
+        return new Promise((resolve) => {
+            const script = document.createElement("script");
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        });
+    };
+
     const handlePaySubmit = async (e) => {
         e.preventDefault();
-        if (cardNumber.length < 19 || expiry.length < 5 || cvc.length < 3 || !name.trim()) {
-            toast.error("Please enter complete card details.");
-            return;
-        }
 
         setIsPaying(true);
 
-        // Step-by-step payment logs simulation
-        const steps = [
-            "Validating credit card credentials...",
-            "Establishing connection to secure bank gateway...",
-            "Acquiring seat locks with harbor operations...",
-            "Finalizing transaction records..."
-        ];
-
-        for (let i = 0; i < steps.length; i++) {
-            setPaymentStep(steps[i]);
-            await new Promise((resolve) => setTimeout(resolve, 500));
-        }
-
         const bookingId = activeBooking._id || activeBooking.id;
-        try {
-            // Attempt integration if not a mock booking
-            if (bookingId && !bookingId.toString().startsWith("BK-")) {
+
+        if (bookingId && !bookingId.toString().startsWith("BK-")) {
+            try {
+                // 1. Create order on backend
                 const orderRes = await createPaymentOrder(bookingId);
-                if (orderRes.success) {
-                    const verifyRes = await verifyPayment({
-                        bookingId: bookingId,
-                        razorpay_order_id: orderRes.order.id,
-                        razorpay_payment_id: `pay_mock_${Date.now()}`,
-                        razorpay_signature: "mock_signature_hex"
-                    });
-                    if (verifyRes.success && verifyRes.booking) {
-                        toast.success("Payment verified successfully!");
-                        const normalizedBooking = {
-                            ...verifyRes.booking,
-                            id: verifyRes.booking.ticketId || verifyRes.booking._id,
-                            seats: verifyRes.booking.seatNumbers || activeBooking.seats,
-                            totalPrice: verifyRes.booking.totalAmount,
-                            schedule: activeBooking.schedule
-                        };
-                        navigate("/payment-success", { state: { booking: normalizedBooking } });
+                const orderData = orderRes.data || orderRes.order;
+                
+                if ((orderRes.statusCode < 400 || orderRes.success) && orderData) {
+                    const res = await loadRazorpayScript();
+                    if (!res) {
+                        toast.error("Razorpay SDK failed to load. Are you online?");
+                        setIsPaying(false);
                         return;
                     }
+
+                    const options = {
+                        key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_TGux47r14aaiav", // Match test key in server env
+                        amount: orderData.amount,
+                        currency: orderData.currency,
+                        name: "FerryFlow",
+                        description: "Ferry Ticket Booking",
+                        order_id: orderData.id,
+                        handler: async function (response) {
+                            try {
+                                const verifyRes = await verifyPayment({
+                                    bookingId: bookingId,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature
+                                });
+                                
+                                const verifiedBooking = verifyRes.data || verifyRes.booking;
+                                if ((verifyRes.statusCode < 400 || verifyRes.success) && verifiedBooking) {
+                                    toast.success("Payment verified successfully!");
+                                    const normalizedBooking = {
+                                        ...verifiedBooking,
+                                        id: verifiedBooking._id || verifiedBooking.id,
+                                        seats: verifiedBooking.seatNumbers || activeBooking.seats,
+                                        totalPrice: verifiedBooking.totalAmount || activeBooking.totalAmount || activeBooking.totalPrice,
+                                        schedule: activeBooking.schedule
+                                    };
+                                    navigate("/payment-success", { state: { booking: normalizedBooking } });
+                                } else {
+                                    toast.error(verifyRes.message || "Payment verification failed.");
+                                    setIsPaying(false);
+                                }
+                            } catch (error) {
+                                toast.error("Payment verification failed on server.");
+                                setIsPaying(false);
+                            }
+                        },
+                        prefill: {
+                            name: activeBooking.user?.name || "Passenger",
+                            email: activeBooking.user?.email || "passenger@example.com",
+                        },
+                        theme: {
+                            color: "#2563EB"
+                        },
+                        modal: {
+                            ondismiss: function () {
+                                setIsPaying(false);
+                            }
+                        }
+                    };
+
+                    const rzp = new window.Razorpay(options);
+                    rzp.open();
+                    return; // Prevent running fallback
+                } else {
+                    toast.error(orderRes.message || "Failed to create payment order.");
+                    setIsPaying(false);
+                    return;
                 }
+            } catch (error) {
+                console.warn("Backend checkout API failed", error);
+                toast.error("Could not initiate payment. Try again.");
+                setIsPaying(false);
+                return;
             }
-        } catch (error) {
-            console.warn("Backend checkout API failed or bypassed, falling back to successful demo simulation:", error);
         }
 
-        // Mock payment confirmation
+        // Mock payment confirmation (fallback)
         const confirmedBooking = {
             ...activeBooking,
             paymentStatus: "paid",
@@ -122,7 +167,6 @@ const PaymentPage = () => {
             ticketId: `FF-${Date.now()}`
         };
 
-        // Cache booking in local storage
         const existingBookings = JSON.parse(localStorage.getItem("ferryflow_bookings") || "[]");
         const index = existingBookings.findIndex(b => b.id === activeBooking.id);
         if (index !== -1) {
@@ -133,7 +177,7 @@ const PaymentPage = () => {
         localStorage.setItem("ferryflow_bookings", JSON.stringify(existingBookings));
 
         setIsPaying(false);
-        toast.success("Payment successful!");
+        toast.success("Mock Payment successful!");
         navigate("/payment-success", { state: { booking: confirmedBooking } });
     };
 
@@ -157,85 +201,31 @@ const PaymentPage = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                {/* Left Credit Card Form */}
-                <form onSubmit={handlePaySubmit} className="lg:col-span-2 bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-6">
+                {/* Left Action Area */}
+                <div className="lg:col-span-2 bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-base-300/20">
                         <div className="flex items-center gap-2.5 font-extrabold text-lg">
-                            <FiCreditCard className="text-primary" /> Credit Card Details
+                            <FiCreditCard className="text-primary" /> Payment Method
                         </div>
                         <div className="flex items-center gap-1.5 text-xs text-success bg-success/10 border border-success/20 px-2.5 py-1 rounded-full font-bold">
-                            <FiLock size={12} /> SSL Encrypted
+                            <FiLock size={12} /> Secure Checkout
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        {/* Name */}
-                        <div className="flex flex-col">
-                            <label className="text-[11px] font-bold uppercase text-base-content/60 mb-2">Cardholder Name</label>
-                            <input
-                                type="text"
-                                required
-                                placeholder="e.g. John Doe"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="input input-bordered rounded-xl h-11 text-sm font-semibold"
-                            />
-                        </div>
-
-                        {/* Card Number */}
-                        <div className="flex flex-col">
-                            <label className="text-[11px] font-bold uppercase text-base-content/60 mb-2">Card Number</label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    required
-                                    maxLength="19"
-                                    placeholder="4000 1234 5678 9010"
-                                    value={cardNumber}
-                                    onChange={handleCardChange}
-                                    className="input input-bordered rounded-xl h-11 text-sm font-semibold w-full pr-12 font-mono"
-                                />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/40">💳</span>
-                            </div>
-                        </div>
-
-                        {/* Expiry and CVC */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="flex flex-col">
-                                <label className="text-[11px] font-bold uppercase text-base-content/60 mb-2">Expiration Date</label>
-                                <input
-                                    type="text"
-                                    required
-                                    maxLength="5"
-                                    placeholder="MM/YY"
-                                    value={expiry}
-                                    onChange={handleExpiryChange}
-                                    className="input input-bordered rounded-xl h-11 text-sm font-semibold text-center font-mono"
-                                />
-                            </div>
-                            <div className="flex flex-col">
-                                <label className="text-[11px] font-bold uppercase text-base-content/60 mb-2">CVC / CVV</label>
-                                <input
-                                    type="password"
-                                    required
-                                    maxLength="3"
-                                    placeholder="123"
-                                    value={cvc}
-                                    onChange={(e) => setCvc(e.target.value.replace(/[^0-9]/g, ""))}
-                                    className="input input-bordered rounded-xl h-11 text-sm font-semibold text-center font-mono"
-                                />
-                            </div>
-                        </div>
+                    <div className="space-y-4 text-center py-6">
+                        <p className="text-sm font-medium text-base-content/70">
+                            You will be redirected to the secure Razorpay payment gateway to complete your transaction.
+                        </p>
                     </div>
 
                     <button
-                        type="submit"
+                        onClick={handlePaySubmit}
                         disabled={isPaying}
                         className="btn w-full h-12 mt-6 rounded-xl border-0 text-white bg-gradient-to-r from-blue-600 to-sky-500 font-bold hover:scale-[1.01] hover:shadow-lg transition-all"
                     >
-                        {isPaying ? "Processing..." : `Pay $${priceDisplay?.toFixed(2)} USD`}
+                        {isPaying ? "Processing..." : `Pay ₹${priceDisplay?.toFixed(2)} via Razorpay`}
                     </button>
-                </form>
+                </div>
 
                 {/* Right Breakdown info */}
                 <div className="space-y-6">
@@ -260,7 +250,7 @@ const PaymentPage = () => {
                                 <span className="text-primary shrink-0">🎫</span>
                                 <div>
                                     <span className="text-[10px] text-base-content/40 uppercase block">Seats</span>
-                                    <span className="font-mono">{activeBooking.seats?.join(", ")}</span>
+                                    <span className="font-mono">{(activeBooking.seatNumbers || activeBooking.seats)?.join(", ") || "—"}</span>
                                 </div>
                             </div>
                         </div>
@@ -268,9 +258,9 @@ const PaymentPage = () => {
 
                     <div className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl text-center flex flex-col items-center gap-2.5">
                         <FiShield size={32} className="text-success" />
-                        <h4 className="font-bold text-sm text-base-content">Stripe & Bank Secured</h4>
+                        <h4 className="font-bold text-sm text-base-content">Razorpay Secured</h4>
                         <p className="text-xs text-base-content/50 leading-relaxed">
-                            Your payment credentials are encrypted in transit and are never cached on our servers.
+                            Your payment is processed securely via Razorpay — India's leading payment gateway.
                         </p>
                     </div>
                 </div>

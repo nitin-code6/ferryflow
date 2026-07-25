@@ -19,6 +19,8 @@ const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     const isAuthenticated = !!user;
+    const isAdmin = user?.role === "admin" || user?.role === "staff";
+    const isPassenger = user?.role === "citizen" || user?.role === "tourist";
 
     const checkAuth = async () => {
 
@@ -51,7 +53,9 @@ const AuthProvider = ({ children }) => {
                 loading,
                 setLoading,
                 checkAuth,
-                isAuthenticated
+                isAuthenticated,
+                isAdmin,
+                isPassenger
             }}
         >
             {children}

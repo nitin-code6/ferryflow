@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-import Navbar from "../Navbar/Navbar";
+import Navbar from "../navbar/Navbar";
 
 import backLight from "../../assets/backLight3.png"
 import backDark from "../../assets/backdark2.png";
@@ -69,7 +69,9 @@ const AuthLayout = ({ children }) => {
 
             <div
                 className="
-            min-h-[calc(100vh-80px)]
+            min-h-screen
+            pt-24
+            pb-12
             relative
             bg-cover
             bg-center

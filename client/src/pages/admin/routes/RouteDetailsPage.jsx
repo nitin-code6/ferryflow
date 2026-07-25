@@ -19,7 +19,7 @@ const RouteDetailsPage = () => {
     const fetchRoute = async () => {
         try {
             const response = await getRouteById(id);
-            setRoute(response.route);
+            setRoute(response.data || response.route);
         } catch (error) {
             toast.error(
                 error.response?.data?.message || "Failed to fetch route specifications"

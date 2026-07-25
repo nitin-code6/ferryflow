@@ -26,7 +26,7 @@ const ScheduleDetailsPage = () => {
     const fetchSchedule = async () => {
         try {
             const response = await getScheduleById(id);
-            setSchedule(response.schedule);
+            setSchedule(response.data || response.schedule);
         } catch (error) {
             toast.error(
                 error.response?.data?.message || "Failed to fetch schedule information"

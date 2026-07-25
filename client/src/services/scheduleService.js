@@ -5,6 +5,13 @@ export const getAllSchedules = async () => {
     return response.data;
 };
 
+export const searchSchedules = async (params) => {
+    // params can include origin, destination, date
+    const query = new URLSearchParams(params).toString();
+    const response = await api.get(`/schedules/search?${query}`);
+    return response.data;
+};
+
 export const getScheduleById = async (id) => {
     const response = await api.get(`/schedules/${id}`);
     return response.data;

@@ -5,7 +5,8 @@ const {
     getRouteById,
     getAllRoute,
     updateRoute,
-    deleteRoute
+    deleteRoute,
+    getPopularRoutes
 } = require("../controllers/route.controller");
 
 const authMiddleware = require("../middleware/auth.middleware");
@@ -30,6 +31,11 @@ router.post(
 router.get(
     "/",
     getAllRoute
+);
+
+router.get(
+    "/popular",
+    getPopularRoutes
 );
 
 router.get(

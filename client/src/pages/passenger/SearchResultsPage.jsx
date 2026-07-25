@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router";
-import { getAllSchedules } from "../../services/scheduleService";
+import { searchSchedules } from "../../services/scheduleService";
 import FerryCard from "../../components/passenger/FerryCard";
 import { FiArrowLeft, FiFilter, FiSliders, FiClock, FiAlertCircle } from "react-icons/fi";
 import { TableSkeleton } from "../../components/ui/LoadingSkeleton";
@@ -25,19 +25,15 @@ const SearchResultsPage = () => {
         const fetchSchedules = async () => {
             setLoading(true);
             try {
-                const response = await getAllSchedules();
-                const allSchedules = response.schedules || [];
-
-                // Filter schedules based on origin & destination
-                let filtered = allSchedules.filter((s) => {
-                    const matchOrigin = s.route?.origin?.toLowerCase() === fromVal.toLowerCase();
-                    const matchDest = s.route?.destination?.toLowerCase() === toVal.toLowerCase();
-                    return matchOrigin && matchDest && s.status !== "cancelled";
+                const response = await searchSchedules({
+                    origin: fromVal,
+                    destination: toVal,
+                    date: dateVal
                 });
-
-
-
-                setSchedules(filtered);
+                
+                // The backend API returns { success, count, schedules }
+                const allSchedules = response.data || response.schedules || [];
+                setSchedules(allSchedules);
             } catch (error) {
                 console.error("Failed to load schedules:", error);
             } finally {
@@ -58,11 +54,6 @@ const SearchResultsPage = () => {
             passengers: passengerCount.toString(),
             date: dateVal
         }).toString();
-
-        // Pass complete mock details if it's a mock object
-        if (schedule._id.startsWith("mock-")) {
-            localStorage.setItem(`mock_schedule_${schedule._id}`, JSON.stringify(schedule));
-        }
 
         navigate(`/booking?${query}`);
     };

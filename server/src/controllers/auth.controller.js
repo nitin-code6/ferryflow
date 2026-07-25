@@ -4,7 +4,7 @@ const User = require("../models/user.model");
 const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict"
+    sameSite: "lax"
 };
 
 const register = async (req, res) => {
