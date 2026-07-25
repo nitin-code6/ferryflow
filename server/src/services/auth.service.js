@@ -1,10 +1,12 @@
+const mongoose = require("mongoose");
+const { sendEmail } = require("../utils/sendEmail");
 const User = require("../models/user.model");
 const bcrypt = require('bcrypt');
 const Otp = require('../models/otp.model');
 const { generateAccessToken, generateRefreshToken } = require('../utils/generateToken');
 const client = require('../config/redis');
 const jwt = require('jsonwebtoken');
-const createAndSendOtp = require("../utils/createAndSendOtp");
+
 const registerUser = async (userData) => {
     const { name, email, password, role } = userData;
 
@@ -23,26 +25,82 @@ const registerUser = async (userData) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-        name,
-        email,
-        password: hashedPassword,
-        role: assignedRole
-    });
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
-    await createAndSendOtp(
-        user._id,
-        email,
-        "verify-email"
-    )
+    try {
+        // Create User within the session transaction context
+        const users = await User.create([{
+            name,
+            email,
+            password: hashedPassword,
+            role: assignedRole
+        }], { session });
 
+        const user = users[0];
 
-    return {
-        success: true,
-        statusCode: 200,
-        message: "User registered successfully",
+        // Generate and Hash OTP within the session transaction context
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        const hashedOtp = await bcrypt.hash(otp.toString(), 10);
 
-    };
+        // Delete any existing OTP for this user in same session
+        await Otp.deleteMany({
+            userId: user._id,
+            purpose: "verify-email"
+        }, { session });
+
+        // Save new OTP in same session
+        await Otp.create([{
+            userId: user._id,
+            otp: hashedOtp,
+            purpose: "verify-email",
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000)
+        }], { session });
+
+        // Commit transaction after both database operations succeed
+        await session.commitTransaction();
+        session.endSession();
+
+        // Send OTP email after transaction commits successfully
+        console.log("OTP:", otp);
+        await sendEmail({
+            to: email,
+            subject: "Verify Your FerryFlow Account",
+            html: `
+                <div style="
+                    font-family: Arial, sans-serif;
+                    max-width: 600px;
+                    margin: auto;
+                    padding: 20px;
+                ">
+                    <h2>Email Verification</h2>
+                    <p>Use the OTP below to verify your FerryFlow account.</p>
+                    <div style="
+                        font-size: 32px;
+                        font-weight: bold;
+                        letter-spacing: 6px;
+                        text-align: center;
+                        margin: 25px 0;
+                    ">
+                        ${otp}
+                    </div>
+                    <p>This OTP will expire in <strong>5 minutes</strong>.</p>
+                    <p>If you did not request this, please ignore this email.</p>
+                </div>
+            `
+        });
+
+        return {
+            success: true,
+            statusCode: 200,
+            message: "User registered successfully"
+        };
+    } catch (error) {
+        // Abort transaction and rollback user and OTP creation
+        await session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
 };
 const verifyEmailService = async (userData) => {
     const { email, otp, purpose } = userData;
