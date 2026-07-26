@@ -1,5 +1,6 @@
 const Route = require("../models/route.model");
 const Booking = require("../models/booking.model");
+const Schedule = require("../models/schedule.model");
 const mongoose = require("mongoose");
 
 const createRouteService = async (data) => {
@@ -185,8 +186,10 @@ const getPopularRoutesService = async () => {
     const allActiveRoutes = await Route.find({ status: "active" }).lean();
     const popularMap = new Map(popularRoutes.map(pr => [pr._id.toString(), pr]));
     
-    const resultRoutes = allActiveRoutes.map(r => {
+    const resultRoutes = await Promise.all(allActiveRoutes.map(async (r) => {
         const pr = popularMap.get(r._id.toString());
+        const schedules = await Schedule.find({ route: r._id }).select("fare").lean();
+        const minFare = schedules.length > 0 ? Math.min(...schedules.map(s => s.fare)) : Math.max(10, Math.round(r.distance * 1.5 || 10));
         return {
             _id: r._id,
             name: r.name,
@@ -195,10 +198,11 @@ const getPopularRoutesService = async () => {
             distance: r.distance,
             estimatedDuration: r.estimatedDuration,
             status: r.status,
+            fare: minFare,
             bookingCount: pr ? pr.bookingCount : 0,
             seatsBooked: pr ? pr.seatsBooked : 0
         };
-    });
+    }));
 
     resultRoutes.sort((a, b) => b.bookingCount - a.bookingCount);
 

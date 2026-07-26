@@ -45,7 +45,7 @@ const CustomSelect = ({ label, icon, value, onChange, options, placeholder }) =>
                                         className={`flex items-center justify-between w-full px-4 py-2.5 text-sm font-semibold text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/80 ${
                                             value === opt.value
                                                 ? "text-[#2563EB] dark:text-[#00A8FF] bg-[#2563EB]/5 dark:bg-[#00A8FF]/5"
-                                                : "text-slate-750 dark:text-slate-250"
+                                                : "text-slate-700 dark:text-slate-200"
                                         }`}
                                     >
                                         <span>{opt.label}</span>

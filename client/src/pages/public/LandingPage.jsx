@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router";
 import { FiAnchor, FiSearch, FiCompass, FiShield, FiCpu, FiTrendingUp, FiArrowRight, FiArrowLeft, FiAlertTriangle, FiCheckCircle, FiInfo } from "react-icons/fi";
 import { getAllRoutes, getPopularRoutes } from "../../services/routeService";
@@ -6,6 +6,35 @@ import { getAllAlerts } from "../../services/alertService";
 import { getAllFerries } from "../../services/ferryService";
 import { getAllSchedules } from "../../services/scheduleService";
 import toast from "react-hot-toast";
+import backlight3 from "../../assets/backlight3.png";
+import backDark from "../../assets/backDark.png";
+
+const useScrollReveal = () => {
+    const [isIntersecting, setIsIntersecting] = useState(false);
+    const [element, setElement] = useState(null);
+
+    useEffect(() => {
+        if (!element) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsIntersecting(true);
+                    observer.unobserve(element);
+                }
+            },
+            { threshold: 0.08, rootMargin: "0px 0px -60px 0px" }
+        );
+
+        observer.observe(element);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [element]);
+
+    return [setElement, isIntersecting];
+};
 
 const LandingPage = () => {
     const navigate = useNavigate();
@@ -19,6 +48,14 @@ const LandingPage = () => {
     const [ferries, setFerries] = useState([]);
     const [schedules, setSchedules] = useState([]);
 
+    const [searchRef, searchVisible] = useScrollReveal();
+    const [routesRef, routesVisible] = useScrollReveal();
+    const [statusRef, statusVisible] = useScrollReveal();
+    const [mapRef, mapVisible] = useScrollReveal();
+    const [alertsRef, alertsVisible] = useScrollReveal();
+    const [activeStatusIndex, setActiveStatusIndex] = useState(0);
+    const [isTransitioning, setIsTransitioning] = useState(true);
+
     useEffect(() => {
         // Import Google Fonts Inter for clean, simple typography
         const link = document.createElement("link");
@@ -29,9 +66,10 @@ const LandingPage = () => {
         const fetchPorts = async () => {
             try {
                 const response = await getAllRoutes();
-                if (response.success && response.routes) {
+                const routesData = response.routes || response.data;
+                if (response.success && routesData) {
                     const uniquePorts = Array.from(
-                        new Set(response.routes.flatMap((r) => [r.origin, r.destination]))
+                        new Set(routesData.flatMap((r) => [r.origin, r.destination]))
                     ).sort();
                     setPorts(uniquePorts);
                 }
@@ -41,8 +79,9 @@ const LandingPage = () => {
 
             try {
                 const response = await getPopularRoutes();
-                if (response.success && response.routes) {
-                    setActiveRoutes(response.routes);
+                const routesData = response.routes || response.data;
+                if (response.success && routesData) {
+                    setActiveRoutes(routesData);
                 }
             } catch (err) {
                 console.warn("Could not retrieve popular routes:", err);
@@ -52,8 +91,9 @@ const LandingPage = () => {
         const fetchAlerts = async () => {
             try {
                 const response = await getAllAlerts();
-                if (response.success && response.alerts) {
-                    setAlerts(response.alerts.slice(0, 3));
+                const alertsData = response.alerts || response.data;
+                if (response.success && alertsData) {
+                    setAlerts(alertsData.slice(0, 3));
                 }
             } catch (err) {
                 console.warn("Could not retrieve alerts:", err);
@@ -63,8 +103,9 @@ const LandingPage = () => {
         const fetchFerriesList = async () => {
             try {
                 const response = await getAllFerries();
-                if (response.success && response.ferries) {
-                    setFerries(response.ferries);
+                const ferriesData = response.ferries || response.data;
+                if (response.success && ferriesData) {
+                    setFerries(ferriesData);
                 }
             } catch (err) {
                 console.warn("Could not retrieve ferries:", err);
@@ -74,8 +115,9 @@ const LandingPage = () => {
         const fetchSchedulesList = async () => {
             try {
                 const response = await getAllSchedules();
-                if (response.success && response.schedules) {
-                    setSchedules(response.schedules);
+                const schedulesData = response.schedules || response.data;
+                if (response.success && schedulesData) {
+                    setSchedules(schedulesData);
                 }
             } catch (err) {
                 console.warn("Could not retrieve schedules:", err);
@@ -87,7 +129,30 @@ const LandingPage = () => {
         fetchFerriesList();
         fetchSchedulesList();
     }, []);
+    useEffect(() => {
+        setActiveStatusIndex(0);
+        setIsTransitioning(false);
+    }, [schedules]);
 
+    useEffect(() => {
+        const rowCount = schedules.length > 0 ? schedules.length : 6;
+        const interval = setInterval(() => {
+            setIsTransitioning(true);
+            setActiveStatusIndex((prev) => prev + 1);
+        }, 3000);
+        return () => clearInterval(interval);
+    }, [schedules.length]);
+
+    useEffect(() => {
+        const rowCount = schedules.length > 0 ? schedules.length : 6;
+        if (activeStatusIndex >= rowCount) {
+            const timer = setTimeout(() => {
+                setIsTransitioning(false);
+                setActiveStatusIndex(0);
+            }, 500); // Wait for transition duration (500ms) to complete
+            return () => clearTimeout(timer);
+        }
+    }, [activeStatusIndex, schedules.length]);
     const handleSearchSubmit = (e) => {
         e.preventDefault();
         if (!fromTerminal || !toTerminal || !journeyDate) {
@@ -117,10 +182,14 @@ const LandingPage = () => {
     };
 
     return (
-        <div className="w-full min-h-screen bg-[#F8FAFC] dark:bg-[#071426] text-[#071426] dark:text-[#F8FAFC] flex flex-col font-['Inter',_sans-serif] transition-colors duration-300">
+        <div className="w-full min-h-screen overflow-x-hidden bg-[#F1F5F9] dark:bg-[#071426] text-[#071426] dark:text-[#F8FAFC] flex flex-col font-['Inter',_sans-serif] transition-colors duration-300 relative">
+            {/* Background Images with Low Opacity */}
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.09] dark:hidden bg-cover bg-center bg-no-repeat bg-fixed" style={{ backgroundImage: `url(${backlight3})` }} />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] hidden dark:block bg-cover bg-center bg-no-repeat bg-fixed" style={{ backgroundImage: `url(${backDark})` }} />
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-gradient-to-br from-slate-50 via-sky-50/30 to-white dark:from-[#071426] dark:via-[#0b1b36] dark:to-[#0d2347] border-b border-slate-200 dark:border-sky-500/10 transition-all duration-300">
+            <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-gradient-to-br from-slate-50 via-sky-50/20 to-slate-100 dark:from-[#071426] dark:via-[#0b1b36] dark:to-[#0d2347] border-b border-slate-200 dark:border-sky-500/10 transition-all duration-300">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#00A8FF]/10 via-transparent to-transparent pointer-events-none" />
+
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
                     {/* Left content column */}
                     <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
@@ -171,14 +240,27 @@ const LandingPage = () => {
 
                             {/* Connection visualization */}
                             <div className="space-y-4">
+                                <style>{`
+                                    @keyframes shipSailing {
+                                        0% { left: 0%; transform: scaleX(1); }
+                                        47% { transform: scaleX(1); }
+                                        50% { left: calc(100% - 28px); transform: scaleX(-1); }
+                                        97% { transform: scaleX(-1); }
+                                        100% { left: 0%; transform: scaleX(1); }
+                                    }
+                                    .animate-ship-sailing {
+                                        position: absolute;
+                                        animation: shipSailing 14s ease-in-out infinite;
+                                    }
+                                `}</style>
                                 <div className="flex justify-between items-center">
                                     <div className="text-left">
                                         <p className="text-[9px] font-black uppercase text-sky-600 dark:text-sky-400 tracking-wider">Terminal A</p>
                                         <p className="text-sm font-extrabold text-[#071426] dark:text-white">Fort Kochi</p>
                                     </div>
-                                    <div className="flex-1 mx-4 flex items-center justify-center relative">
-                                        <div className="w-full h-[2px] bg-sky-500/20 border-t border-dashed border-sky-400/40" />
-                                        <div className="absolute bg-[#2563EB] p-1.5 rounded-full text-white shadow-md border border-sky-400/30 animate-bounce">
+                                    <div className="flex-1 mx-4 flex items-center relative h-8">
+                                        <div className="w-full h-[2px] bg-sky-500/20 border-t border-dashed border-sky-400/40 absolute top-1/2 left-0 -translate-y-1/2" />
+                                        <div className="bg-[#2563EB] p-1.5 rounded-full text-white shadow-md border border-sky-400/30 animate-ship-sailing flex items-center justify-center w-7 h-7">
                                             🚢
                                         </div>
                                     </div>
@@ -206,25 +288,16 @@ const LandingPage = () => {
                     </div>
                 </div>
             </section>
-
             {/* Ferry Search Section */}
-            <section id="search-section" className="py-12 -mt-8 relative z-20 max-w-6xl mx-auto px-6">
-                <div className="bg-white dark:bg-[#0F1D36] border border-slate-200/80 dark:border-sky-950/80 rounded-[32px] p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 dark:border-sky-950 pb-5 mb-6 gap-4">
-                        <div className="flex items-center gap-2">
-                            <span className="p-2 bg-[#2563EB]/10 rounded-xl text-[#2563EB] dark:text-[#00A8FF]"><FiSearch size={20} /></span>
-                            <div>
-                                <h3 className="font-extrabold text-lg text-[#071426] dark:text-white">Find Your Ferry</h3>
-                                <p className="text-xs text-slate-450 dark:text-slate-500 font-medium">Search schedules and lock seats instantly</p>
-                            </div>
-                        </div>
-                        <span className="text-[10px] font-bold px-3 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-500/20 w-fit">
-                            🟢 Port Terminals Active
-                        </span>
+            <section id="search-section" ref={searchRef} className={`py-12 -mt-8 relative z-20 w-full max-w-7xl mx-auto px-6 transition-all duration-1000 transform ${searchVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
+                <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-2xl p-6 sm:p-8 shadow-xl">
+                    <div className="border-b border-slate-100 dark:border-sky-950 pb-4 mb-6 text-left">
+                        <h3 className="font-extrabold text-xl text-[#071426] dark:text-white">Find Your Ferry</h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-1">Search schedules and terminal routes across the network</p>
                     </div>
 
-                    <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-end">
-                        <div className="flex flex-col text-left">
+                    <form onSubmit={handleSearchSubmit} className="grid grid-cols-12 gap-4 items-end">
+                        <div className="flex flex-col text-left col-span-12 md:col-span-4">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Departure Port</label>
                             <select
                                 required
@@ -239,7 +312,7 @@ const LandingPage = () => {
                             </select>
                         </div>
 
-                        <div className="flex flex-col text-left">
+                        <div className="flex flex-col text-left col-span-12 md:col-span-4">
                             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Destination Port</label>
                             <select
                                 required
@@ -254,8 +327,8 @@ const LandingPage = () => {
                             </select>
                         </div>
 
-                        <div className="flex flex-col text-left">
-                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Departure Date</label>
+                        <div className="flex flex-col text-left col-span-12 md:col-span-3">
+                            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Travel Date</label>
                             <input
                                 type="date"
                                 required
@@ -266,220 +339,342 @@ const LandingPage = () => {
                             />
                         </div>
 
-                        <div className="flex gap-3">
-                            <div className="flex flex-col text-left flex-1">
-                                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">Passengers</label>
-                                <select
-                                    value={passengers}
-                                    onChange={(e) => setPassengers(e.target.value)}
-                                    className="select select-bordered w-full rounded-xl text-sm font-semibold h-11 bg-slate-50 dark:bg-[#071426] border-slate-200 dark:border-sky-950 text-slate-800 dark:text-slate-100"
-                                >
-                                    <option value="1">1 Passenger</option>
-                                    <option value="2">2 Passengers</option>
-                                    <option value="3">3 Passengers</option>
-                                    <option value="4">4 Passengers</option>
-                                    <option value="5">5 Passengers</option>
-                                </select>
-                            </div>
-
+                        <div className="col-span-12 md:col-span-1">
                             <button
                                 type="submit"
-                                className="btn border-0 text-white bg-gradient-to-r from-[#2563EB] to-[#00A8FF] rounded-xl font-bold h-11 px-5 shadow-lg shadow-[#2563EB]/15 hover:scale-[1.01] transition-all flex items-center justify-center gap-1 align-bottom self-end"
+                                className="btn border-0 text-white bg-gradient-to-r from-[#2563EB] to-[#00A8FF] rounded-xl font-bold h-11 w-full shadow-md hover:scale-[1.02] transition-all flex items-center justify-center gap-1.5"
                             >
-                                <FiSearch size={16} /> Search
+                                <FiSearch size={16} />
                             </button>
                         </div>
                     </form>
                 </div>
             </section>
-
-            {/* Popular Routes Section */}
-            <section id="popular-routes" className="py-20 max-w-7xl mx-auto px-6">
-                <div className="text-center space-y-4 max-w-2xl mx-auto mb-16">
+            <section id="popular-routes" ref={routesRef} className={`py-20 w-full max-w-7xl mx-auto px-6 text-left transition-all duration-1000 transform ${routesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
+                <div className="space-y-3 mb-10">
                     <span className="px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] text-xs font-bold uppercase tracking-wider">
                         Popular Waterways
                     </span>
-                    <h2 className="text-3xl font-extrabold tracking-tight text-[#071426] dark:text-white">Most Booked Routes</h2>
-                    <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                        Discover the busiest transit path connections based on booking frequency data.
+                    <h2 className="text-3xl font-extrabold tracking-tight text-[#071426] dark:text-white">Popular Ferry Routes</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        Explore frequently travelled ferry connections.
                     </p>
                 </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                    {(() => {
-                        const routesData = activeRoutes.length > 0 ? activeRoutes : [
-                            { origin: "Fort Kochi", destination: "Vypin", estimatedDuration: 10, fare: 10, bookingCount: 342, distance: 6.5 },
-                            { origin: "Ernakulam", destination: "Fort Kochi", estimatedDuration: 20, fare: 20, bookingCount: 512, distance: 8.0 },
-                            { origin: "Willington Island", destination: "Fort Kochi", estimatedDuration: 15, fare: 15, bookingCount: 219, distance: 4.8 }
-                        ];
-                        const maxBookingCount = Math.max(...routesData.map(r => r.bookingCount || 0));
 
-                        return routesData.map((route, i) => {
-                            const isMostBooked = (route.bookingCount || 0) === maxBookingCount && maxBookingCount > 0;
-                            return (
-                                <div key={route._id || i} className="group relative rounded-3xl overflow-hidden bg-white dark:bg-[#071426] border border-slate-200 dark:border-[#2563EB]/25 shadow-md hover:shadow-xl dark:hover:shadow-[0_25px_60px_rgba(37,99,235,0.18)] hover:-translate-y-2 transition-all duration-500 flex flex-col justify-between p-8">
-                                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#00A8FF]/5 dark:from-[#00A8FF]/10 via-transparent to-transparent pointer-events-none" />
-                                    <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-[#2563EB]/10 dark:bg-[#2563EB]/15 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700 pointer-events-none" />
-                                    
-                                    {/* Top badge section */}
-                                    <div className="flex justify-between items-center z-10 mb-4">
-                                        {isMostBooked ? (
-                                            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 uppercase tracking-widest">
-                                                🔥 Most Booked
-                                            </span>
-                                        ) : (
-                                            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold bg-[#2563EB]/10 dark:bg-[#00A8FF]/10 text-[#2563EB] dark:text-sky-300 border border-[#2563EB]/20 dark:border-[#00A8FF]/20 uppercase tracking-widest">
-                                                Popular Route
-                                            </span>
-                                        )}
-                                        <span className="text-[10px] text-[#071426]/40 dark:text-sky-200/50 font-bold uppercase tracking-wider">
-                                            Kochi Port
-                                        </span>
-                                    </div>
+                <style>{`
+                    @keyframes marqueeScroll {
+                        0% { transform: translateX(0); }
+                        100% { transform: translateX(-33.333%); }
+                    }
+                    .animate-marquee-scroll {
+                        display: flex;
+                        gap: 1.5rem;
+                        width: max-content;
+                        animation: marqueeScroll 28s linear infinite;
+                    }
+                    .animate-marquee-scroll:hover {
+                        animation-play-state: paused;
+                    }
+                `}</style>
 
-                                    {/* Route Visualization */}
-                                    <div className="my-4 py-2 relative z-10">
-                                        <div className="flex items-center justify-between w-full relative px-1">
-                                            <div className="text-left max-w-[45%]">
-                                                <p className="text-[9px] font-bold text-sky-600 dark:text-sky-450 uppercase tracking-widest mb-0.5">Origin</p>
-                                                <p className="text-sm font-black text-[#071426] dark:text-white leading-tight break-words">{route.origin}</p>
-                                            </div>
-                                            
-                                            <div className="flex-1 mx-3 flex items-center justify-center">
-                                                <span className="text-sky-500 dark:text-sky-400 font-black text-sm">→</span>
-                                            </div>
-
-                                            <div className="text-right max-w-[45%]">
-                                                <p className="text-[9px] font-bold text-sky-600 dark:text-sky-450 uppercase tracking-widest mb-0.5">Destination</p>
-                                                <p className="text-sm font-black text-[#071426] dark:text-white leading-tight break-words">{route.destination}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Details Grid */}
-                                    <div className="grid grid-cols-3 gap-2 border-t border-b border-slate-100 dark:border-sky-950/40 py-4 my-2 z-10 text-left">
-                                        <div>
-                                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Duration</p>
-                                            <p className="text-xs font-extrabold text-[#071426] dark:text-white mt-0.5">{route.estimatedDuration || 20} min</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Distance</p>
-                                            <p className="text-xs font-extrabold text-[#071426] dark:text-white mt-0.5">{route.distance || (route.origin === "Fort Kochi" ? "6.5" : route.origin === "Ernakulam" ? "8.0" : "4.8")} km</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Starting Fare</p>
-                                            <p className="text-xs font-black text-[#2563EB] dark:text-[#00A8FF] mt-0.5">₹{route.fare || 15}</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="z-10 mt-2 text-left">
-                                        <p className="text-xs text-[#071426]/70 dark:text-sky-100/60 font-semibold mb-3">
-                                            {route.bookingCount || 0}+ passengers chose this route
-                                        </p>
-                                        <button
-                                            onClick={() => {
-                                                setFromTerminal(route.origin);
-                                                setToTerminal(route.destination);
-                                                scrollToSection("search-section");
-                                            }}
-                                            className="w-full py-3 rounded-xl bg-gradient-to-r from-[#2563EB] to-[#00A8FF] text-white font-bold text-xs hover:opacity-95 transition-all duration-300 shadow-md shadow-[#2563EB]/15 active:scale-[0.98]"
-                                        >
-                                            Check Availability
-                                        </button>
-                                    </div>
-                                </div>
-                            );
-                        });
-                    })()}
-                </div>
-            </section>
-
-            {/* Live Ferry Status */}
-            <section className="py-20 bg-slate-50 dark:bg-[#050D1A] border-t border-b border-slate-200/50 dark:border-sky-950/50">
-                <div className="max-w-7xl mx-auto px-6">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
-                        <div className="space-y-2 text-left">
-                            <span className="px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] text-xs font-bold uppercase tracking-wider">
-                                Live Operations
-                            </span>
-                            <h2 className="text-3xl font-extrabold tracking-tight text-[#071426] dark:text-white">Live Ferry Status</h2>
-                            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-                                Check current ferry operations, delays, and upcoming departures.
-                            </p>
-                        </div>
-                        <span className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] rounded-full border border-[#2563EB]/20 text-xs font-bold w-fit">
-                            🔄 Auto-refreshing status
-                        </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="overflow-hidden w-full relative py-4 mask-gradient-x">
+                    <div className="animate-marquee-scroll">
                         {(() => {
-                            const statusData = schedules.length > 0 ? schedules.slice(0, 4).map(sch => ({
-                                routeName: sch.route ? `${sch.route.origin} → ${sch.route.destination}` : "Kochi Route",
-                                ferryName: sch.ferry ? sch.ferry.name : "Kochi Ferry",
-                                departureTime: sch.departureTime || "12:00 PM",
-                                status: sch.status || "active",
-                                delay: sch.delay || 0
-                            })) : [
-                                { routeName: "Fort Kochi → Vypin", ferryName: "Vypin Express", departureTime: "10:30 AM", status: "active", delay: 0 },
-                                { routeName: "Ernakulam → Fort Kochi", ferryName: "City Rider", departureTime: "11:00 AM", status: "delayed", delay: 10 },
-                                { routeName: "Willington Island → Fort Kochi", ferryName: "Harbor Cruiser", departureTime: "11:15 AM", status: "active", delay: 0 },
-                                { routeName: "Fort Kochi → Ernakulam", ferryName: "Muziris Cruiser", departureTime: "11:45 AM", status: "cancelled", delay: 0 }
+                            const routesData = activeRoutes.length > 0 ? activeRoutes : [
+                                { origin: "Fort Kochi", destination: "Vypin", estimatedDuration: 10, fare: 10, distance: 6.5 },
+                                { origin: "Ernakulam", destination: "Fort Kochi", estimatedDuration: 20, fare: 20, distance: 8.0 },
+                                { origin: "Willington Island", destination: "Fort Kochi", estimatedDuration: 15, fare: 15, distance: 4.8 }
                             ];
+                            
+                            // Triple the routes array to ensure seamless infinite circular loop
+                            const marqueeRoutes = [...routesData, ...routesData, ...routesData];
 
-                            return statusData.map((sch, idx) => {
-                                const isDelayed = sch.status === "delayed" || sch.delay > 0;
-                                const isCancelled = sch.status === "cancelled" || sch.status === "inactive";
-                                
-                                let statusText = "🟢 On Time";
-                                let badgeClass = "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
-                                
-                                if (isCancelled) {
-                                    statusText = "🔴 Cancelled";
-                                    badgeClass = "bg-rose-500/10 text-rose-600 dark:text-rose-450 border border-rose-500/20";
-                                } else if (isDelayed) {
-                                    statusText = `🟡 Delayed ${sch.delay || 10}m`;
-                                    badgeClass = "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20";
-                                }
-
-                                return (
-                                    <div key={idx} className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-sm hover:scale-[1.02] transition-all flex flex-col justify-between h-44 text-left">
-                                        <div className="space-y-1">
-                                            <p className="text-[9px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest">Route</p>
-                                            <p className="text-sm font-black text-[#071426] dark:text-white leading-tight">{sch.routeName}</p>
+                            return marqueeRoutes.map((route, i) => (
+                                <div
+                                    key={`${route._id || i}-${i}`}
+                                    className="flex-shrink-0 w-80 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-2xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.99] transition-all duration-300 flex flex-col justify-between"
+                                >
+                                    <div className="space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest">Popular Route</span>
                                         </div>
-                                        
-                                        <div className="border-t border-slate-100 dark:border-sky-950/40 my-3"></div>
-                                        
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5 truncate max-w-[60%]" title={sch.ferryName}>
-                                                    🚢 {sch.ferryName}
-                                                </span>
-                                                <span className="text-xs font-black text-[#071426] dark:text-white shrink-0">
-                                                    {sch.departureTime}
-                                                </span>
+                                        <div className="py-2 text-left space-y-2">
+                                            <p className="text-lg font-black text-[#071426] dark:text-white leading-tight">{route.origin}</p>
+                                            <div className="flex items-center pl-2">
+                                                <div className="h-4 w-[2px] bg-[#2563EB]/30 dark:bg-sky-500/20" />
+                                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-2">Direct Link</span>
                                             </div>
-                                            
-                                            <div className="flex justify-between items-center mt-1">
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
-                                                <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider shrink-0 ${badgeClass}`}>
-                                                    {statusText}
-                                                </span>
+                                            <p className="text-lg font-black text-[#071426] dark:text-white leading-tight">{route.destination}</p>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-sky-950/40 pt-4 text-xs font-semibold">
+                                            <div>
+                                                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Duration</p>
+                                                <p className="text-slate-800 dark:text-slate-200 mt-0.5 font-bold">{route.estimatedDuration} min</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Starting Fare</p>
+                                                <p className="text-[#2563EB] dark:text-[#00A8FF] mt-0.5 font-black">From ₹{route.fare}</p>
                                             </div>
                                         </div>
                                     </div>
-                                );
-                            });
+                                    <button
+                                        onClick={() => {
+                                            const today = new Date().toISOString().split("T")[0];
+                                            navigate(`/search?from=${route.origin}&to=${route.destination}&date=${today}`);
+                                        }}
+                                        className="btn btn-sm btn-primary w-full mt-5 rounded-xl font-bold bg-[#2563EB] hover:bg-[#2563EB]/90 border-0 text-white h-10 shadow-sm transition-transform active:scale-[0.98]"
+                                    >
+                                        Check Availability
+                                    </button>
+                                </div>
+                            ));
                         })()}
                     </div>
                 </div>
             </section>
 
+            {/* Live Ferry Status */}
+            <section ref={statusRef} className={`py-20 bg-slate-50 dark:bg-[#050D1A] border-t border-b border-slate-200/50 dark:border-sky-500/10 text-left transition-all duration-1000 transform ${statusVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+                        <div className="space-y-3">
+                            <span className="px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] text-xs font-bold uppercase tracking-wider">
+                                Live Operations
+                            </span>
+                            <h2 className="text-3xl font-extrabold tracking-tight text-[#071426] dark:text-white">Live Ferry Status</h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                                Upcoming ferry departures and status information board.
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => navigate("/routes")}
+                            className="btn btn-outline border-slate-350 dark:border-sky-950 text-[#071426] dark:text-white font-bold text-xs rounded-xl"
+                        >
+                            View All Schedules
+                        </button>
+                    </div>
+                    <div className="bg-white/80 dark:bg-[#0A1120]/80 border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+                        {/* Board Header Bar */}
+                        <div className="flex justify-between items-center border-b border-slate-200/60 dark:border-sky-950/40 pb-4 mb-6">
+                            <div className="flex items-center gap-2">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                </span>
+                                <span className="text-[10px] font-mono font-bold tracking-widest text-slate-400 dark:text-slate-500 uppercase">Live FIDS Terminal</span>
+                            </div>
+                            <div className="text-[10px] font-mono font-bold text-amber-500 dark:text-[#00A8FF] tracking-wider uppercase">
+                                UTC Clock // Active Departures
+                            </div>
+                        </div>
+
+                        {/* FIDS Table Header */}
+                        <div className="grid grid-cols-12 border-b border-slate-200/50 dark:border-sky-950/30 text-[10px] font-mono tracking-widest text-[#2563EB] dark:text-[#00A8FF] uppercase font-bold pb-3 px-4 min-w-[600px]">
+                            <div className="col-span-3">Ferry Vessel</div>
+                            <div className="col-span-5">Transit Route</div>
+                            <div className="col-span-2">Scheduled</div>
+                            <div className="col-span-2 text-right">Status</div>
+                        </div>
+
+                        {/* FIDS Scrolling Rows container (Fixed 3-row height: 56px * 3 = 168px) */}
+                        <div className="overflow-hidden h-[168px] relative mt-2 min-w-[600px]">
+                            {(() => {
+                                const statusData = schedules.length > 0 ? schedules.slice(0, 6).map(sch => ({
+                                    routeName: sch.route ? `${sch.route.origin} → ${sch.route.destination}` : "Kochi Route",
+                                    ferryName: sch.ferry ? sch.ferry.name : "Kochi Ferry",
+                                    departureTime: sch.departureTime ? new Date(sch.departureTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "12:00 PM",
+                                    status: sch.status || "scheduled"
+                                })) : [
+                                    { routeName: "Fort Kochi → Vypin", ferryName: "Vypin Express", departureTime: "08:30 AM", status: "boarding" },
+                                    { routeName: "Ernakulam → Fort Kochi", ferryName: "City Rider", departureTime: "09:00 AM", status: "scheduled" },
+                                    { routeName: "Willington Island → Fort Kochi", ferryName: "Harbor Cruiser", departureTime: "09:15 AM", status: "scheduled" },
+                                    { routeName: "Gateway Terminal → East Bay", ferryName: "Sea Breeze", departureTime: "04:30 PM", status: "scheduled" },
+                                    { routeName: "West Marina → Coastal Cove", ferryName: "Island Cruiser", departureTime: "02:00 PM", status: "scheduled" },
+                                    { routeName: "Gateway Terminal → Island Beach", ferryName: "Ocean Express", departureTime: "10:30 AM", status: "scheduled" }
+                                ];
+
+                                return (
+                                    <div 
+                                        className={isTransitioning ? "transition-transform duration-500 ease-in-out" : ""}
+                                        style={{ transform: `translateY(-${activeStatusIndex * 56}px)` }}
+                                    >
+                                        {[...statusData, ...statusData, ...statusData].map((sch, idx) => {
+                                            // Center item in the 3-row visible window is always at index activeStatusIndex + 1
+                                            const isMiddle = idx === activeStatusIndex + 1;
+                                            
+                                            let statusColor = "text-emerald-500 dark:text-emerald-450";
+                                            let statusText = "ON TIME";
+                                            let dotColor = "bg-emerald-500";
+                                            let badgeBg = "bg-emerald-500/10 border-emerald-500/20";
+                                            
+                                            if (sch.status === "cancelled") {
+                                                statusText = "CANCELLED";
+                                                statusColor = "text-rose-500 dark:text-rose-450";
+                                                dotColor = "bg-rose-500";
+                                                badgeBg = "bg-rose-500/10 border-rose-500/20";
+                                            } else if (sch.status === "boarding") {
+                                                statusText = "BOARDING";
+                                                statusColor = "text-amber-500 dark:text-amber-400";
+                                                dotColor = "bg-amber-500";
+                                                badgeBg = "bg-amber-500/10 border-amber-500/20";
+                                            } else if (sch.status === "departed") {
+                                                statusText = "DEPARTED";
+                                                statusColor = "text-sky-500 dark:text-sky-400";
+                                                dotColor = "bg-sky-500";
+                                                badgeBg = "bg-sky-500/10 border-sky-500/20";
+                                            }
+
+                                            return (
+                                                <div 
+                                                    key={idx} 
+                                                    className={`grid grid-cols-12 items-center h-14 px-4 font-mono text-xs font-semibold transition-all duration-500 rounded-xl ${isMiddle ? 'scale-[1.03] bg-slate-50/80 dark:bg-[#112240]/45 text-slate-800 dark:text-slate-150 border border-slate-200/50 dark:border-sky-950/40 shadow-sm' : 'opacity-40 text-slate-500 dark:text-slate-400'}`}
+                                                >
+                                                    <div className={`col-span-3 font-bold ${isMiddle ? 'text-[#2563EB] dark:text-sky-300' : ''}`}>
+                                                        {sch.ferryName.toUpperCase()}
+                                                    </div>
+                                                    <div className={`col-span-5 font-bold ${isMiddle ? 'text-slate-800 dark:text-slate-200' : ''}`}>
+                                                        {sch.routeName.toUpperCase().replace("→", "➔")}
+                                                    </div>
+                                                    <div className={`col-span-2 font-bold ${isMiddle ? 'text-[#2563EB] dark:text-amber-400 font-extrabold' : ''}`}>
+                                                        {sch.departureTime}
+                                                    </div>
+                                                    <div className="col-span-2 text-right">
+                                                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded font-bold text-[10px] bg-slate-100/50 dark:bg-[#112240]/45 border tracking-wider ${statusColor} ${badgeBg}`}>
+                                                            <span className={`h-1.5 w-1.5 rounded-full ${dotColor} animate-pulse`} />
+                                                            {statusText}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                );
+                            })()}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Service Updates Section */}
+            <section ref={alertsRef} className={`py-16 bg-white dark:bg-[#071426] border-b border-slate-200/50 dark:border-sky-500/10 text-left transition-all duration-1000 transform ${alertsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex items-center gap-3 mb-8">
+                        <span className="p-2.5 bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] rounded-xl"><FiAlertTriangle size={20} /></span>
+                        <div>
+                            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white">Live Service Updates</h3>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold mt-0.5">Active terminal alerts and harbor operations notices</p>
+                        </div>
+                    </div>
+                    {alerts.length === 0 ? (
+                        <div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/15 flex items-center gap-3 text-emerald-700 dark:text-emerald-400 text-sm font-bold">
+                            <span>🟢</span> All ferry services are operating normally.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {alerts.map((alert) => {
+                                const isDelay = alert.type === 'delay';
+                                const isMaintenance = alert.type === 'maintenance';
+                                
+                                let typeLabel = "Info";
+                                let borderClass = "border-l-[#2563EB]";
+                                let badgeBg = "bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400";
+                                let statusDot = "bg-blue-500";
+                                
+                                if (isDelay) {
+                                    typeLabel = "Delay";
+                                    borderClass = "border-l-amber-500";
+                                    badgeBg = "bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400";
+                                    statusDot = "bg-amber-500";
+                                } else if (isMaintenance) {
+                                    typeLabel = "Maintenance";
+                                    borderClass = "border-l-rose-500";
+                                    badgeBg = "bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-450";
+                                    statusDot = "bg-rose-500";
+                                }
+
+                                return (
+                                    <div 
+                                        key={alert.id || alert._id} 
+                                        className={`p-5 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm border-l-4 ${borderClass} hover:scale-[1.03] active:scale-[0.99] transition-all duration-300 flex flex-col justify-between space-y-4`}
+                                    >
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${badgeBg}`}>
+                                                    {typeLabel}
+                                                </span>
+                                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold flex items-center gap-1.5">
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${statusDot} animate-pulse`} />
+                                                    Active
+                                                </span>
+                                            </div>
+                                            <h4 className="font-extrabold text-sm text-[#071426] dark:text-white leading-snug">
+                                                {alert.title || alert.routeName}
+                                            </h4>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
+                                                {alert.message}
+                                            </p>
+                                        </div>
+                                        <div className="text-right border-t border-slate-200/40 dark:border-sky-950/30 pt-3">
+                                            <span className="text-[9px] text-slate-400 font-bold">
+                                                Published: {alert.date ? new Date(alert.date).toLocaleDateString() : 'Today'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
+            </section>
+
+            {/* Why Choose FerryFlow */}
+            <section className="py-20 w-full max-w-7xl mx-auto px-6 text-left">
+                <div className="text-center space-y-3 max-w-2xl mx-auto mb-16">
+                    <span className="px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] text-xs font-bold uppercase tracking-wider">
+                        Why Choose Us
+                    </span>
+                    <h2 className="text-3xl font-extrabold tracking-tight text-[#071426] dark:text-white">Built for Smooth Sailing</h2>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                        Seamless ticket booking and real-time transit intelligence for daily commuters and travelers.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    <div className="p-6 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 space-y-3 shadow-sm hover:shadow-md transition-all">
+                        <span className="text-3xl">📡</span>
+                        <h4 className="font-extrabold text-base text-[#071426] dark:text-white">Real-time Updates</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                            Stay updated with live ferry statuses, delays, and scheduling changes.
+                        </p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 space-y-3 shadow-sm hover:shadow-md transition-all">
+                        <span className="text-3xl">🎫</span>
+                        <h4 className="font-extrabold text-base text-[#071426] dark:text-white">Easy Booking</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                            Book tickets online and select your preferred cabin seats dynamically.
+                        </p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 space-y-3 shadow-sm hover:shadow-md transition-all">
+                        <span className="text-3xl">🔒</span>
+                        <h4 className="font-extrabold text-base text-[#071426] dark:text-white">Secure Tickets</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                            Encrypted boarding passes saved securely in your profile.
+                        </p>
+                    </div>
+                    <div className="p-6 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 space-y-3 shadow-sm hover:shadow-md transition-all">
+                        <span className="text-3xl">🗓️</span>
+                        <h4 className="font-extrabold text-base text-[#071426] dark:text-white">Smart Scheduling</h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                            Multiple daily schedule frequencies balanced for passenger peak hours.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
             {/* Interactive Map Section */}
-            <section className="py-20 max-w-7xl mx-auto px-6">
+            <section ref={mapRef} className={`py-20 w-full max-w-7xl mx-auto px-6 transition-all duration-1000 transform ${mapVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-                    <div className="lg:col-span-5 space-y-6">
+                    <div className="lg:col-span-5 space-y-6 text-left">
                         <span className="px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] text-xs font-bold uppercase tracking-wider">
                             Interactive Transit Map
                         </span>
@@ -496,7 +691,7 @@ const LandingPage = () => {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-7 bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-xl relative overflow-hidden h-80 flex flex-col justify-center items-center">
+                    <div className="lg:col-span-7 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-xl relative overflow-hidden h-80 flex flex-col justify-center items-center">
                         {/* Map Grid Pattern background */}
                         <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] dark:bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:20px_20px] opacity-60" />
                         
@@ -535,37 +730,8 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* Alerts & Announcements */}
-            {alerts.length > 0 && (
-                <section className="bg-rose-500/5 dark:bg-rose-550/5 border-t border-b border-rose-500/10 py-16">
-                    <div className="max-w-7xl mx-auto px-6">
-                        <div className="flex items-center gap-3 mb-8">
-                            <span className="p-2 bg-rose-500/15 text-rose-500 rounded-xl"><FiAlertTriangle size={20} /></span>
-                            <div>
-                                <h3 className="text-xl font-black text-slate-900 dark:text-white">Active Service Alerts</h3>
-                                <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">Delays, cancellations, and harbor notices</p>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {alerts.map((alert) => (
-                                <div key={alert.id || alert._id} className="p-5 rounded-3xl bg-white dark:bg-[#0F1D36] border border-rose-500/10 dark:border-rose-500/20 shadow-sm space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className={`text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${alert.type === 'delay' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-350'}`}>
-                                            ⚠️ {alert.type || 'Notice'}
-                                        </span>
-                                        <span className="text-[10px] text-slate-400 font-bold">{alert.date ? new Date(alert.date).toLocaleDateString() : 'Active'}</span>
-                                    </div>
-                                    <h4 className="font-extrabold text-sm text-[#071426] dark:text-white">{alert.title || alert.routeName}</h4>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">{alert.message}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-
             {/* Tourist Information Section */}
-            <section className="py-20 max-w-7xl mx-auto px-6 space-y-12">
+            <section className="py-20 w-full max-w-7xl mx-auto px-6 space-y-12 text-left">
                 <div className="text-center space-y-4 max-w-2xl mx-auto">
                     <span className="px-3 py-1 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider">
                         Tourist Guide
@@ -577,7 +743,7 @@ const LandingPage = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 p-6 rounded-3xl shadow-sm hover:scale-[1.01] transition-all flex flex-col gap-3">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 p-6 rounded-3xl shadow-sm hover:scale-[1.01] transition-all flex flex-col gap-3">
                         <span className="text-4xl">🏛️</span>
                         <h4 className="font-extrabold text-lg text-[#071426] dark:text-white">Fort Kochi Heritage</h4>
                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
@@ -585,7 +751,7 @@ const LandingPage = () => {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 p-6 rounded-3xl shadow-sm hover:scale-[1.01] transition-all flex flex-col gap-3">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 p-6 rounded-3xl shadow-sm hover:scale-[1.01] transition-all flex flex-col gap-3">
                         <span className="text-4xl">🌴</span>
                         <h4 className="font-extrabold text-lg text-[#071426] dark:text-white">Vypin Beach Access</h4>
                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
@@ -593,7 +759,7 @@ const LandingPage = () => {
                         </p>
                     </div>
 
-                    <div className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 p-6 rounded-3xl shadow-sm hover:scale-[1.01] transition-all flex flex-col gap-3">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 p-6 rounded-3xl shadow-sm hover:scale-[1.01] transition-all flex flex-col gap-3">
                         <span className="text-4xl">🌅</span>
                         <h4 className="font-extrabold text-lg text-[#071426] dark:text-white">Sunset Harbor Crossing</h4>
                         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-semibold">
@@ -604,7 +770,7 @@ const LandingPage = () => {
             </section>
 
             {/* Contact & Support Section */}
-            <section className="bg-slate-50 dark:bg-[#050D1A] py-20 border-t border-slate-200 dark:border-sky-950/50">
+            <section className="bg-slate-50 dark:bg-[#050D1A] py-20 border-t border-slate-200 dark:border-sky-950/50 text-left">
                 <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                     <div className="lg:col-span-5 space-y-6">
                         <span className="px-3 py-1 rounded-full bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] text-xs font-bold uppercase tracking-wider">
@@ -619,7 +785,7 @@ const LandingPage = () => {
                     </div>
 
                     <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="p-5 rounded-2xl bg-white dark:bg-[#0F1D36] border border-slate-200/60 dark:border-sky-950/80 shadow-sm flex items-start gap-4">
+                        <div className="p-5 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm flex items-start gap-4">
                             <span className="p-3 bg-[#2563EB]/10 text-[#2563EB] rounded-xl text-lg">📧</span>
                             <div>
                                 <h4 className="font-extrabold text-sm text-[#071426] dark:text-white">Email Support</h4>
@@ -627,7 +793,7 @@ const LandingPage = () => {
                             </div>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-white dark:bg-[#0F1D36] border border-slate-200/60 dark:border-[#1E294B] shadow-sm flex items-start gap-4">
+                        <div className="p-5 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm flex items-start gap-4">
                             <span className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl text-lg">📞</span>
                             <div>
                                 <h4 className="font-extrabold text-sm text-[#071426] dark:text-white">Phone Support</h4>
@@ -635,7 +801,7 @@ const LandingPage = () => {
                             </div>
                         </div>
 
-                        <div className="p-5 rounded-2xl bg-white dark:bg-[#0F1D36] border border-slate-200/60 dark:border-[#1E294B] shadow-sm flex items-start gap-4 sm:col-span-2">
+                        <div className="p-5 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm flex items-start gap-4 sm:col-span-2">
                             <span className="p-3 bg-[#2563EB]/10 text-[#2563EB] rounded-xl text-lg">📍</span>
                             <div>
                                 <h4 className="font-extrabold text-sm text-[#071426] dark:text-white">Operations Center</h4>
