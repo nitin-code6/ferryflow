@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const Booking = require("../models/booking.model");
 const Schedule = require("../models/schedule.model");
+const eventBus = require("../utils/eventBus");
 
 
 const createBookingService = async (userId, data) => {
@@ -197,6 +198,8 @@ const cancelBookingService = async (bookingId, userId, role) => {
             );
             await schedule.save();
         }
+
+        eventBus.emit("seat:released", { scheduleId: booking.schedule, seatNumbers: booking.seatNumbers });
 
         return {
             success: true,

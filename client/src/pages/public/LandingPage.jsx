@@ -182,7 +182,7 @@ const LandingPage = () => {
     };
 
     return (
-        <div className="w-full min-h-screen overflow-x-hidden bg-[#F1F5F9] dark:bg-[#071426] text-[#071426] dark:text-[#F8FAFC] flex flex-col font-['Inter',_sans-serif] transition-colors duration-300 relative">
+        <div className="w-full min-h-screen overflow-x-hidden bg-transparent text-[#071426] dark:text-[#F8FAFC] flex flex-col font-['Inter',_sans-serif] transition-colors duration-300 relative">
             {/* Hero Section */}
             <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-gradient-to-br from-slate-50 via-sky-50/20 to-slate-100 dark:from-[#071426] dark:via-[#0b1b36] dark:to-[#0d2347] border-b border-slate-200 dark:border-sky-500/10 transition-all duration-300">
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#00A8FF]/10 via-transparent to-transparent pointer-events-none" />

@@ -10,6 +10,7 @@ const { sendBookingConfirmationEmail } = require("../utils/sendEmail");
 const User = require("../models/user.model");
 const Ferry = require("../models/ferry.model");
 const Route = require("../models/route.model");
+const eventBus = require("../utils/eventBus");
 
 const createPaymentOrderService = async (
     bookingId,
@@ -227,79 +228,45 @@ const verifyPaymentService = async (
 
 
 
-        // 6. Check seat availability again (live count from schedule)
-        if (schedule.availableSeats < booking.seatsBooked) {
-            throw new Error("Seats are not available");
-        }
-
-        // 7. Dynamic duplicate seat check via Booking collection
-        const confirmedBookings = await Booking.find({
-            schedule: booking.schedule,
-            _id: { $ne: booking._id },
-            bookingStatus: { $nin: ["cancelled"] }
-        }).session(session);
-        const occupiedSeats = confirmedBookings.flatMap(b => b.seatNumbers || []);
-
-        const seatAlreadyBooked = booking.seatNumbers.some(
-            seat => occupiedSeats.includes(seat)
+        // 6. Atomic seat check & reservation block
+        const updatedSchedule = await Schedule.findOneAndUpdate(
+            {
+                _id: booking.schedule,
+                bookedSeats: { $nin: booking.seatNumbers },
+                availableSeats: { $gte: booking.seatsBooked }
+            },
+            {
+                $push: { bookedSeats: { $each: booking.seatNumbers } },
+                $inc: { availableSeats: -booking.seatsBooked }
+            },
+            { session, new: true }
         );
 
-        if (seatAlreadyBooked) {
-            throw new Error("One or more seats already booked by another passenger");
+        if (!updatedSchedule) {
+            throw new Error("One or more seats already booked or insufficient capacity.");
         }
-
-
-
-        // 8. Reserve Seats
-
-        schedule.availableSeats -=
-            booking.seatsBooked;
-
-
-        schedule.bookedSeats.push(
-            ...booking.seatNumbers
-        );
-
-
-        await schedule.save({
-            session
-        });
-
-
 
         // 9. Auto-confirm Booking — no admin approval needed
         booking.bookingStatus = "confirmed";
         booking.paymentStatus = "paid";
 
-
         booking.paymentDetails = {
-
             ...booking.paymentDetails,
-
-            paymentId:
-                razorpay_payment_id,
-
-            signature:
-                razorpay_signature
-
+            paymentId: razorpay_payment_id,
+            signature: razorpay_signature
         };
 
-
-
-        booking.ticketId =
-            "FF-" + Date.now();
-
-
+        booking.ticketId = "FF-" + Date.now();
 
         await booking.save({
             session
         });
 
-
-
         // 10. Commit transaction
-
         await session.commitTransaction();
+
+        // Trigger decoupled websocket hook
+        eventBus.emit("seat:booked", { scheduleId: booking.schedule, seatNumbers: booking.seatNumbers });
 
         const user = await User.findById(booking.user);
 

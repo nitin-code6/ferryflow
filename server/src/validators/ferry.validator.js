@@ -12,7 +12,8 @@ const createFerrySchema = z.object({
         .string()
         .trim()
         .min(3, "Registration number is required")
-        .max(30, "Registration number cannot exceed 30 characters"),
+        .max(30, "Registration number cannot exceed 30 characters")
+        .transform((val) => val.toUpperCase()),
 
     capacity: z
         .number({

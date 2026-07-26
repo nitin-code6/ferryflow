@@ -43,11 +43,11 @@ const createScheduleService = async (data) => {
         };
     }
 
-    if (existingFerry.status === "maintenance") {
+    if (existingFerry.status !== "available") {
         return {
             success: false,
             statusCode: 400,
-            message: "Cannot schedule a ferry that is under maintenance"
+            message: `Cannot schedule a ferry that is currently ${existingFerry.status.replace(/_/g, " ")}`
         };
     }
 
