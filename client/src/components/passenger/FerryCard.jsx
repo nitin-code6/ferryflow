@@ -29,7 +29,7 @@ const FerryCard = ({ schedule, passengerCount = 1, onBook }) => {
     const imageUrl = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80";
 
     return (
-        <div className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row gap-6 p-5">
+        <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 flex flex-col md:flex-row gap-6 p-5">
             {/* Image Section */}
             <div className="w-full md:w-48 h-48 md:h-auto rounded-2xl overflow-hidden relative shrink-0">
                 <img
@@ -53,7 +53,7 @@ const FerryCard = ({ schedule, passengerCount = 1, onBook }) => {
                     </h3>
 
                     {/* Routing with details */}
-                    <div className="flex items-center gap-3 bg-base-200/40 dark:bg-slate-800/40 py-2 px-3 rounded-xl border border-base-300/10 w-fit text-sm font-bold text-base-content/85">
+                    <div className="flex items-center gap-3 bg-slate-50/50 dark:bg-slate-800/40 py-2 px-3 rounded-xl border border-slate-200/40 dark:border-sky-950/20 w-fit text-sm font-bold text-base-content/85">
                         <span>{origin}</span>
                         <FiArrowRight className="text-primary shrink-0" />
                         <span>{destination}</span>
@@ -70,7 +70,7 @@ const FerryCard = ({ schedule, passengerCount = 1, onBook }) => {
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <span className="text-[10px] text-base-content/50 uppercase block mb-1">Duration</span>
-                        <div className="flex items-center gap-1.5 text-xs text-base-content/75 bg-base-200/60 dark:bg-slate-800/60 px-2 py-1 rounded-lg">
+                        <div className="flex items-center gap-1.5 text-xs text-base-content/75 bg-slate-100 dark:bg-slate-850 px-2 py-1 rounded-lg">
                             <FiClock size={12} className="text-info" />
                             <span>{formatDuration(duration)}</span>
                         </div>
@@ -89,8 +89,8 @@ const FerryCard = ({ schedule, passengerCount = 1, onBook }) => {
                 <div className="text-left md:text-right">
                     <span className="text-[10px] text-base-content/50 uppercase block mb-1">Price per passenger</span>
                     <div className="flex items-baseline gap-1 md:justify-end">
-                        <span className="text-3xl font-black text-base-content">${schedule.fare?.toFixed(2)}</span>
-                        <span className="text-xs text-base-content/50 font-medium">USD</span>
+                        <span className="text-3xl font-black text-base-content">₹{schedule.fare?.toFixed(2)}</span>
+                        <span className="text-xs text-base-content/50 font-medium">INR</span>
                     </div>
                     <div className="flex items-center gap-1.5 md:justify-end text-xs text-base-content/60 mt-2">
                         <FiUsers className="text-info" />

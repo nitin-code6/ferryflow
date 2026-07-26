@@ -29,7 +29,7 @@ const PaymentSuccessPage = () => {
 
     return (
         <div className="max-w-2xl mx-auto py-8 sm:py-12 px-4 text-base-content">
-            <div className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl text-center space-y-8">
+            <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 sm:p-10 shadow-2xl text-center space-y-8">
                 {/* Success Animation / Badge */}
                 <div className="flex flex-col items-center gap-3">
                     <div className="text-success animate-bounce">
@@ -60,7 +60,7 @@ const PaymentSuccessPage = () => {
                 </div>
 
                 {/* Journey Specs details */}
-                <div className="bg-base-200/40 dark:bg-slate-800/30 border border-base-300/10 rounded-2xl p-5 text-left space-y-4">
+                <div className="bg-slate-50/50 dark:bg-slate-800/20 border border-slate-200/40 dark:border-sky-950/20 rounded-2xl p-5 text-left space-y-4">
                     <h4 className="text-xs font-black uppercase text-primary tracking-wider border-b border-base-300/10 pb-2">Voyage Details</h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-semibold">
                         <div className="flex gap-2.5 items-start">

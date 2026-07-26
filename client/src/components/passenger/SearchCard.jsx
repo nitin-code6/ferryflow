@@ -127,7 +127,7 @@ const SearchCard = ({ onSearch, initialValues }) => {
             onSubmit={handleSubmit}
             className="w-full bg-[#F8FAFC]/95 dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-xl backdrop-blur-xl"
         >
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 {/* From Port */}
                 <CustomSelect
                     label="From Terminal"
@@ -161,16 +161,6 @@ const SearchCard = ({ onSearch, initialValues }) => {
                         className="input input-bordered rounded-xl h-12 w-full bg-white dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-primary/20 text-sm font-bold shadow-sm"
                     />
                 </div>
-
-                {/* Passengers */}
-                <CustomSelect
-                    label="Passengers"
-                    icon={<FiUsers className="text-amber-500" />}
-                    value={passengerCount}
-                    onChange={setPassengerCount}
-                    options={passengerOptions}
-                    placeholder="1 Passenger"
-                />
             </div>
 
             <button

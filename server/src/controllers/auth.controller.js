@@ -1,4 +1,4 @@
-const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService, deleteAccountService } = require("../services/auth.service");
+const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService, deleteAccountService, updateProfileService } = require("../services/auth.service");
 const { googleLoginService } = require("../services/googleLoginService");
 const User = require("../models/user.model");
 const cookieOptions = {
@@ -119,7 +119,7 @@ const resetPassword = async (req, res) => {
 };
 
 const changePassword = async (req, res) => {
-    const result = await changePasswordService(req.userId, req.body);
+    const result = await changePasswordService(req.user._id, req.body);
     if (!result.success) {
         return res.status(400).json(result);
     }
@@ -210,6 +210,18 @@ const deleteAccount = async (req, res) => {
     }
 };
 
+const updateProfile = async (req, res) => {
+    try {
+        const result = await updateProfileService(req.user._id, req.body);
+        return res.status(result.statusCode || 200).json(result);
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+};
+
 module.exports = {
     register,
     verifyEmail,
@@ -222,5 +234,6 @@ module.exports = {
     resendOTP,
     refreshToken,
     googleLogin,
-    deleteAccount
+    deleteAccount,
+    updateProfile
 };

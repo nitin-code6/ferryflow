@@ -115,7 +115,7 @@ const MyBookingsPage = () => {
             </div>
 
             {/* Booking Navigation tabs */}
-            <div className="tabs tabs-boxed bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-1.5 rounded-2xl w-fit flex gap-1 shadow-sm">
+            <div className="tabs tabs-boxed bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 p-1.5 rounded-2xl w-fit flex gap-1 shadow-sm">
                 <button
                     onClick={() => setActiveTab("upcoming")}
                     className={`tab rounded-xl font-bold transition-all ${
@@ -162,7 +162,7 @@ const MyBookingsPage = () => {
                             return (
                                 <div
                                     key={bId}
-                                    className="bg-white/95 dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-lg flex flex-col justify-between gap-5 transition-all hover:shadow-xl"
+                                    className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.99] transition-all duration-300 flex flex-col justify-between gap-5"
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>

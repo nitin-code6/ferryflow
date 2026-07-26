@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
-import { deleteAccountAPI } from "../../services/authService";
+import { deleteAccountAPI, updateProfileAPI, changePasswordAPI } from "../../services/authService";
 import { FiUser, FiMail, FiCalendar, FiShield, FiSave, FiLock, FiAlertTriangle } from "react-icons/fi";
 import toast from "react-hot-toast";
 
@@ -17,23 +17,29 @@ const ProfilePage = () => {
     const [confirmNewPassword, setConfirmNewPassword] = useState("");
     const [isChangingPass, setIsChangingPass] = useState(false);
 
-    const handleUpdateProfile = (e) => {
+    const handleUpdateProfile = async (e) => {
         e.preventDefault();
         if (!name.trim() || !email.trim()) {
             toast.error("Name and Email are required");
             return;
         }
         setIsSaving(true);
-        setTimeout(() => {
-            // Update auth context state to simulate success
-            const updated = { ...user, name, email };
-            setUser(updated);
+        try {
+            const res = await updateProfileAPI({ name, email });
+            if (res.success || res.user) {
+                setUser(res.user || { ...user, name, email });
+                toast.success(res.message || "Profile updated successfully!");
+            } else {
+                toast.error(res.message || "Failed to update profile");
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to update profile. Please try again.");
+        } finally {
             setIsSaving(false);
-            toast.success("Profile updated successfully!");
-        }, 1000);
+        }
     };
 
-    const handleChangePassword = (e) => {
+    const handleChangePassword = async (e) => {
         e.preventDefault();
         if (!currentPassword || !newPassword || !confirmNewPassword) {
             toast.error("Please fill in all password fields");
@@ -44,13 +50,21 @@ const ProfilePage = () => {
             return;
         }
         setIsChangingPass(true);
-        setTimeout(() => {
+        try {
+            const res = await changePasswordAPI({ oldPassword: currentPassword, newPassword });
+            if (res.success) {
+                setCurrentPassword("");
+                setNewPassword("");
+                setConfirmNewPassword("");
+                toast.success(res.message || "Password changed successfully!");
+            } else {
+                toast.error(res.message || "Failed to change password");
+            }
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to change password. Please try again.");
+        } finally {
             setIsChangingPass(false);
-            setCurrentPassword("");
-            setNewPassword("");
-            setConfirmNewPassword("");
-            toast.success("Password changed successfully!");
-        }, 1000);
+        }
     };
 
     const handleDeleteAccount = async () => {
@@ -84,7 +98,7 @@ const ProfilePage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Profile Overview card */}
-                <div className="md:col-span-1 bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl flex flex-col items-center text-center space-y-4">
+                <div className="md:col-span-1 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm hover:scale-[1.01] transition-transform duration-300 flex flex-col items-center text-center space-y-4">
                     <div className="avatar border border-primary/20 p-1 rounded-full">
                         <div className="w-24 rounded-full">
                             <img
@@ -113,7 +127,7 @@ const ProfilePage = () => {
                 {/* Edit Form */}
                 <div className="md:col-span-2 space-y-6">
                     {/* General profile info */}
-                    <form onSubmit={handleUpdateProfile} className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-5">
+                    <form onSubmit={handleUpdateProfile} className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm space-y-5">
                         <div className="flex items-center gap-3 pb-3 border-b border-base-300/20 mb-2">
                             <FiUser className="text-primary" />
                             <h3 className="font-extrabold text-base">General Information</h3>
@@ -153,7 +167,7 @@ const ProfilePage = () => {
                     </form>
 
                     {/* Change password */}
-                    <form onSubmit={handleChangePassword} className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-5">
+                    <form onSubmit={handleChangePassword} className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm space-y-5">
                         <div className="flex items-center gap-3 pb-3 border-b border-base-300/20 mb-2">
                             <FiLock className="text-primary" />
                             <h3 className="font-extrabold text-base">Change Password</h3>
@@ -208,7 +222,7 @@ const ProfilePage = () => {
                     </form>
 
                     {/* Danger Zone */}
-                    <div className="bg-red-50/50 dark:bg-red-950/10 border border-red-200 dark:border-red-900/50 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-4">
+                    <div className="bg-rose-50/50 dark:bg-rose-950/10 border border-rose-200/40 dark:border-rose-900/40 rounded-3xl p-6 shadow-sm space-y-4">
                         <div className="flex items-center gap-3 pb-3 border-b border-red-200 dark:border-red-900/40">
                             <FiAlertTriangle className="text-red-500" size={18} />
                             <h3 className="font-extrabold text-base text-red-600 dark:text-red-400">Danger Zone</h3>

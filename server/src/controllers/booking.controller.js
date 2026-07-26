@@ -17,7 +17,7 @@ const createBooking = asyncHandler(async (req, res) => {
 });
 
 const verifyPayment = asyncHandler(async (req, res) => {
-    const result = await verifyPaymentService(req.body, req.userId);
+    const result = await verifyPaymentService(req.body, req.user._id);
     return res.status(result.statusCode).json(
         new ApiResponse(result.statusCode, result.data, result.message)
     );

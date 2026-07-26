@@ -115,7 +115,7 @@ const SearchResultsPage = () => {
                 </div>
 
                 {/* active search params overview */}
-                <div className="flex flex-wrap items-center gap-2 bg-base-100/80 dark:bg-slate-900/80 p-3 rounded-2xl border border-base-300/30 w-fit text-sm font-semibold">
+                <div className="flex flex-wrap items-center gap-2 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 p-3 rounded-2xl w-fit text-sm font-semibold shadow-sm">
                     <span className="text-base-content/75">{fromVal}</span>
                     <span className="text-primary font-bold">→</span>
                     <span className="text-base-content/75">{toVal}</span>
@@ -136,7 +136,7 @@ const SearchResultsPage = () => {
 
             {/* Sorting controls panel */}
             {schedules.length > 0 && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-base-100/60 dark:bg-slate-900/40 p-4 rounded-2xl border border-base-300/20">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 p-4 rounded-2xl shadow-sm">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-base-content/60">
                         <FiSliders className="text-primary" /> Sort Journeys
                     </div>
@@ -190,7 +190,7 @@ const SearchResultsPage = () => {
             {/* Change Search Modal overlay */}
             {showSearchModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
-                    <div className="w-full max-w-4xl bg-base-100 dark:bg-slate-900 border border-base-300 dark:border-white/10 rounded-3xl p-6 shadow-2xl relative animate-scale-in text-base-content">
+                    <div className="w-full max-w-4xl bg-white/85 dark:bg-[#0A1120]/90 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-2xl relative text-slate-800 dark:text-slate-100 animate-scale-in">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-extrabold text-xl">Modify Search Criteria</h3>
                             <button

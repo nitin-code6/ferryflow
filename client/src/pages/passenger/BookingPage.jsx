@@ -159,23 +159,7 @@ const BookingPage = () => {
                 toast.error(response.message || "Failed to create booking on the server");
             }
         } catch (error) {
-            console.warn("Booking creation endpoint error, fallback to offline demo mode:", error);
-            // Fallback for seamless visual testing
-            const offlineBooking = {
-                id: `BK-${Math.floor(100000 + Math.random() * 900000)}`,
-                schedule,
-                passengerDetails: passengersData.map((p) => ({
-                    name: p.name,
-                    age: parseInt(p.age),
-                    gender: p.gender.toLowerCase(),
-                    phone: p.phone,
-                    email: p.email
-                })),
-                seats: selectedSeats,
-                totalPrice: (schedule.fare || 12.50) * selectedSeats.length + 5.00 + (2.50 * selectedSeats.length),
-                date: dateVal || new Date().toISOString()
-            };
-            navigate("/payment", { state: { booking: offlineBooking } });
+            toast.error(error.response?.data?.message || "Booking creation failed. Please try again.");
         }
     };
 
@@ -262,7 +246,7 @@ const BookingPage = () => {
                 <div className="lg:col-span-2 space-y-6">
                     
                     {/* Passenger details */}
-                    <div className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-sm text-left">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm text-left">
                         <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-sky-950/40 mb-6">
                             <FiUser className="text-primary" size={18} />
                             <h3 className="font-bold text-base text-slate-800 dark:text-white">Passenger Information</h3>
@@ -339,7 +323,7 @@ const BookingPage = () => {
                     </div>
 
                     {/* Seat Map Selector */}
-                    <div className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-sm text-left">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm text-left">
                         <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-sky-950/40 mb-6">
                             <FiUsers className="text-secondary" size={18} />
                             <h3 className="font-bold text-base text-slate-800 dark:text-white">Cabin Seat Selection</h3>
@@ -476,7 +460,7 @@ const BookingPage = () => {
                 {/* Right Summary column */}
                 <div className="space-y-6 text-left">
                     {/* Voyage details info panel */}
-                    <div className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-sm">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm hover:scale-[1.01] transition-transform duration-300">
                         <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-sky-950/40 mb-4">
                             <FiCompass className="text-primary" size={18} />
                             <h3 className="font-bold text-base text-slate-800 dark:text-white">Journey Summary</h3>
@@ -525,7 +509,7 @@ const BookingPage = () => {
                     </div>
 
                     {/* Cost Summary panel */}
-                    <div className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-sm">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm hover:scale-[1.01] transition-transform duration-300">
                         <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-sky-950/40 mb-4">
                             <FiCreditCard className="text-primary" size={18} />
                             <h3 className="font-bold text-base text-slate-800 dark:text-white">Billing Details</h3>

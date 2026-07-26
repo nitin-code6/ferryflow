@@ -22,7 +22,7 @@ const ContactPage = () => {
     };
 
     return (
-        <div className="pt-24 pb-16 bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen">
+        <div className="pt-24 pb-16 min-h-screen bg-transparent">
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-6">
                 
                 {/* Left Side: Contact Information */}
@@ -41,7 +41,7 @@ const ContactPage = () => {
 
                     <div className="space-y-4">
                         {/* Email Card */}
-                        <div className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm">
+                        <div className="flex gap-4 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-md hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300">
                             <div className="p-3 bg-sky-500/10 text-sky-500 rounded-xl w-fit shrink-0">
                                 <FiMail size={20} />
                             </div>
@@ -54,7 +54,7 @@ const ContactPage = () => {
                         </div>
 
                         {/* Phone Card */}
-                        <div className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm">
+                        <div className="flex gap-4 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-md hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300">
                             <div className="p-3 bg-success/10 text-success rounded-xl w-fit shrink-0">
                                 <FiPhone size={20} />
                             </div>
@@ -67,7 +67,7 @@ const ContactPage = () => {
                         </div>
 
                         {/* Location Card */}
-                        <div className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm">
+                        <div className="flex gap-4 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-md hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300">
                             <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-xl w-fit shrink-0">
                                 <FiMapPin size={20} />
                             </div>
@@ -80,7 +80,7 @@ const ContactPage = () => {
                         </div>
 
                         {/* Support Hours Card */}
-                        <div className="flex gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 shadow-sm">
+                        <div className="flex gap-4 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-md hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300">
                             <div className="p-3 bg-warning/10 text-warning rounded-xl w-fit shrink-0">
                                 <FiClock size={20} />
                             </div>
@@ -95,7 +95,7 @@ const ContactPage = () => {
                 </div>
 
                 {/* Right Side: Contact Form */}
-                <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                <div className="lg:col-span-7 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 sm:p-8 shadow-sm">
                     <h3 className="font-black text-xl text-slate-900 dark:text-white mb-6">Send an Inquiry</h3>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>

@@ -1,7 +1,7 @@
 const PrivacyPage = () => {
     return (
-        <div className="pt-28 pb-16 bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen">
-            <div className="max-w-4xl mx-auto px-6 bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-lg space-y-6">
+        <div className="pt-28 pb-16 min-h-screen bg-transparent">
+            <div className="max-w-4xl mx-auto px-6 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 sm:p-10 shadow-sm space-y-6">
                 <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
                     Privacy Policy
                 </span>

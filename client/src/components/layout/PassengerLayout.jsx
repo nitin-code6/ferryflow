@@ -7,8 +7,8 @@ import { logoutAPI } from "../../services/authService";
 import toast from "react-hot-toast";
 import Footer from "../footer/Footer";
 
-import backLight from "../../assets/backLight3.png";
-import backDark from "../../assets/backdark2.png";
+import backLight from "../../assets/backlight3.png";
+import backDark from "../../assets/backDark.png";
 
 const PassengerLayout = () => {
     const navigate = useNavigate();
@@ -53,15 +53,11 @@ const PassengerLayout = () => {
         { id: 3, text: "Weather Warning: Strong winds expected tonight on northern routes.", type: "warning", time: "3 hours ago" }
     ];
 
-    const bgImage = theme === "dark" ? backDark : backLight;
-
     return (
-        <div className="relative flex flex-col min-h-screen bg-slate-50 dark:bg-[#0B0F19] transition-all duration-500 overflow-x-hidden">
+        <div className="relative flex flex-col min-h-screen bg-[#F1F5F9] dark:bg-[#071426] text-[#071426] dark:text-[#F8FAFC] transition-all duration-500 overflow-x-hidden relative">
             {/* Background image with low opacity for depth */}
-            <div
-                className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-[0.06] dark:opacity-[0.04] pointer-events-none"
-                style={{ backgroundImage: `url(${bgImage})` }}
-            />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.09] dark:hidden bg-cover bg-center bg-no-repeat bg-fixed" style={{ backgroundImage: `url(${backLight})` }} />
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.03] hidden dark:block bg-cover bg-center bg-no-repeat bg-fixed" style={{ backgroundImage: `url(${backDark})` }} />
             {/* Glowing radial gradient overlays */}
             <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
             <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-sky-500/10 dark:bg-sky-500/5 rounded-full blur-[150px] pointer-events-none" />

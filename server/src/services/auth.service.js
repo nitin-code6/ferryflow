@@ -590,6 +590,36 @@ const deleteAccountService = async (userId) => {
     };
 };
 
+const updateProfileService = async (userId, updateData) => {
+    const { name, email } = updateData;
+    const user = await User.findById(userId);
+    if (!user) {
+        return {
+            success: false,
+            statusCode: 404,
+            message: "User not found"
+        };
+    }
+    if (name) user.name = name;
+    if (email) user.email = email;
+    await user.save();
+    
+    const updatedUser = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        accountStatus: user.accountStatus
+    };
+    
+    return {
+        success: true,
+        statusCode: 200,
+        message: "Profile updated successfully",
+        user: updatedUser
+    };
+};
+
 module.exports = {
     registerUser,
     verifyEmailService,
@@ -600,5 +630,6 @@ module.exports = {
     changePasswordService,
     resendOTPService,
     refreshTokenService,
-    deleteAccountService
+    deleteAccountService,
+    updateProfileService
 };

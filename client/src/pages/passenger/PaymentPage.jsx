@@ -202,7 +202,7 @@ const PaymentPage = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 {/* Left Action Area */}
-                <div className="lg:col-span-2 bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-6">
+                <div className="lg:col-span-2 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm space-y-6">
                     <div className="flex items-center justify-between pb-4 border-b border-base-300/20">
                         <div className="flex items-center gap-2.5 font-extrabold text-lg">
                             <FiCreditCard className="text-primary" /> Payment Method
@@ -229,7 +229,7 @@ const PaymentPage = () => {
 
                 {/* Right Breakdown info */}
                 <div className="space-y-6">
-                    <div className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-4">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm hover:scale-[1.01] transition-transform duration-300 space-y-4">
                         <h3 className="font-extrabold text-base border-b border-base-300/20 pb-3">Journey Details</h3>
                         <div className="space-y-3.5 text-sm font-semibold">
                             <div className="flex gap-2">
@@ -256,7 +256,7 @@ const PaymentPage = () => {
                         </div>
                     </div>
 
-                    <div className="bg-base-100/90 dark:bg-slate-900/90 border border-base-300/30 dark:border-white/5 rounded-3xl p-6 shadow-lg backdrop-blur-xl text-center flex flex-col items-center gap-2.5">
+                    <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm text-center flex flex-col items-center gap-2.5">
                         <FiShield size={32} className="text-success" />
                         <h4 className="font-bold text-sm text-base-content">Razorpay Secured</h4>
                         <p className="text-xs text-base-content/50 leading-relaxed">
@@ -269,7 +269,7 @@ const PaymentPage = () => {
             {/* Payment Loader Overlay */}
             {isPaying && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="w-full max-w-md bg-base-100 dark:bg-slate-900 border border-base-300 dark:border-white/10 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-5 text-base-content">
+                    <div className="w-full max-w-md bg-white/85 dark:bg-[#0A1120]/90 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-8 shadow-2xl flex flex-col items-center text-center gap-5 text-slate-800 dark:text-slate-100">
                         <span className="loading loading-spinner loading-lg text-primary"></span>
                         <h3 className="font-extrabold text-xl">Payment Processing</h3>
                         <p className="text-sm font-semibold text-base-content/60">

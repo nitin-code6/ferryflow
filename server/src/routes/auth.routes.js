@@ -26,7 +26,8 @@ const {
     resendOTP,
     refreshToken,
     googleLogin,
-    deleteAccount
+    deleteAccount,
+    updateProfile
 } = require("../controllers/auth.controller");
 
 router.post("/register", registerLimiter, validate(registerSchema), register);
@@ -35,6 +36,7 @@ router.post("/login", loginLimiter, validate(loginSchema), Login);
 router.get("/me", authMiddleware, getCurrentUser);
 router.post("/logout", authMiddleware, Logout);
 router.delete("/delete-account", authMiddleware, deleteAccount);
+router.put("/update-profile", authMiddleware, updateProfile);
 router.post("/forget-password", forgotPasswordLimiter, validate(forgotPasswordSchema), forgotPassword);
 router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
 router.post("/change-password", authMiddleware, validate(changePasswordSchema), changePassword);

@@ -108,7 +108,7 @@ const PassengerDashboardPage = () => {
                     </div>
 
                     {upcomingTrips.length === 0 ? (
-                        <div className="p-10 text-center bg-white dark:bg-[#0F1D36]/80 rounded-[32px] border border-slate-200/80 dark:border-sky-950/60 shadow-sm space-y-4">
+                        <div className="p-10 text-center bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-[32px] shadow-sm hover:shadow-md transition-all space-y-4">
                             <div className="h-16 w-16 bg-[#2563EB]/10 rounded-full flex items-center justify-center text-2xl mx-auto">
                                 🚢
                             </div>
@@ -134,7 +134,7 @@ const PassengerDashboardPage = () => {
                                 const status = trip.bookingStatus || trip.status || "confirmed";
 
                                 return (
-                                    <div key={tId} className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-sm hover:scale-[1.01] transition-all flex flex-col justify-between h-64 text-left">
+                                    <div key={tId} className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm hover:shadow-lg hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.99] transition-all duration-300 flex flex-col justify-between h-64 text-left">
                                         <div className="space-y-2">
                                             <div className="flex justify-between items-start">
                                                 <div>
@@ -182,7 +182,7 @@ const PassengerDashboardPage = () => {
                             Quick Actions
                         </h3>
                         <div className="grid grid-cols-1 gap-3">
-                            <button onClick={scrollToSearch} className="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 shadow-sm hover:scale-[1.01] transition-all text-left w-full group">
+                            <button onClick={scrollToSearch} className="flex items-center gap-3.5 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 text-left w-full group">
                                 <span className="h-10 w-10 bg-[#2563EB]/10 text-[#2563EB] dark:text-[#00A8FF] rounded-xl flex items-center justify-center text-lg font-bold shrink-0">🚢</span>
                                 <div>
                                     <p className="text-sm font-bold text-[#071426] dark:text-white">Book Ferry</p>
@@ -190,7 +190,7 @@ const PassengerDashboardPage = () => {
                                 </div>
                             </button>
 
-                            <Link to="/my-bookings" className="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 shadow-sm hover:scale-[1.01] transition-all text-left w-full group">
+                            <Link to="/my-bookings" className="flex items-center gap-3.5 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 text-left w-full group">
                                 <span className="h-10 w-10 bg-emerald-500/10 text-emerald-600 dark:text-emerald-450 rounded-xl flex items-center justify-center text-lg font-bold shrink-0">🎫</span>
                                 <div>
                                     <p className="text-sm font-bold text-[#071426] dark:text-white">My Bookings</p>
@@ -198,7 +198,7 @@ const PassengerDashboardPage = () => {
                                 </div>
                             </Link>
 
-                            <a href="#alerts-section" className="flex items-center gap-3.5 p-4 rounded-2xl bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 shadow-sm hover:scale-[1.01] transition-all text-left w-full group">
+                            <a href="#alerts-section" className="flex items-center gap-3.5 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300 text-left w-full group">
                                 <span className="h-10 w-10 bg-amber-500/10 text-amber-600 dark:text-amber-450 rounded-xl flex items-center justify-center text-lg font-bold shrink-0">🔔</span>
                                 <div>
                                     <p className="text-sm font-bold text-[#071426] dark:text-white">Live Alerts</p>
@@ -267,7 +267,7 @@ const PassengerDashboardPage = () => {
                             else if (status === "cancelled") statusLabel = "❌ Cancelled";
 
                             return (
-                                <div key={sched._id} className="bg-white dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-56 hover:scale-[1.01] transition-all">
+                                <div key={sched._id} className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-56 hover:shadow-lg hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.99] transition-all duration-300">
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-white">

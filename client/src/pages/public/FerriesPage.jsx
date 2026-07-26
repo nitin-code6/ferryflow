@@ -23,7 +23,7 @@ const FerriesPage = () => {
     }, []);
 
     return (
-        <div className="pt-28 pb-16 bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 min-h-screen">
+        <div className="pt-28 pb-16 min-h-screen bg-transparent">
             <div className="max-w-7xl mx-auto px-6 space-y-10">
                 <div className="text-center space-y-3 max-w-2xl mx-auto">
                     <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
@@ -42,7 +42,7 @@ const FerriesPage = () => {
                         <span className="loading loading-spinner loading-lg text-primary"></span>
                     </div>
                 ) : ferries.length === 0 ? (
-                    <div className="p-8 text-center bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm max-w-md mx-auto">
+                    <div className="p-8 text-center bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl shadow-sm max-w-md mx-auto">
                         <FiAnchor className="mx-auto text-slate-300 mb-3" size={48} />
                         <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">No Vessels Active</h3>
                         <p className="text-xs text-slate-400 mt-1">Check back later for updated fleet dispatch details.</p>
@@ -52,7 +52,7 @@ const FerriesPage = () => {
                         {ferries.map((ferry) => (
                             <div
                                 key={ferry._id || ferry.id}
-                                className="bg-white dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-5 shadow-lg flex flex-col justify-between gap-5 transition-all hover:scale-[1.01]"
+                                className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.99] transition-all duration-300 flex flex-col justify-between gap-5"
                             >
                                 <div className="flex justify-between items-start">
                                     <div className="space-y-1">

@@ -92,3 +92,13 @@ export const deleteAccountAPI = async () => {
     const response = await api.delete("/auth/delete-account");
     return response.data;
 };
+
+export const changePasswordAPI = async (passwordData) => {
+    const response = await api.post("/auth/change-password", passwordData);
+    return response.data;
+};
+
+export const updateProfileAPI = async (profileData) => {
+    const response = await api.put("/auth/update-profile", profileData);
+    return response.data;
+};
