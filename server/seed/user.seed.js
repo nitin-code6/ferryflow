@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 
 const seedUsers = async () => {
     console.log("Seeding Users...");
-    
+
     // Hash default password
     const hashedPassword = await bcrypt.hash("Password123!", 10);
 

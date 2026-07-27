@@ -54,6 +54,18 @@ const initSocket = (httpServer) => {
         }
     });
 
+    eventBus.on("inquiry:created", (inquiry) => {
+        if (io) {
+            io.emit("inquiry:created", inquiry);
+        }
+    });
+
+    eventBus.on("inquiry:resolved", ({ id, status }) => {
+        if (io) {
+            io.emit("inquiry:resolved", { id, status });
+        }
+    });
+
     return io;
 };
 

@@ -35,6 +35,7 @@ import ScheduleDetailsPage from "../pages/admin/schedules/ScheduleDetailsPage";
 import BookingManagementPage from "../pages/admin/bookings/BookingManagementPage";
 import AlertManagementPage from "../pages/admin/alerts/AlertManagementPage";
 import SettingsPage from "../pages/admin/SettingsPage";
+import InquiryListPage from "../pages/admin/inquiries/InquiryListPage";
 
 import PassengerDashboardPage from "../pages/passenger/PassengerDashboardPage";
 import SearchResultsPage from "../pages/passenger/SearchResultsPage";
@@ -136,6 +137,9 @@ export default function AppRouter() {
 
                     {/* Alert Management */}
                     <Route path="alerts" element={<AlertManagementPage />} />
+
+                    {/* Inquiry Management */}
+                    <Route path="inquiries" element={<InquiryListPage />} />
 
                     {/* Settings Page */}
                     <Route path="settings" element={<SettingsPage />} />

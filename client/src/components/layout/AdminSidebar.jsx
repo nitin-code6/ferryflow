@@ -14,6 +14,7 @@ import {
     LogOut,
     ChevronLeft,
     ChevronRight,
+    MessageSquare,
 } from "lucide-react";
 
 const menuItems = [
@@ -46,6 +47,11 @@ const menuItems = [
         name: "Alerts",
         icon: Bell,
         path: "/admin/alerts",
+    },
+    {
+        name: "Inquiries",
+        icon: MessageSquare,
+        path: "/admin/inquiries",
     },
     {
         name: "User Management",
