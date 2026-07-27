@@ -3,7 +3,16 @@ import AppRouter from "./routes/AppRouter";
 import AuthProvider from "./context/AuthContext";
 
 
+import { useEffect } from "react";
+import { socket } from "./services/socketService";
+
 function App() {
+  useEffect(() => {
+    socket.connect();
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   return (
     <>

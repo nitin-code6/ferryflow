@@ -5,6 +5,7 @@ import { createBooking } from "../../services/bookingService";
 import { getFerryLayout } from "../../services/ferryService";
 import { FiUser, FiArrowLeft, FiCreditCard, FiCompass, FiCalendar, FiUsers } from "react-icons/fi";
 import { DetailSkeleton } from "../../components/ui/LoadingSkeleton";
+import { socket } from "../../services/socketService";
 import toast from "react-hot-toast";
 
 
@@ -98,6 +99,38 @@ const BookingPage = () => {
         if (scheduleId) {
             fetchScheduleDetails();
         }
+    }, [scheduleId]);
+
+    useEffect(() => {
+        if (!scheduleId) return;
+
+        socket.emit("join:schedule", scheduleId);
+
+        const handleSeatBooked = ({ seatNumbers }) => {
+            setSchedule((prev) => {
+                if (!prev) return prev;
+                const uniqueBooked = Array.from(new Set([...(prev.bookedSeats || []), ...seatNumbers]));
+                return { ...prev, bookedSeats: uniqueBooked };
+            });
+            setSelectedSeats((prevSelected) => prevSelected.filter(s => !seatNumbers.includes(s)));
+        };
+
+        const handleSeatReleased = ({ seatNumbers }) => {
+            setSchedule((prev) => {
+                if (!prev) return prev;
+                const filteredBooked = (prev.bookedSeats || []).filter(s => !seatNumbers.includes(s));
+                return { ...prev, bookedSeats: filteredBooked };
+            });
+        };
+
+        socket.on("seat:booked", handleSeatBooked);
+        socket.on("seat:released", handleSeatReleased);
+
+        return () => {
+            socket.emit("leave:schedule", scheduleId);
+            socket.off("seat:booked", handleSeatBooked);
+            socket.off("seat:released", handleSeatReleased);
+        };
     }, [scheduleId]);
 
     const handleSeatClick = (seatId) => {
