@@ -42,7 +42,7 @@ const createAndSendOtp = async (
     const isEmailVerification =
         purpose === "verify-email";
 
-    await sendEmail({
+    sendEmail({
 
         to: email,
 
@@ -57,21 +57,8 @@ const createAndSendOtp = async (
                 margin: auto;
                 padding: 20px;
             ">
-
-                <h2>
-                    ${isEmailVerification
-                ? "Email Verification"
-                : "Password Reset"
-            }
-                </h2>
-
-                <p>
-                    ${isEmailVerification
-                ? "Use the OTP below to verify your FerryFlow account."
-                : "Use the OTP below to reset your FerryFlow password."
-            }
-                </p>
-
+                <h2>${isEmailVerification ? "Email Verification" : "Reset Password"}</h2>
+                <p>Use the OTP below to verify your action.</p>
                 <div style="
                     font-size: 32px;
                     font-weight: bold;
@@ -81,21 +68,13 @@ const createAndSendOtp = async (
                 ">
                     ${otp}
                 </div>
-
-                <p>
-                    This OTP will expire in
-                    <strong>5 minutes</strong>.
-                </p>
-
                 <p>
                     If you did not request this,
                     please ignore this email.
                 </p>
 
             </div>
-        `
-
-    });
+    }).catch(err => console.error("OTP email failed to send:", err));
 
 };
 

@@ -87,16 +87,29 @@ const createBookingService = async (userId, data) => {
         const totalAmount = existingSchedule.fare * seatsBooked;
 
         // 7. Create booking — status starts at pending_payment until Razorpay confirms
-        const booking = await Booking.create({
-            user: userId,
-            schedule,
-            passengerDetails,
-            seatsBooked,
-            seatNumbers,
-            totalAmount,
-            bookingStatus: "pending_payment",
-            paymentStatus: "pending"
-        });
+        let booking;
+        try {
+            const created = await Booking.create([{
+                user: userId,
+                schedule,
+                passengerDetails,
+                seatsBooked,
+                seatNumbers,
+                totalAmount,
+                bookingStatus: "pending_payment",
+                paymentStatus: "pending"
+            }]);
+            booking = created[0];
+        } catch (error) {
+            if (error.code === 11000) {
+                return {
+                    success: false,
+                    statusCode: 409,
+                    message: "One or more selected seats are already reserved. Please select different seats."
+                };
+            }
+            throw error;
+        }
 
         const populatedBooking = await Booking.findById(booking._id).populate({
             path: "schedule",
@@ -242,7 +255,7 @@ const cancelBookingService = async (bookingId, userId, role) => {
                     ? `<p>Your refund of <b>₹${booking.totalAmount}</b> has been initiated and will be credited to your account soon.</p>`
                     : `<p>No payment was processed for this booking.</p>`;
 
-                await sendEmail({
+                sendEmail({
                     to: userObj.email,
                     subject: subjectLine,
                     html: `
@@ -253,10 +266,10 @@ const cancelBookingService = async (bookingId, userId, role) => {
                         <hr>
                         <p>Thank you for using FerryFlow.</p>
                     `
-                });
+                }).catch(err => console.error("Failed to send cancellation email:", err));
             }
         } catch (emailErr) {
-            console.error("Failed to send cancellation email:", emailErr);
+            console.error("Failed to execute email block:", emailErr);
         }
 
         return {

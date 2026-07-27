@@ -64,7 +64,7 @@ const registerUser = async (userData) => {
 
         // Send OTP email after transaction commits successfully
         console.log("OTP:", otp);
-        await sendEmail({
+        sendEmail({
             to: email,
             subject: "Verify Your FerryFlow Account",
             html: `
@@ -89,7 +89,7 @@ const registerUser = async (userData) => {
                     <p>If you did not request this, please ignore this email.</p>
                 </div>
             `
-        });
+        }).catch(err => console.error("Email verification failed to send:", err));
 
         return {
             success: true,
