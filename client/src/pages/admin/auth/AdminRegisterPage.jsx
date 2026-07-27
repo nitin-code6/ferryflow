@@ -2,6 +2,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { adminCreateUserAPI } from "../../../services/adminService";
 import { ShieldAlert, Mail, User, Lock, UserPlus } from "lucide-react";
+import AdminPageHeader from "../../../components/ui/AdminPageHeader";
 
 const AdminRegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -82,12 +83,10 @@ const AdminRegisterPage = () => {
     return (
         <div className="space-y-8 animate-in fade-in duration-300">
             {/* Header */}
-            <div>
-                <p className="text-xs text-base-content/60 font-medium">Administrative Controls</p>
-                <h1 className="text-2xl md:text-3xl font-black tracking-tight text-base-content mt-0.5">
-                    Register Personnel
-                </h1>
-            </div>
+            <AdminPageHeader 
+                title="Register Personnel" 
+                subtitle="Create and authorize new administrative credentials." 
+            />
 
             {/* Form Card Wrapper */}
             <div className="max-w-3xl bg-base-100/90 backdrop-blur-xl rounded-[28px] border border-base-300/30 shadow-[0_25px_80px_rgba(0,0,0,0.08)] p-6 md:p-8">
@@ -105,7 +104,7 @@ const AdminRegisterPage = () => {
                     {/* Name */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-bold text-base-content/80 uppercase tracking-wider">Full Legal Name</label>
-                        <div className="relative max-w-xl">
+                        <div className="relative w-full">
                             <User className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base-content/40" size={18} />
                             <input
                                 type="text"
@@ -122,7 +121,7 @@ const AdminRegisterPage = () => {
                     {/* Email */}
                     <div className="space-y-1.5">
                         <label className="text-xs font-bold text-base-content/80 uppercase tracking-wider">Official Email Address</label>
-                        <div className="relative max-w-xl">
+                        <div className="relative w-full">
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-base-content/40" size={18} />
                             <input
                                 type="email"
@@ -138,7 +137,7 @@ const AdminRegisterPage = () => {
 
                     {/* Role Select & Security Clearance Token */}
                     {/* Role Select */}
-                    <div className="max-w-xl space-y-1.5">
+                    <div className="w-full space-y-1.5">
                         <label className="text-xs font-bold text-base-content/80 uppercase tracking-wider">Requested Role</label>
                         <select
                             name="role"
@@ -152,7 +151,7 @@ const AdminRegisterPage = () => {
                     </div>
 
                     {/* Passwords */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                         <div className="space-y-1.5">
                             <label className="text-xs font-bold text-base-content/80 uppercase tracking-wider">Password</label>
                             <div className="relative">
@@ -186,7 +185,7 @@ const AdminRegisterPage = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-2 max-w-xl">
+                    <div className="flex items-center gap-2 w-full">
                         <input
                             type="checkbox"
                             id="showPassword"
@@ -201,13 +200,13 @@ const AdminRegisterPage = () => {
 
                     {/* Server Error */}
                     {errors.server && (
-                        <div className="p-3.5 rounded-xl bg-error/10 border border-error/20 text-error text-xs font-semibold max-w-xl">
+                        <div className="p-3.5 rounded-xl bg-error/10 border border-error/20 text-error text-xs font-semibold w-full">
                             ⚠ {errors.server}
                         </div>
                     )}
 
                     {/* Submit Button */}
-                    <div className="pt-4 border-t border-base-300/40 max-w-xl">
+                    <div className="pt-4 border-t border-base-300/40 w-full">
                         <button
                             type="submit"
                             disabled={loading}

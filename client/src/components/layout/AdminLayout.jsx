@@ -88,8 +88,7 @@ const AdminLayout = () => {
         fixed
         inset-0
         z-45
-        bg-black/60
-        backdrop-blur-sm
+        bg-black/55
         transition-all
         duration-300
         md:hidden
@@ -98,7 +97,7 @@ const AdminLayout = () => {
                 />
             )}
 
-            <div className="relative z-10 flex w-full min-h-screen">
+            <div className="flex w-full min-h-screen">
                 {/* Sidebar */}
                 <AdminSidebar
                     isMobileOpen={isMobileOpen}
