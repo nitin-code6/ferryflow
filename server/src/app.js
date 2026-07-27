@@ -12,6 +12,7 @@ const paymentRouter = require("./routes/payment.routes.js");
 const alertRouter = require("./routes/alert.route.js");
 const dashboardRouter = require("./routes/dashboard.route.js");
 const adminRouter = require("./routes/admin.routes.js");
+const supportRouter = require("./routes/support.routes.js");
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 // Middleware
@@ -25,6 +26,7 @@ app.use("/api/v1/booking", bookingRouter);
 app.use("/api/v1/payment", paymentRouter);
 app.use("/api/v1/alerts", alertRouter);
 app.use("/api/v1/dashboard", dashboardRouter);
+app.use("/api/v1/support", supportRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/v1/admin", adminRouter);
 

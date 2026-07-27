@@ -19,14 +19,34 @@ function App() {
       <Toaster
         position="top-center"
         toastOptions={{
-          duration: 3000,
+          duration: 3500,
           style: {
             background: "#0F172A",
-            color: "#fff",
-            border:
-              "1px solid rgba(14,165,233,0.25)",
-            borderRadius: "14px",
-            padding: "14px 18px"
+            color: "#F8FAFC",
+            border: "1px solid rgba(226, 232, 240, 0.08)",
+            borderRadius: "16px",
+            padding: "12px 20px",
+            fontSize: "13px",
+            fontWeight: "600",
+            boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+          },
+          success: {
+            iconTheme: {
+              primary: "#10B981",
+              secondary: "#0F172A",
+            },
+            style: {
+              border: "1px solid rgba(16, 185, 129, 0.25)",
+            }
+          },
+          error: {
+            iconTheme: {
+              primary: "#EF4444",
+              secondary: "#0F172A",
+            },
+            style: {
+              border: "1px solid rgba(239, 68, 68, 0.25)",
+            }
           }
         }}
       />

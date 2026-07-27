@@ -128,11 +128,11 @@ const AdminSidebar = ({
                             to={item.path}
                             onClick={() => setIsMobileOpen(false)}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] ${
+                                `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-250 hover:scale-[1.02] active:scale-[0.98] border-l-4 ${
                                     isActive
-                                        ? "bg-[#2563EB]/10 dark:bg-[#00A8FF]/10 text-[#2563EB] dark:text-[#00A8FF] font-bold pl-3"
-                                        : "text-slate-600 dark:text-slate-450 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-sky-950/30"
-                                } ${isCollapsed ? "justify-center px-0 pl-0" : ""}`
+                                        ? "bg-[#2563EB]/10 dark:bg-[#00A8FF]/10 text-[#2563EB] dark:text-[#00A8FF] font-bold border-[#2563EB] dark:border-[#00A8FF] pl-3"
+                                        : "border-transparent text-slate-600 dark:text-slate-450 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-sky-950/30"
+                                } ${isCollapsed ? "justify-center px-0 pl-0 border-l-0" : ""}`
                             }
                             title={isCollapsed ? item.name : ""}
                         >

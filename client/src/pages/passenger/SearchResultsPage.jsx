@@ -190,7 +190,7 @@ const SearchResultsPage = () => {
             {/* Change Search Modal overlay */}
             {showSearchModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all">
-                    <div className="w-full max-w-4xl bg-white/85 dark:bg-[#0A1120]/90 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-2xl relative text-slate-800 dark:text-slate-100 animate-scale-in">
+                    <div className="w-full max-w-4xl bg-white/95 dark:bg-[#0A1120]/95 backdrop-blur-md border border-slate-200 dark:border-sky-950/50 rounded-3xl p-6 pb-32 shadow-2xl relative text-slate-800 dark:text-slate-100 animate-scale-in">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="font-extrabold text-xl">Modify Search Criteria</h3>
                             <button
@@ -201,6 +201,8 @@ const SearchResultsPage = () => {
                             </button>
                         </div>
                         <SearchCard
+                            minimal={true}
+                            key={`${fromVal}-${toVal}-${dateVal}-${passengerCount}`}
                             onSearch={handleSearchSubmit}
                             initialValues={{
                                 fromTerminal: fromVal,

@@ -63,7 +63,7 @@ const CustomSelect = ({ label, icon, value, onChange, options, placeholder }) =>
     );
 };
 
-const SearchCard = ({ onSearch, initialValues }) => {
+const SearchCard = ({ onSearch, initialValues, minimal = false }) => {
     const [ports, setPorts] = useState([]);
     const [fromTerminal, setFromTerminal] = useState(initialValues?.fromTerminal || "");
     const [toTerminal, setToTerminal] = useState(initialValues?.toTerminal || "");
@@ -125,7 +125,10 @@ const SearchCard = ({ onSearch, initialValues }) => {
     return (
         <form
             onSubmit={handleSubmit}
-            className="w-full bg-[#F8FAFC]/95 dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-xl backdrop-blur-xl"
+            className={minimal 
+                ? "w-full" 
+                : "w-full bg-[#F8FAFC]/95 dark:bg-[#0F1D36] border border-slate-200 dark:border-sky-950/80 rounded-3xl p-6 shadow-xl backdrop-blur-xl"
+            }
         >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 {/* From Port */}

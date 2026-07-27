@@ -23,20 +23,21 @@ const passengerSchema = z.object({
         .trim(),
 
     age: z
-        .number({
-            required_error: "Age is required"
-        })
+        .number()
         .int()
         .min(
             1,
             "Age must be greater than 0"
-        ),
+        )
+        .optional(),
 
-    gender: z.enum([
-        "male",
-        "female",
-        "other"
-    ]),
+    gender: z
+        .enum([
+            "male",
+            "female",
+            "other"
+        ])
+        .optional(),
     
     phone: z.string().optional(),
     email: z.string().optional()

@@ -50,23 +50,31 @@ const verifyEmail = async (req, res) => {
 };
 
 const Login = async (req, res) => {
-    const { email, password } = req.body;
-    const result = await LoginService(email, password);
-    if (!result.success) {
-        return res.status(400).json(result);
+    try {
+        const { email, password } = req.body;
+        const result = await LoginService(email, password);
+        if (!result.success) {
+            return res.status(result.statusCode || 400).json(result);
+        }
+        res.cookie("refreshToken", result.refreshToken, {
+            ...cookieOptions,
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+        res.cookie("accessToken", result.accessToken, {
+            ...cookieOptions,
+            maxAge: 15 * 60 * 1000
+        });
+        return res.status(200).json({
+            success: true,
+            message: result.message
+        });
+    } catch (error) {
+        console.error("Login Error:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-    res.cookie("refreshToken", result.refreshToken, {
-        ...cookieOptions,
-        maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-    res.cookie("accessToken", result.accessToken, {
-        ...cookieOptions,
-        maxAge: 15 * 60 * 1000
-    });
-    return res.status(200).json({
-        success: true,
-        message: result.message
-    });
 };
 
 const getCurrentUser = async (req, res) => {

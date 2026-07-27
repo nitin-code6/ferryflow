@@ -63,8 +63,14 @@ const FerriesPage = () => {
                                             Vessel ID: {ferry._id || ferry.id}
                                         </p>
                                     </div>
-                                    <span className="badge badge-success badge-sm font-bold capitalize">
-                                        {ferry.status || "Active"}
+                                    <span className={`badge badge-sm font-bold uppercase tracking-wider ${
+                                        (ferry.status || "Active").toLowerCase() === "available" || (ferry.status || "Active").toLowerCase() === "active"
+                                            ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/20"
+                                            : (ferry.status || "Active").toLowerCase() === "maintenance"
+                                            ? "bg-amber-500/15 text-amber-500 border border-amber-500/20"
+                                            : "bg-rose-500/15 text-rose-500 border border-rose-500/20"
+                                    }`}>
+                                        {(ferry.status || "Active").replace(/_/g, " ")}
                                     </span>
                                 </div>
 

@@ -98,11 +98,19 @@ const createBookingService = async (userId, data) => {
             paymentStatus: "pending"
         });
 
+        const populatedBooking = await Booking.findById(booking._id).populate({
+            path: "schedule",
+            populate: [
+                { path: "ferry" },
+                { path: "route" }
+            ]
+        });
+
         return {
             success: true,
             statusCode: 201,
             message: "Booking created. Proceed with payment.",
-            booking
+            booking: populatedBooking
         };
 
     } catch (error) {
@@ -160,7 +168,7 @@ const getAllBookingsService = async () => {
 
 const cancelBookingService = async (bookingId, userId, role) => {
     try {
-        const booking = await Booking.findById(bookingId);
+        const booking = await Booking.findById(bookingId).populate("user");
         if (!booking) {
             return {
                 success: false,
@@ -169,7 +177,7 @@ const cancelBookingService = async (bookingId, userId, role) => {
             };
         }
 
-        if (role !== "admin" && booking.user.toString() !== userId.toString()) {
+        if (role !== "admin" && booking.user._id.toString() !== userId.toString()) {
             return {
                 success: false,
                 statusCode: 403,
@@ -185,8 +193,13 @@ const cancelBookingService = async (bookingId, userId, role) => {
             };
         }
 
+        const wasPaid = booking.paymentStatus === "paid";
+        
         booking.bookingStatus = "cancelled";
         booking.cancelledAt = new Date();
+        if (wasPaid) {
+            booking.paymentStatus = "refunded";
+        }
         await booking.save();
 
         // Release seats back to the schedule
@@ -200,6 +213,37 @@ const cancelBookingService = async (bookingId, userId, role) => {
         }
 
         eventBus.emit("seat:released", { scheduleId: booking.schedule, seatNumbers: booking.seatNumbers });
+
+        // Send email notification for cancelled tickets
+        try {
+            const userObj = booking.user;
+            if (userObj && userObj.email) {
+                const { sendEmail } = require("../utils/sendEmail");
+                
+                const subjectLine = wasPaid 
+                    ? "🚢 FerryFlow Ticket Cancellation & Refund" 
+                    : "🚢 FerryFlow Booking Cancelled";
+                
+                const refundHtml = wasPaid
+                    ? `<p>Your refund of <b>₹${booking.totalAmount}</b> has been initiated and will be credited to your account soon.</p>`
+                    : `<p>No payment was processed for this booking.</p>`;
+
+                await sendEmail({
+                    to: userObj.email,
+                    subject: subjectLine,
+                    html: `
+                        <h2>Ticket Cancelled</h2>
+                        <p>Hello <b>${userObj.name || "Passenger"}</b>,</p>
+                        <p>We would like to inform you that your booking (Ticket ID: <b>${booking.ticketId || booking._id}</b>) has been successfully cancelled.</p>
+                        ${refundHtml}
+                        <hr>
+                        <p>Thank you for using FerryFlow.</p>
+                    `
+                });
+            }
+        } catch (emailErr) {
+            console.error("Failed to send cancellation email:", emailErr);
+        }
 
         return {
             success: true,

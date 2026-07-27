@@ -16,22 +16,28 @@ const PassengerDashboardPage = () => {
     const [alerts, setAlerts] = useState([]);
     const [schedules, setSchedules] = useState([]);
 
+    const [visibleSchedulesCount, setVisibleSchedulesCount] = useState(6);
+
     useEffect(() => {
-        const loadDashboardData = async () => {
+        const loadAlerts = async () => {
             try {
                 const alertsRes = await getAllAlerts();
                 setAlerts(alertsRes.data || alertsRes.alerts || []);
             } catch (error) {
                 console.error("Failed to load alerts:", error);
             }
+        };
 
+        const loadBookings = async () => {
             try {
                 const bookingsRes = await getUserBookings();
                 setBookings(bookingsRes.data || bookingsRes.bookings || []);
             } catch (error) {
                 console.error("Failed to load user bookings:", error);
             }
+        };
 
+        const loadSchedules = async () => {
             try {
                 const schedulesRes = await getAllSchedules();
                 setSchedules(schedulesRes.data || schedulesRes.schedules || []);
@@ -39,7 +45,10 @@ const PassengerDashboardPage = () => {
                 console.error("Failed to load schedules:", error);
             }
         };
-        loadDashboardData();
+
+        loadAlerts();
+        loadBookings();
+        loadSchedules();
     }, []);
 
     const handleSearch = (searchParams) => {
@@ -224,7 +233,7 @@ const PassengerDashboardPage = () => {
                                         key={alert.id || alert._id}
                                         type={alert.type}
                                         message={alert.message}
-                                        date={alert.date}
+                                        date={alert.createdAt ? new Date(alert.createdAt).toLocaleDateString(undefined, { dateStyle: "short" }) : ""}
                                         routeName={alert.routeName}
                                     />
                                 ))
@@ -243,65 +252,86 @@ const PassengerDashboardPage = () => {
                     <p className="text-sm font-semibold text-slate-450 dark:text-slate-500 bg-slate-100/50 dark:bg-sky-950/20 p-6 rounded-2xl border border-slate-200/40 dark:border-sky-950/40">
                         No upcoming schedules found.
                     </p>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {schedules.slice(0, 6).map((sched) => {
-                            const origin = sched.route?.origin || "Kochi";
-                            const destination = sched.route?.destination || "Waterway";
-                            const ferryName = sched.ferry?.name || "Transit Vessel";
-                            const depTime = sched.departureTime ? new Date(sched.departureTime).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "TBD";
-                            
-                            // Calculate duration dynamically or fallback
-                            let duration = "20 min";
-                            if (sched.departureTime && sched.arrivalTime) {
-                                const diffMs = new Date(sched.arrivalTime) - new Date(sched.departureTime);
-                                const diffMins = Math.round(diffMs / 60000);
-                                if (diffMins > 0) duration = `${diffMins} min`;
-                            }
+                                ) : (
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {schedules.slice(0, visibleSchedulesCount).map((sched) => {
+                                const origin = sched.route?.origin || "Kochi";
+                                const destination = sched.route?.destination || "Waterway";
+                                const ferryName = sched.ferry?.name || "Transit Vessel";
+                                const depTime = sched.departureTime ? new Date(sched.departureTime).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" }) : "TBD";
+                                
+                                // Calculate duration dynamically or fallback
+                                let duration = "20 min";
+                                if (sched.departureTime && sched.arrivalTime) {
+                                    const diffMs = new Date(sched.arrivalTime) - new Date(sched.departureTime);
+                                    const diffMins = Math.round(diffMs / 60000);
+                                    if (diffMins > 0) duration = `${diffMins} min`;
+                                }
 
-                            // Status badge styling
-                            const status = (sched.status || "On Time").toLowerCase();
-                            let statusLabel = "🟢 On Time";
-                            if (status === "delayed") statusLabel = "🔴 Delayed";
-                            else if (status === "boarding") statusLabel = "🟡 Boarding";
-                            else if (status === "cancelled") statusLabel = "❌ Cancelled";
+                                // Status badge styling
+                                const status = (sched.status || "On Time").toLowerCase();
+                                let statusColor = "bg-emerald-500";
+                                let statusText = "On Time";
+                                if (status === "delayed") {
+                                    statusColor = "bg-rose-500";
+                                    statusText = "Delayed";
+                                } else if (status === "boarding") {
+                                    statusColor = "bg-amber-500";
+                                    statusText = "Boarding";
+                                } else if (status === "cancelled") {
+                                    statusColor = "bg-slate-400";
+                                    statusText = "Cancelled";
+                                }
 
-                            return (
-                                <div key={sched._id} className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-56 hover:shadow-lg hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.99] transition-all duration-300">
-                                    <div className="space-y-3">
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-white">
-                                                <span>{origin}</span>
-                                                <FiArrowRight className="text-[#2563EB] shrink-0" />
-                                                <span>{destination}</span>
-                                            </div>
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400">
-                                                {statusLabel}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-[#071426] dark:text-white text-base leading-tight">🚢 {ferryName}</h4>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2 pt-1.5 text-[11px] text-slate-400 font-semibold">
-                                            <div>
-                                                <p className="uppercase tracking-wider text-[9px] text-slate-400/80">Departure</p>
-                                                <p className="text-slate-700 dark:text-slate-200 font-bold mt-0.5">{depTime}</p>
+                                return (
+                                    <div key={sched._id} className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm flex flex-col justify-between h-56 hover:shadow-lg hover:-translate-y-1.5 hover:scale-[1.02] active:scale-[0.99] transition-all duration-300">
+                                        <div className="space-y-3">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 dark:text-white">
+                                                    <span>{origin}</span>
+                                                    <FiArrowRight className="text-[#2563EB] shrink-0" />
+                                                    <span>{destination}</span>
+                                                </div>
+                                                <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 flex items-center gap-1.5 border border-slate-200/60 dark:border-sky-950/20">
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${statusColor}`}></span>
+                                                    {statusText}
+                                                </span>
                                             </div>
                                             <div>
-                                                <p className="uppercase tracking-wider text-[9px] text-slate-400/80">Duration</p>
-                                                <p className="text-slate-700 dark:text-slate-200 font-bold mt-0.5">{duration}</p>
+                                                <h4 className="font-bold text-[#071426] dark:text-white text-base leading-tight">🚢 {ferryName}</h4>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2 pt-1.5 text-[11px] text-slate-400 font-semibold">
+                                                <div>
+                                                    <p className="uppercase tracking-wider text-[9px] text-slate-400/80">Departure</p>
+                                                    <p className="text-slate-700 dark:text-slate-200 font-bold mt-0.5">{depTime}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="uppercase tracking-wider text-[9px] text-slate-400/80">Duration</p>
+                                                    <p className="text-slate-700 dark:text-slate-200 font-bold mt-0.5">{duration}</p>
+                                                </div>
                                             </div>
                                         </div>
+                                        <button
+                                            onClick={() => handleSelectSchedule(sched)}
+                                            className="mt-4 w-full py-2.5 rounded-xl border border-[#2563EB]/40 dark:border-[#00A8FF]/30 text-[#2563EB] dark:text-[#00A8FF] hover:bg-[#2563EB] hover:text-white hover:border-transparent text-center text-xs font-bold transition-all"
+                                        >
+                                            View Schedule
+                                        </button>
                                     </div>
-                                    <button
-                                        onClick={() => handleSelectSchedule(sched)}
-                                        className="mt-4 w-full py-2.5 rounded-xl border border-[#2563EB]/40 dark:border-[#00A8FF]/30 text-[#2563EB] dark:text-[#00A8FF] hover:bg-[#2563EB] hover:text-white hover:border-transparent text-center text-xs font-bold transition-all"
-                                    >
-                                        View Schedule
-                                    </button>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
+                        {schedules.length > 6 && (
+                            <div className="flex justify-center mt-6">
+                                <button
+                                    onClick={() => setVisibleSchedulesCount(prev => prev === 6 ? schedules.length : 6)}
+                                    className="px-6 py-2.5 rounded-xl border border-[#2563EB]/40 dark:border-[#00A8FF]/30 text-[#2563EB] dark:text-[#00A8FF] hover:bg-[#2563EB] hover:text-white text-xs font-bold transition-all"
+                                >
+                                    {visibleSchedulesCount === 6 ? `Show All Schedules (${schedules.length})` : "Show Less"}
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

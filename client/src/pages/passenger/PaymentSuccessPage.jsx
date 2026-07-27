@@ -24,7 +24,150 @@ const PaymentSuccessPage = () => {
     const activeBooking = booking || fallbackBooking;
 
     const handleDownloadReceipt = () => {
-        toast.success("Receipt downloaded successfully!");
+        const ticketId = activeBooking.ticketId || activeBooking.id;
+        const paymentId = activeBooking.paymentDetails?.paymentId || activeBooking.paymentId || "—";
+        const ferryName = activeBooking.schedule?.ferry?.name || "Transit Vessel";
+        const routeInfo = `${activeBooking.schedule?.route?.origin} to ${activeBooking.schedule?.route?.destination}`;
+        const depTime = new Date(activeBooking.schedule?.departureTime).toLocaleString();
+        const seats = (activeBooking.seatNumbers || activeBooking.seats)?.join(", ") || "—";
+        const price = activeBooking.totalAmount !== undefined ? activeBooking.totalAmount : activeBooking.totalPrice;
+        const passengers = activeBooking.passengerDetails ? activeBooking.passengerDetails.map(p => `
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #e2e8f0; padding: 6px 0;">
+                <span>${p.name}</span>
+                <span>Age: ${p.age || "N/A"}</span>
+            </div>
+        `).join("") : "<div>1 Primary Passenger</div>";
+
+        const printWindow = window.open("", "_blank");
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>Boarding Pass - ${ticketId}</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            background-color: #f8fafc;
+                            color: #0f172a;
+                            padding: 40px;
+                            display: flex;
+                            justify-content: center;
+                        }
+                        .ticket {
+                            background: white;
+                            width: 600px;
+                            border-radius: 24px;
+                            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                            border: 1px solid #e2e8f0;
+                            overflow: hidden;
+                        }
+                        .header {
+                            background: linear-gradient(135deg, #2563eb, #0ea5e9);
+                            color: white;
+                            padding: 24px;
+                            text-align: center;
+                        }
+                        .header h2 {
+                            margin: 0;
+                            font-size: 24px;
+                            font-weight: 800;
+                        }
+                        .content {
+                            padding: 24px;
+                        }
+                        .info-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 16px;
+                            margin-bottom: 24px;
+                        }
+                        .info-item label {
+                            font-size: 10px;
+                            text-transform: uppercase;
+                            color: #64748b;
+                            font-weight: 700;
+                            display: block;
+                            margin-bottom: 4px;
+                        }
+                        .info-item span {
+                            font-size: 14px;
+                            font-weight: 600;
+                        }
+                        .divider {
+                            border-top: 2px dashed #cbd5e1;
+                            margin: 24px 0;
+                        }
+                        .footer {
+                            background: #f1f5f9;
+                            padding: 16px;
+                            text-align: center;
+                            font-size: 11px;
+                            color: #64748b;
+                            font-weight: 600;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="ticket">
+                        <div class="header">
+                            <h2>🚢 FERRYFLOW BOARDING PASS</h2>
+                        </div>
+                        <div class="content">
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <label>Ticket ID</label>
+                                    <span style="font-family: monospace; font-size: 16px; font-weight: bold; color: #2563eb;">${ticketId}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Payment ID</label>
+                                    <span style="font-family: monospace;">${paymentId}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Vessel</label>
+                                    <span>${ferryName}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Route</label>
+                                    <span>${routeInfo}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Departure Time</label>
+                                    <span>${depTime}</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>Seats</label>
+                                    <span style="font-family: monospace; font-weight: bold; color: #0ea5e9;">${seats}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <label style="font-size: 10px; text-transform: uppercase; color: #64748b; font-weight: 700; display: block; margin-bottom: 8px;">Passenger Manifest</label>
+                            <div style="font-size: 13px; font-weight: 600;">
+                                ${passengers}
+                            </div>
+                            
+                            <div class="divider"></div>
+                            
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px;">
+                                <span>TOTAL PAID</span>
+                                <span style="color: #2563eb;">INR ${price}</span>
+                            </div>
+                        </div>
+                        <div class="footer">
+                            Thank you for sailing with FerryFlow! Have a safe journey.
+                        </div>
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            setTimeout(function() { window.close(); }, 500);
+                        }
+                    </script>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        toast.success("Receipt opened for saving as PDF!");
     };
 
     return (

@@ -65,7 +65,10 @@ const changePasswordSchema = z.object({
 });
 
 const resendOTPSchema = z.object({
-    email: emailRules
+    email: emailRules,
+    purpose: z.enum(["verify-email", "reset-password"], {
+        errorMap: () => ({ message: "Invalid OTP purpose" })
+    })
 });
 
 const adminCreateUserSchema = z.object({

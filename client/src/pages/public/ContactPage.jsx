@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FiMail, FiPhone, FiMapPin, FiClock, FiSend } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { sendSupportInquiry } from "../../services/supportService";
 
 const ContactPage = () => {
     const [formData, setFormData] = useState({
@@ -11,14 +12,23 @@ const ContactPage = () => {
     });
     const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setTimeout(() => {
-            toast.success("Thank you! Your message has been sent to our harbor support operations team.");
-            setFormData({ name: "", email: "", subject: "general", message: "" });
+        try {
+            const res = await sendSupportInquiry(formData);
+            if (res.success) {
+                toast.success("Thank you! Your message has been sent to our harbor support operations team.");
+                setFormData({ name: "", email: "", subject: "general", message: "" });
+            } else {
+                toast.error(res.message || "Failed to send inquiry.");
+            }
+        } catch (error) {
+            console.error("Support submission error:", error);
+            toast.error("Failed to send inquiry. Please try again.");
+        } finally {
             setLoading(false);
-        }, 1000);
+        }
     };
 
     return (

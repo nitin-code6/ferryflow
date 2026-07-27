@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router";
 import toast from "react-hot-toast";
 import { loginSchema } from "../../../Validations/authValidation";
-import { loginAPI } from "../../../services/authService";
+import { loginAPI, logoutAPI, getCurrentUser } from "../../../services/authService";
 import { useAuth } from "../../../context/AuthContext";
 import { ShieldCheck, Lock, Mail, ArrowRight } from "lucide-react";
 import logo from "../../../assets/ferry-logo2.png";
@@ -64,6 +64,18 @@ const AdminLoginPage = () => {
 
         try {
             await loginAPI(formData);
+            
+            // Validate the user's role before granting admin access
+            const profileRes = await getCurrentUser();
+            const loggedInUser = profileRes.user || profileRes;
+            
+            if (loggedInUser?.role !== "admin" && loggedInUser?.role !== "staff") {
+                await logoutAPI();
+                setErrors({ server: "Unauthorized access. This portal is reserved for administrative users only." });
+                toast.error("Unauthorized access. Administrative portal only.");
+                return;
+            }
+
             await checkAuth();
             toast.success("Admin Authorization Granted");
             navigate("/admin", { replace: true });

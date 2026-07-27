@@ -58,14 +58,16 @@ export default function AppRouter() {
         <BrowserRouter>
             <Routes>
 
+                {/* Public Auth Routes (Clean dedicated AuthLayout) */}
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/verify-otp" element={<VerifyOtpPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+
                 {/* Public Routes */}
                 <Route element={<PublicLayout />}>
                     <Route path="/" element={<LandingPage />} />
-                    <Route path="/login" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/verify-otp" element={<VerifyOtpPage />} />
-                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                    <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/search-results" element={<SearchResultsPage />} />
                     <Route path="/ferries" element={<FerriesPage />} />
                     <Route path="/routes" element={<RoutesPage />} />

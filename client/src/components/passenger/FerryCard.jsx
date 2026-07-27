@@ -70,8 +70,8 @@ const FerryCard = ({ schedule, passengerCount = 1, onBook }) => {
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <span className="text-[10px] text-base-content/50 uppercase block mb-1">Duration</span>
-                        <div className="flex items-center gap-1.5 text-xs text-base-content/75 bg-slate-100 dark:bg-slate-850 px-2 py-1 rounded-lg">
-                            <FiClock size={12} className="text-info" />
+                        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-900/60 px-2.5 py-1 rounded-lg">
+                            <FiClock size={12} className="text-info shrink-0" />
                             <span>{formatDuration(duration)}</span>
                         </div>
                     </div>

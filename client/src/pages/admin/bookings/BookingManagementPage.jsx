@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Ticket, CheckCircle2, Clock, XCircle, Calendar, MapPin, Anchor, IndianRupee, CheckCheck } from "lucide-react";
+import { Ticket, CheckCircle2, Clock, XCircle, Calendar, MapPin, Anchor, IndianRupee, CheckCheck, RotateCcw } from "lucide-react";
 import { getAllBookings, cancelBooking } from "../../../services/bookingService";
 import StatsCard from "../../../components/ui/StatsCard";
 import AdminPageHeader from "../../../components/ui/AdminPageHeader";
@@ -227,9 +227,14 @@ const BookingManagementPage = () => {
                                             <td className="py-5">
                                                 <div className="flex flex-col gap-1">
                                                     <StatusBadge status={b.bookingStatus} />
-                                                    {b.paymentStatus === "paid" && (
+                                                    {b.paymentStatus === "paid" && b.bookingStatus !== "cancelled" && (
                                                         <span className="text-[10px] font-semibold text-success flex items-center gap-1">
                                                             <CheckCheck size={11} /> Payment received
+                                                        </span>
+                                                    )}
+                                                    {(b.paymentStatus === "refunded" || (b.bookingStatus === "cancelled" && b.paymentStatus === "paid")) && (
+                                                        <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                                                            <RotateCcw size={11} /> Refund processed
                                                         </span>
                                                     )}
                                                 </div>

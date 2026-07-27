@@ -5,6 +5,7 @@ import { getAllRoutes, getPopularRoutes } from "../../services/routeService";
 import { getAllAlerts } from "../../services/alertService";
 import { getAllFerries } from "../../services/ferryService";
 import { getAllSchedules } from "../../services/scheduleService";
+import { socket } from "../../services/socketService";
 import toast from "react-hot-toast";
 import backlight3 from "../../assets/backlight3.png";
 import backDark from "../../assets/backDark.png";
@@ -56,8 +57,31 @@ const LandingPage = () => {
     const [activeStatusIndex, setActiveStatusIndex] = useState(0);
     const [isTransitioning, setIsTransitioning] = useState(true);
 
+    const fetchSchedulesList = async () => {
+        try {
+            const response = await getAllSchedules();
+            const schedulesData = response.schedules || response.data;
+            if (response.success && schedulesData) {
+                setSchedules(schedulesData);
+            }
+        } catch (err) {
+            console.warn("Could not retrieve schedules:", err);
+        }
+    };
+
+    const fetchAlerts = async () => {
+        try {
+            const response = await getAllAlerts();
+            const alertsData = response.alerts || response.data;
+            if (response.success && alertsData) {
+                setAlerts(alertsData.slice(0, 3));
+            }
+        } catch (err) {
+            console.warn("Could not retrieve alerts:", err);
+        }
+    };
+
     useEffect(() => {
-        // Import Google Fonts Inter for clean, simple typography
         const link = document.createElement("link");
         link.href = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap";
         link.rel = "stylesheet";
@@ -88,18 +112,6 @@ const LandingPage = () => {
             }
         };
 
-        const fetchAlerts = async () => {
-            try {
-                const response = await getAllAlerts();
-                const alertsData = response.alerts || response.data;
-                if (response.success && alertsData) {
-                    setAlerts(alertsData.slice(0, 3));
-                }
-            } catch (err) {
-                console.warn("Could not retrieve alerts:", err);
-            }
-        };
-
         const fetchFerriesList = async () => {
             try {
                 const response = await getAllFerries();
@@ -112,22 +124,29 @@ const LandingPage = () => {
             }
         };
 
-        const fetchSchedulesList = async () => {
-            try {
-                const response = await getAllSchedules();
-                const schedulesData = response.schedules || response.data;
-                if (response.success && schedulesData) {
-                    setSchedules(schedulesData);
-                }
-            } catch (err) {
-                console.warn("Could not retrieve schedules:", err);
-            }
-        };
-
         fetchPorts();
         fetchAlerts();
         fetchFerriesList();
         fetchSchedulesList();
+    }, []);
+
+    useEffect(() => {
+        const handleRealtimeUpdate = () => {
+            fetchSchedulesList();
+            fetchAlerts();
+        };
+
+        socket.on("ferry:statusChanged", handleRealtimeUpdate);
+        socket.on("schedule:reviewRequired", handleRealtimeUpdate);
+        socket.on("seat:booked", handleRealtimeUpdate);
+        socket.on("seat:released", handleRealtimeUpdate);
+
+        return () => {
+            socket.off("ferry:statusChanged", handleRealtimeUpdate);
+            socket.off("schedule:reviewRequired", handleRealtimeUpdate);
+            socket.off("seat:booked", handleRealtimeUpdate);
+            socket.off("seat:released", handleRealtimeUpdate);
+        };
     }, []);
     useEffect(() => {
         setActiveStatusIndex(0);
@@ -417,7 +436,7 @@ const LandingPage = () => {
                                     <button
                                         onClick={() => {
                                             const today = new Date().toISOString().split("T")[0];
-                                            navigate(`/search?from=${route.origin}&to=${route.destination}&date=${today}`);
+                                            navigate(`/search-results?from=${route.origin}&to=${route.destination}&date=${today}&passengers=1`);
                                         }}
                                         className="btn btn-sm btn-primary w-full mt-5 rounded-xl font-bold bg-[#2563EB] hover:bg-[#2563EB]/90 border-0 text-white h-10 shadow-sm transition-transform active:scale-[0.98]"
                                     >
@@ -447,7 +466,7 @@ const LandingPage = () => {
                             onClick={() => navigate("/routes")}
                             className="btn btn-outline border-slate-350 dark:border-sky-950 text-[#071426] dark:text-white font-bold text-xs rounded-xl"
                         >
-                            View All Schedules
+                            View All Routes
                         </button>
                     </div>
                     <div className="bg-white/80 dark:bg-[#0A1120]/80 border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
@@ -613,7 +632,7 @@ const LandingPage = () => {
                                         </div>
                                         <div className="text-right border-t border-slate-200/40 dark:border-sky-950/30 pt-3">
                                             <span className="text-[9px] text-slate-400 font-bold">
-                                                Published: {alert.date ? new Date(alert.date).toLocaleDateString() : 'Today'}
+                                                Published: {alert.createdAt ? new Date(alert.createdAt).toLocaleDateString() : 'Today'}
                                             </span>
                                         </div>
                                     </div>

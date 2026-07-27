@@ -12,9 +12,14 @@ const authMiddleware = async (req, res, next) => {
         });
     }
 
-    const isBlacklisted = await client.exists(
-        `blacklist:${accessToken}`
-    );
+    let isBlacklisted = false;
+    if (client.isOpen) {
+        try {
+            isBlacklisted = await client.exists(`blacklist:${accessToken}`);
+        } catch (redisErr) {
+            console.error("Redis blacklist check error:", redisErr);
+        }
+    }
 
     if (isBlacklisted) {
         return res.status(401).json({

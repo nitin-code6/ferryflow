@@ -21,7 +21,7 @@ const BookingPage = () => {
     const navigate = useNavigate();
 
     const scheduleId = searchParams.get("scheduleId") || "";
-    const passengerCount = Number(searchParams.get("passengers")) || 1;
+    const [passengerCount, setPassengerCount] = useState(Number(searchParams.get("passengers")) || 1);
     const dateVal = searchParams.get("date") || "";
 
     const [schedule, setSchedule] = useState(null);
@@ -29,15 +29,32 @@ const BookingPage = () => {
     const [selectedSeats, setSelectedSeats] = useState([]);
     
     // Form fields
-    const [passengersData, setPassengersData] = useState(
-        Array.from({ length: passengerCount }).map(() => ({ 
-            name: "", 
-            age: "", 
-            gender: "Male",
-            phone: "",
-            email: ""
-        }))
-    );
+    const [passengersData, setPassengersData] = useState([]);
+
+    useEffect(() => {
+        setPassengersData((prev) => {
+            const currentLength = prev.length;
+            if (currentLength === passengerCount) return prev;
+            if (currentLength < passengerCount) {
+                const extra = Array.from({ length: passengerCount - currentLength }).map(() => ({
+                    name: "",
+                    age: "",
+                    gender: "Male",
+                    phone: "",
+                    email: ""
+                }));
+                return [...prev, ...extra];
+            } else {
+                return prev.slice(0, passengerCount);
+            }
+        });
+        setSelectedSeats((prev) => {
+            if (prev.length > passengerCount) {
+                return prev.slice(0, passengerCount);
+            }
+            return prev;
+        });
+    }, [passengerCount]);
 
     const [selectedFloor, setSelectedFloor] = useState(1);
 
@@ -157,7 +174,7 @@ const BookingPage = () => {
     const handleProceedToPayment = async (e) => {
         e.preventDefault();
         
-        // Validation — name and age are required; phone/email optional
+        // Validation — name and age are required for all passengers; phone/email optional
         const incomplete = passengersData.some((p) => !p.name || !p.age);
         if (incomplete) {
             toast.error("Please fill in name and age for all passengers");
@@ -170,12 +187,12 @@ const BookingPage = () => {
         }
 
         try {
-            const passengerDetails = passengersData.map((p) => ({
+            const passengerDetails = passengersData.map((p, idx) => ({
                 name: p.name,
                 age: parseInt(p.age),
-                gender: p.gender.toLowerCase(),
-                phone: p.phone,
-                email: p.email
+                gender: idx === 0 ? p.gender.toLowerCase() : "male",
+                phone: p.phone || undefined,
+                email: p.email || undefined
             }));
 
             const response = await createBooking({
@@ -280,78 +297,126 @@ const BookingPage = () => {
                     
                     {/* Passenger details */}
                     <div className="bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 shadow-sm text-left">
-                        <div className="flex items-center gap-3 pb-4 border-b border-slate-100 dark:border-sky-950/40 mb-6">
-                            <FiUser className="text-primary" size={18} />
-                            <h3 className="font-bold text-base text-slate-800 dark:text-white">Passenger Information</h3>
+                        <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-sky-950/40 mb-6">
+                            <div className="flex items-center gap-3">
+                                <FiUser className="text-primary" size={18} />
+                                <h3 className="font-bold text-base text-slate-800 dark:text-white">Passenger Information</h3>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tickets:</label>
+                                <select
+                                    value={passengerCount}
+                                    onChange={(e) => setPassengerCount(Number(e.target.value))}
+                                    className="select select-bordered select-xs rounded-lg font-bold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/40 text-xs text-slate-700 dark:text-slate-200 h-8"
+                                >
+                                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                                        <option key={num} value={num}>{num} {num === 1 ? "Ticket" : "Tickets"}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
 
                         <div className="space-y-6">
-                            {passengersData.map((passenger, i) => (
-                                <div key={i} className="space-y-4 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/60 dark:border-sky-950/20">
-                                    <h4 className="text-xs font-bold uppercase text-primary tracking-wider">Passenger #{i + 1}</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="flex flex-col">
-                                            <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Full Name</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                placeholder="e.g. John Doe"
-                                                value={passenger.name}
-                                                onChange={(e) => handlePassengerFieldChange(i, "name", e.target.value)}
-                                                className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
-                                            />
+                            {passengersData.map((passenger, i) => {
+                                const isPrimary = i === 0;
+                                if (!isPrimary) {
+                                    return (
+                                        <div key={i} className="space-y-4 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/60 dark:border-sky-950/20 text-left">
+                                            <h4 className="text-xs font-bold uppercase text-slate-400 dark:text-slate-500 tracking-wider">Passenger #{i + 1}</h4>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="flex flex-col">
+                                                    <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Full Name</label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        placeholder={`Passenger #${i + 1} Name`}
+                                                        value={passenger.name}
+                                                        onChange={(e) => handlePassengerFieldChange(i, "name", e.target.value)}
+                                                        className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Age</label>
+                                                    <input
+                                                        type="number"
+                                                        required
+                                                        min="1"
+                                                        placeholder="e.g. 28"
+                                                        value={passenger.age}
+                                                        onChange={(e) => handlePassengerFieldChange(i, "age", e.target.value)}
+                                                        className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div className="flex grid grid-cols-2 gap-3">
+                                    );
+                                }
+
+                                return (
+                                    <div key={i} className="space-y-4 p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/60 dark:border-sky-950/20">
+                                        <h4 className="text-xs font-bold uppercase text-primary tracking-wider">Passenger #{i + 1} (Primary)</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="flex flex-col">
-                                                <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Age</label>
+                                                <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Full Name</label>
                                                 <input
-                                                    type="number"
+                                                    type="text"
                                                     required
-                                                    min="1"
-                                                    placeholder="e.g. 28"
-                                                    value={passenger.age}
-                                                    onChange={(e) => handlePassengerFieldChange(i, "age", e.target.value)}
+                                                    placeholder="e.g. John Doe"
+                                                    value={passenger.name}
+                                                    onChange={(e) => handlePassengerFieldChange(i, "name", e.target.value)}
+                                                    className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
+                                                />
+                                            </div>
+                                            <div className="flex grid grid-cols-2 gap-3">
+                                                <div className="flex flex-col">
+                                                    <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Age</label>
+                                                    <input
+                                                        type="number"
+                                                        required
+                                                        min="1"
+                                                        placeholder="e.g. 28"
+                                                        value={passenger.age}
+                                                        onChange={(e) => handlePassengerFieldChange(i, "age", e.target.value)}
+                                                        className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
+                                                    />
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Gender</label>
+                                                    <select
+                                                        value={passenger.gender}
+                                                        onChange={(e) => handlePassengerFieldChange(i, "gender", e.target.value)}
+                                                        className="select select-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
+                                                    >
+                                                        <option value="Male">Male</option>
+                                                        <option value="Female">Female</option>
+                                                        <option value="Other">Other</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Phone Number</label>
+                                                <input
+                                                    type="tel"
+                                                    placeholder="e.g. +91 9876543210"
+                                                    value={passenger.phone}
+                                                    onChange={(e) => handlePassengerFieldChange(i, "phone", e.target.value)}
                                                     className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
                                                 />
                                             </div>
                                             <div className="flex flex-col">
-                                                <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Gender</label>
-                                                <select
-                                                    value={passenger.gender}
-                                                    onChange={(e) => handlePassengerFieldChange(i, "gender", e.target.value)}
-                                                    className="select select-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
-                                                >
-                                                    <option value="Male">Male</option>
-                                                    <option value="Female">Female</option>
-                                                    <option value="Other">Other</option>
-                                                </select>
+                                                <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Email Address</label>
+                                                <input
+                                                    type="email"
+                                                    placeholder="e.g. john@example.com"
+                                                    value={passenger.email}
+                                                    onChange={(e) => handlePassengerFieldChange(i, "email", e.target.value)}
+                                                    className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
+                                                />
                                             </div>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Phone Number</label>
-                                            <input
-                                                type="tel"
-                                                required
-                                                placeholder="e.g. +91 9876543210"
-                                                value={passenger.phone}
-                                                onChange={(e) => handlePassengerFieldChange(i, "phone", e.target.value)}
-                                                className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <label className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-2">Email Address</label>
-                                            <input
-                                                type="email"
-                                                required
-                                                placeholder="e.g. john@example.com"
-                                                value={passenger.email}
-                                                onChange={(e) => handlePassengerFieldChange(i, "email", e.target.value)}
-                                                className="input input-bordered rounded-xl h-11 text-xs font-semibold bg-white dark:bg-slate-950 border-slate-200 dark:border-sky-950/60 focus:outline-none focus:border-[#2563EB]"
-                                            />
-                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 

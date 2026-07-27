@@ -31,7 +31,6 @@ const bookingSchema = new mongoose.Schema(
 
                 age: {
                     type: Number,
-                    required: true,
                     min: 1
                 },
 
@@ -41,8 +40,7 @@ const bookingSchema = new mongoose.Schema(
                         "male",
                         "female",
                         "other"
-                    ],
-                    required: true
+                    ]
                 },
                 phone: {
                     type: String,
