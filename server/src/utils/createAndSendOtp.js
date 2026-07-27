@@ -74,6 +74,7 @@ const createAndSendOtp = async (
                 </p>
 
             </div>
+        `
     }).catch(err => console.error("OTP email failed to send:", err));
 
 };

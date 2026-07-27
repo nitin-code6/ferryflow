@@ -113,7 +113,7 @@ const RegisterPage = () => {
                         </p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                    <form onSubmit={handleSubmit} noValidate className="mt-6 space-y-4">
                         {/* Name */}
                         <div>
                             <label className="block mb-2 font-semibold text-[#071426]/80 dark:text-slate-200">Full Name</label>

@@ -229,6 +229,7 @@ duration-200
 
                     <form
                         onSubmit={handleSubmit}
+                        noValidate
                         className="mt-6 space-y-4"
                     >
 
