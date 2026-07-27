@@ -149,6 +149,7 @@ const bookingSchema = new mongoose.Schema(
 
 bookingSchema.index({ user: 1 });
 bookingSchema.index({ schedule: 1 });
+bookingSchema.index({ schedule: 1, bookingStatus: 1 });
 
 const Booking = mongoose.model(
     "Booking",
