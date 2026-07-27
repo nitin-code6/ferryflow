@@ -53,11 +53,24 @@ const DashboardPage = () => {
 
                 // Extract data safely with fallbacks
                 const statsData = statsRes.status === "fulfilled" ? (statsRes.value.data || statsRes.value.stats || {}) : {};
-                const ferries = ferriesRes.status === "fulfilled" ? (ferriesRes.value.ferries || ferriesRes.value.data || ferriesRes.value || []) : [];
-                const routes = routesRes.status === "fulfilled" ? (routesRes.value.routes || routesRes.value.data || routesRes.value || []) : [];
-                const alerts = alertsRes.status === "fulfilled" ? (alertsRes.value.alerts || alertsRes.value.data || alertsRes.value || []) : [];
-                const schedules = schedulesRes.status === "fulfilled" ? (schedulesRes.value.schedules || schedulesRes.value.data || schedulesRes.value || []) : [];
-                const bookings = bookingsRes.status === "fulfilled" ? (bookingsRes.value.bookings || bookingsRes.value.data || bookingsRes.value || []) : [];
+                
+                const extractArray = (val) => {
+                    if (!val) return [];
+                    if (Array.isArray(val)) return val;
+                    if (val.data && Array.isArray(val.data)) return val.data;
+                    if (val.ferries && Array.isArray(val.ferries)) return val.ferries;
+                    if (val.routes && Array.isArray(val.routes)) return val.routes;
+                    if (val.alerts && Array.isArray(val.alerts)) return val.alerts;
+                    if (val.schedules && Array.isArray(val.schedules)) return val.schedules;
+                    if (val.bookings && Array.isArray(val.bookings)) return val.bookings;
+                    return [];
+                };
+
+                const ferries = ferriesRes.status === "fulfilled" ? extractArray(ferriesRes.value.data || ferriesRes.value) : [];
+                const routes = routesRes.status === "fulfilled" ? extractArray(routesRes.value.data || routesRes.value) : [];
+                const alerts = alertsRes.status === "fulfilled" ? extractArray(alertsRes.value.data || alertsRes.value) : [];
+                const schedules = schedulesRes.status === "fulfilled" ? extractArray(schedulesRes.value.data || schedulesRes.value) : [];
+                const bookings = bookingsRes.status === "fulfilled" ? extractArray(bookingsRes.value.data || bookingsRes.value) : [];
 
                 // Calculate values
                 const totalFerries = ferries.length || statsData.totalFerries || 0;

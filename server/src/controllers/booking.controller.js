@@ -38,9 +38,9 @@ const getBookingDetails = asyncHandler(async (req, res) => {
 });
 
 const getAllBookings = asyncHandler(async (req, res) => {
-    const result = await getAllBookingsService();
+    const result = await getAllBookingsService(req.query);
     return res.status(result.statusCode).json(
-        new ApiResponse(result.statusCode, result.bookings, result.message)
+        new ApiResponse(result.statusCode, result.data, result.message)
     );
 });
 

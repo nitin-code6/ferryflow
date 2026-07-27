@@ -21,7 +21,7 @@ const createAlert = asyncHandler(async (req, res) => {
 const getAllAlerts = asyncHandler(async (req, res) => {
     const result = await getAllAlertsService(req.query);
     return res.status(result.statusCode).json(
-        new ApiResponse(result.statusCode, result.alerts, result.message)
+        new ApiResponse(result.statusCode, result.data, result.message)
     );
 });
 

@@ -55,7 +55,7 @@ const PassengerLayout = () => {
         const fetchAlerts = async () => {
             try {
                 const res = await getAllAlerts();
-                const alertsList = res.data || res.alerts || [];
+                const alertsList = Array.isArray(res.data) ? res.data : (res.data?.data || []);
                 const mappedAlerts = alertsList.map((a) => ({
                     id: a._id || a.id,
                     text: `${a.title || "Alert"}: ${a.message}`,

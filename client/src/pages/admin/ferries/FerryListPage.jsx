@@ -45,7 +45,10 @@ const FerryListPage = () => {
 
             const response = await getAllFerries();
 
-            setFerries(response.data || []);
+            const dataArray = Array.isArray(response.data) 
+                ? response.data 
+                : (response.data?.data || []);
+            setFerries(dataArray);
 
         } catch {
 

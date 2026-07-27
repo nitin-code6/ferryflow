@@ -19,9 +19,9 @@ const getFerryById = asyncHandler(async (req, res) => {
 });
 
 const getAllFerry = asyncHandler(async (req, res) => {
-    const result = await getAllFerryService();
+    const result = await getAllFerryService(req.query);
     return res.status(result.statusCode).json(
-        new ApiResponse(result.statusCode, result.ferries, result.message)
+        new ApiResponse(result.statusCode, result.data, result.message)
     );
 });
 

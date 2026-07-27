@@ -113,20 +113,31 @@ const createScheduleService = async (data) => {
     };
 
 };
-const getAllSchedulesService = async () => {
+const getAllSchedulesService = async (query = {}) => {
+    const page = Math.max(1, parseInt(query.page) || 1);
+    const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 10));
+    const skip = (page - 1) * limit;
 
+    const total = await Schedule.countDocuments();
     const schedules = await Schedule.find()
         .populate("ferry")
         .populate("route")
+        .skip(skip)
+        .limit(limit)
         .lean();
 
     return {
         success: true,
         statusCode: 200,
         message: "Schedules fetched successfully",
-        schedules
+        data: {
+            data: schedules,
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit)
+        }
     };
-
 };
 
 const getScheduleByIdService = async (id) => {

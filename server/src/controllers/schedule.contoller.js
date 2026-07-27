@@ -21,9 +21,9 @@ const createSchedule = asyncHandler(async (req, res) => {
 });
 
 const getAllSchedules = asyncHandler(async (req, res) => {
-    const result = await getAllSchedulesService();
+    const result = await getAllSchedulesService(req.query);
     return res.status(result.statusCode).json(
-        new ApiResponse(result.statusCode, result.schedules, result.message)
+        new ApiResponse(result.statusCode, result.data, result.message)
     );
 });
 

@@ -11,7 +11,10 @@ const FerriesPage = () => {
         const fetchFerries = async () => {
             try {
                 const res = await getAllFerries();
-                setFerries(res.data || res.ferries || []);
+                const dataArray = Array.isArray(res.data) 
+                    ? res.data 
+                    : (res.data?.data || []);
+                setFerries(dataArray);
             } catch (error) {
                 console.error("Failed to load ferries:", error);
                 toast.error("Failed to fetch fleet information.");

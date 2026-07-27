@@ -142,8 +142,13 @@ const getBookingsByUserService = async (userId) => {
     }
 };
 
-const getAllBookingsService = async () => {
+const getAllBookingsService = async (query = {}) => {
     try {
+        const page = Math.max(1, parseInt(query.page) || 1);
+        const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 10));
+        const skip = (page - 1) * limit;
+
+        const total = await Booking.countDocuments();
         const bookings = await Booking.find()
             .populate("user")
             .populate({
@@ -153,13 +158,22 @@ const getAllBookingsService = async () => {
                     { path: "route" }
                 ]
             })
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
 
         return {
             success: true,
             statusCode: 200,
             message: "All bookings retrieved successfully",
-            bookings
+            data: {
+                data: bookings,
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
         };
     } catch (error) {
         throw error;

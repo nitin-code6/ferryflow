@@ -25,7 +25,7 @@ const BookingManagementPage = () => {
         setLoading(true);
         try {
             const response = await getAllBookings();
-            const list = response.data || response.bookings || [];
+            const list = Array.isArray(response.data) ? response.data : (response.data?.data || []);
             setBookings(list);
         } catch (error) {
             console.error("Failed to load admin bookings:", error);

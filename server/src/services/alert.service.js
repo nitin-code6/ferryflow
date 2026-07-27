@@ -21,22 +21,35 @@ const createAlertService = async (data, userId) => {
 
 const getAllAlertsService = async (query = {}) => {
     try {
+        const page = Math.max(1, parseInt(query.page) || 1);
+        const limit = Math.max(1, Math.min(100, parseInt(query.limit) || 10));
+        const skip = (page - 1) * limit;
+
         const filter = {};
         if (query.status) filter.status = query.status;
         if (query.ferry) filter.ferry = query.ferry;
         if (query.route) filter.route = query.route;
 
+        const total = await Alert.countDocuments(filter);
         const alerts = await Alert.find(filter)
             .populate("ferry", "name")
             .populate("route", "name")
             .populate("createdBy", "name email")
-            .sort({ createdAt: -1 });
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
         return {
             success: true,
             statusCode: 200,
             message: "Alerts fetched successfully",
-            alerts
+            data: {
+                data: alerts,
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
         };
     } catch (error) {
         throw error;

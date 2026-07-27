@@ -36,7 +36,7 @@ const AlertManagementPage = () => {
                 getAllAlerts(),
                 getAllRoutes()
             ]);
-            const aList = alertsRes.data || alertsRes.alerts || [];
+            const aList = Array.isArray(alertsRes.data) ? alertsRes.data : (alertsRes.data?.data || []);
             const rList = routesRes.data || routesRes.routes || [];
             setAlerts(aList);
             setRoutes(rList);

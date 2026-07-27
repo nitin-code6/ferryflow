@@ -60,7 +60,8 @@ const LandingPage = () => {
     const fetchSchedulesList = async () => {
         try {
             const response = await getAllSchedules();
-            const schedulesData = response.schedules || response.data;
+            const rawData = response.schedules || response.data;
+            const schedulesData = Array.isArray(rawData) ? rawData : (rawData?.data || []);
             if (response.success && schedulesData) {
                 setSchedules(schedulesData);
             }
@@ -72,7 +73,8 @@ const LandingPage = () => {
     const fetchAlerts = async () => {
         try {
             const response = await getAllAlerts();
-            const alertsData = response.alerts || response.data;
+            const rawData = response.alerts || response.data;
+            const alertsData = Array.isArray(rawData) ? rawData : (rawData?.data || []);
             if (response.success && alertsData) {
                 setAlerts(alertsData.slice(0, 3));
             }
@@ -115,7 +117,8 @@ const LandingPage = () => {
         const fetchFerriesList = async () => {
             try {
                 const response = await getAllFerries();
-                const ferriesData = response.ferries || response.data;
+                const rawData = response.ferries || response.data;
+                const ferriesData = Array.isArray(rawData) ? rawData : (rawData?.data || []);
                 if (response.success && ferriesData) {
                     setFerries(ferriesData);
                 }

@@ -29,7 +29,10 @@ const ScheduleListPage = () => {
     const fetchSchedules = async () => {
         try {
             const response = await getAllSchedules();
-            setSchedules(response.data || response.schedules || []);
+            const dataArray = Array.isArray(response.data) 
+                ? response.data 
+                : (response.data?.data || []);
+            setSchedules(dataArray);
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to fetch schedules.");
         } finally {

@@ -22,7 +22,10 @@ const PassengerDashboardPage = () => {
         const loadAlerts = async () => {
             try {
                 const alertsRes = await getAllAlerts();
-                setAlerts(alertsRes.data || alertsRes.alerts || []);
+                const dataArray = Array.isArray(alertsRes.data) 
+                    ? alertsRes.data 
+                    : (alertsRes.data?.data || []);
+                setAlerts(dataArray);
             } catch (error) {
                 console.error("Failed to load alerts:", error);
             }
@@ -40,7 +43,10 @@ const PassengerDashboardPage = () => {
         const loadSchedules = async () => {
             try {
                 const schedulesRes = await getAllSchedules();
-                setSchedules(schedulesRes.data || schedulesRes.schedules || []);
+                const dataArray = Array.isArray(schedulesRes.data) 
+                    ? schedulesRes.data 
+                    : (schedulesRes.data?.data || []);
+                setSchedules(dataArray);
             } catch (error) {
                 console.error("Failed to load schedules:", error);
             }
