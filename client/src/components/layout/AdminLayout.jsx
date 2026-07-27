@@ -87,9 +87,10 @@ const AdminLayout = () => {
                     className="
         fixed
         inset-0
-        z-40
-        bg-black/40
-        transition-opacity
+        z-45
+        bg-black/60
+        backdrop-blur-sm
+        transition-all
         duration-300
         md:hidden
         "

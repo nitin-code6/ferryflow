@@ -101,8 +101,8 @@ const AdminSidebar = ({
             z-50
             flex
             flex-col
-            bg-[#F8FAFC]/98
-            dark:bg-[#0F1D36]/90
+            bg-white
+            dark:bg-[#0A1120]
             border-r
             border-slate-200
             dark:border-sky-950/40
