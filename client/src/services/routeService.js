@@ -1,7 +1,7 @@
 import api from "./axios";
 
-export const getAllRoutes = async () => {
-    const response = await api.get("/route");
+export const getAllRoutes = async (params = { limit: 100 }) => {
+    const response = await api.get("/route", { params });
     return response.data;
 };
 

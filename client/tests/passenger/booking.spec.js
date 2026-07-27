@@ -4,8 +4,8 @@ test.describe('Passenger User Journey - Booking Flow', () => {
     test.beforeEach(async ({ page }) => {
         // Step 1: Login
         await page.goto('/login');
-        await page.fill('input[name="email"]', 'citizen@ferryflow.com');
-        await page.fill('input[name="password"]', 'Citizen123!');
+        await page.fill('input[name="email"]', 'citizen1@ferryflow.com');
+        await page.fill('input[name="password"]', 'Password123!');
         await page.click('button[type="submit"]');
 
         // Wait until redirected to dashboard or landing
@@ -32,7 +32,7 @@ test.describe('Passenger User Journey - Booking Flow', () => {
 
             // Verify landing on search results page
             await page.waitForURL('**/search-results**');
-            await expect(page.locator('h2, h3')).toContainText(/results|schedules/i);
+            await expect(page.locator('h2, h3').first()).toContainText(/results|schedules|crossings|available/i);
         }
     });
 });

@@ -4,6 +4,7 @@ node_modules/
 # Environment Variables
 .env
 .env.*
+!.env.example
 
 # Build Output
 dist/
@@ -22,3 +23,9 @@ Thumbs.db
 
 # Coverage
 coverage/
+
+# Playwright generated artefacts
+client/playwright-report/
+client/test-results/
+playwright-report/
+test-results/

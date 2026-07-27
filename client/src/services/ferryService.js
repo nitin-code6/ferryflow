@@ -1,7 +1,7 @@
 import api from "./axios";
 
-export const getAllFerries = async () => {
-    const response = await api.get("/ferry");
+export const getAllFerries = async (params = { limit: 100 }) => {
+    const response = await api.get("/ferry", { params });
 
     return response.data;
 };
