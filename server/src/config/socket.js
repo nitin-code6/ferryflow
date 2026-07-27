@@ -15,13 +15,17 @@ const initSocket = (httpServer) => {
         console.log(`Socket connected: ${socket.id}`);
 
         socket.on("join:schedule", (scheduleId) => {
+            if (!scheduleId || !/^[0-9a-fA-F]{24}$/.test(scheduleId)) {
+                return;
+            }
             socket.join(`schedule:${scheduleId}`);
-            console.log(`Socket ${socket.id} joined schedule room: ${scheduleId}`);
         });
 
         socket.on("leave:schedule", (scheduleId) => {
+            if (!scheduleId || !/^[0-9a-fA-F]{24}$/.test(scheduleId)) {
+                return;
+            }
             socket.leave(`schedule:${scheduleId}`);
-            console.log(`Socket ${socket.id} left schedule room: ${scheduleId}`);
         });
 
         socket.on("disconnect", () => {
