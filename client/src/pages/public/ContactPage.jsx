@@ -41,10 +41,10 @@ const ContactPage = () => {
                         <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
                             Contact Support
                         </span>
-                        <h1 className="text-3xl sm:text-4xl font-black mt-3 tracking-tight">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold mt-3 tracking-tight">
                             Need Help With Your Journey?
                         </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-3 font-semibold leading-relaxed text-sm">
+                        <p className="text-slate-500 dark:text-slate-400 mt-3 font-medium leading-relaxed text-sm">
                             Our support team is available to help with ferry schedules, bookings, route information, and service updates.
                         </p>
                     </div>
@@ -56,7 +56,7 @@ const ContactPage = () => {
                                 <FiMail size={20} />
                             </div>
                             <div>
-                                <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Email Address</h4>
+                                <h4 className="font-bold text-sm text-slate-900 dark:text-white">Email Address</h4>
                                 <a href="mailto:ferryflow.team@gmail.com" className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
                                     ferryflow.team@gmail.com
                                 </a>
@@ -65,37 +65,37 @@ const ContactPage = () => {
 
                         {/* Phone Card */}
                         <div className="flex gap-4 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-md hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300">
-                            <div className="p-3 bg-success/10 text-success rounded-xl w-fit shrink-0">
+                            <div className="p-3 bg-emerald-500/10 text-emerald-500 rounded-xl w-fit shrink-0">
                                 <FiPhone size={20} />
                             </div>
                             <div>
-                                <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Phone Support</h4>
-                                <a href="tel:+9118001234567" className="text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-primary transition-colors">
+                                <h4 className="font-bold text-sm text-slate-900 dark:text-white">Phone Support</h4>
+                                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                                     +91 1800 123 4567
-                                </a>
+                                </p>
                             </div>
                         </div>
 
-                        {/* Location Card */}
+                        {/* Office Card */}
                         <div className="flex gap-4 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-md hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300">
-                            <div className="p-3 bg-indigo-500/10 text-indigo-500 rounded-xl w-fit shrink-0">
+                            <div className="p-3 bg-violet-500/10 text-violet-500 rounded-xl w-fit shrink-0">
                                 <FiMapPin size={20} />
                             </div>
                             <div>
-                                <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Ferry Operations Center</h4>
+                                <h4 className="font-bold text-sm text-slate-900 dark:text-white">Ferry Operations Center</h4>
                                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                                     Kochi, Kerala, India
                                 </p>
                             </div>
                         </div>
 
-                        {/* Support Hours Card */}
+                        {/* Hours Card */}
                         <div className="flex gap-4 p-4 rounded-2xl bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 shadow-sm hover:shadow-md hover:-translate-y-1 hover:scale-[1.01] active:scale-[0.99] transition-all duration-300">
-                            <div className="p-3 bg-warning/10 text-warning rounded-xl w-fit shrink-0">
+                            <div className="p-3 bg-amber-500/10 text-amber-500 rounded-xl w-fit shrink-0">
                                 <FiClock size={20} />
                             </div>
                             <div>
-                                <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">Support Hours</h4>
+                                <h4 className="font-bold text-sm text-slate-900 dark:text-white">Support Hours</h4>
                                 <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                                     24/7 Customer Support
                                 </p>
@@ -106,7 +106,7 @@ const ContactPage = () => {
 
                 {/* Right Side: Contact Form */}
                 <div className="lg:col-span-7 bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl p-6 sm:p-8 shadow-sm">
-                    <h3 className="font-black text-xl text-slate-900 dark:text-white mb-6">Send an Inquiry</h3>
+                    <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-6">Send an Inquiry</h3>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
                             <label className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Your Name</label>

@@ -29,10 +29,10 @@ const FerriesPage = () => {
                     <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
                         Fleet & Vessels
                     </span>
-                    <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                         Ferry & Transportation Fleet
                     </h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                         Explore the high-speed vessels and passenger catamarans operating across Kochi's modern waterways.
                     </p>
                 </div>
@@ -44,7 +44,7 @@ const FerriesPage = () => {
                 ) : ferries.length === 0 ? (
                     <div className="p-8 text-center bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl shadow-sm max-w-md mx-auto">
                         <FiAnchor className="mx-auto text-slate-300 mb-3" size={48} />
-                        <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">No Vessels Active</h3>
+                        <h3 className="font-bold text-lg text-slate-900 dark:text-white">No Vessels Active</h3>
                         <p className="text-xs text-slate-400 mt-1">Check back later for updated fleet dispatch details.</p>
                     </div>
                 ) : (
@@ -56,10 +56,10 @@ const FerriesPage = () => {
                             >
                                 <div className="flex justify-between items-start">
                                     <div className="space-y-1">
-                                        <h3 className="font-black text-lg text-slate-900 dark:text-white flex items-center gap-2">
+                                        <h3 className="font-bold text-lg text-slate-900 dark:text-white flex items-center gap-2">
                                             <FiAnchor className="text-primary" /> {ferry.name}
                                         </h3>
-                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
                                             Vessel ID: {ferry._id || ferry.id}
                                         </p>
                                     </div>
@@ -74,14 +74,14 @@ const FerriesPage = () => {
                                     </span>
                                 </div>
 
-                                <div className="space-y-2 text-xs bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-700/30 font-semibold">
+                                <div className="space-y-2 text-xs bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-700/30 font-medium">
                                     <div className="flex justify-between">
                                         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><FiUser size={13} /> Passenger Capacity</span>
-                                        <span className="text-slate-900 dark:text-white font-black">{ferry.capacity || 150} Commuters</span>
+                                        <span className="text-slate-900 dark:text-white font-bold">{ferry.capacity || 150} Commuters</span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><FiActivity size={13} /> Vessel Type</span>
-                                        <span className="text-slate-900 dark:text-white font-black">{ferry.type || "Catamaran Ferry"}</span>
+                                        <span className="text-slate-900 dark:text-white font-bold">{ferry.type || "Catamaran Ferry"}</span>
                                     </div>
                                 </div>
 

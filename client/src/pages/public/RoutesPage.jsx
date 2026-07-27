@@ -29,10 +29,10 @@ const RoutesPage = () => {
                     <span className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
                         Transit Map
                     </span>
-                    <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
                         Active Voyage Routes
                     </h1>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-semibold leading-relaxed">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                         Find active passenger terminals, travel durations, and destination routes across the harbor.
                     </p>
                 </div>
@@ -44,7 +44,7 @@ const RoutesPage = () => {
                 ) : routes.length === 0 ? (
                     <div className="p-8 text-center bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-3xl shadow-sm max-w-md mx-auto">
                         <FiMap className="mx-auto text-slate-300 mb-3" size={48} />
-                        <h3 className="font-extrabold text-lg text-slate-900 dark:text-white">No Routes Programmed</h3>
+                        <h3 className="font-bold text-lg text-slate-900 dark:text-white">No Routes Programmed</h3>
                         <p className="text-xs text-slate-400 mt-1">Check back later for updated terminal mappings.</p>
                     </div>
                 ) : (
@@ -56,28 +56,28 @@ const RoutesPage = () => {
                             >
                                 <div className="flex justify-between items-start">
                                     <div className="space-y-1">
-                                        <div className="flex items-center gap-2 text-lg font-black text-slate-900 dark:text-white">
+                                        <div className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-white">
                                             <span>{route.origin}</span>
-                                            <FiNavigation className="text-primary transform rotate-45" size={16} />
+                                            <FiNavigation className="text-primary transform rotate-45" size={15} />
                                             <span>{route.destination}</span>
                                         </div>
-                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider">
                                             Route ID: {route._id || route.id}
                                         </p>
                                     </div>
-                                    <span className="badge badge-success badge-sm font-bold capitalize">
+                                    <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 py-1 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider capitalize">
                                         {route.status || "Active"}
                                     </span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 text-xs bg-slate-50 dark:bg-slate-800/40 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-700/30 font-semibold">
+                                <div className="grid grid-cols-2 gap-4 text-xs bg-slate-50/50 dark:bg-slate-800/20 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-700/20 font-medium">
                                     <div>
                                         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><FiClock size={13} /> Est. Duration</span>
-                                        <span className="text-slate-900 dark:text-white font-black block mt-0.5">{route.duration || 30} Minutes</span>
+                                        <span className="text-slate-900 dark:text-white font-bold block mt-0.5">{route.duration || 30} Minutes</span>
                                     </div>
                                     <div>
                                         <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1.5"><FiMapPin size={13} /> Distance</span>
-                                        <span className="text-slate-900 dark:text-white font-black block mt-0.5">{route.distance || "12.5 km"}</span>
+                                        <span className="text-slate-900 dark:text-white font-bold block mt-0.5">{route.distance || "12.5 km"}</span>
                                     </div>
                                 </div>
                             </div>
