@@ -66,6 +66,7 @@ export default function AppRouter() {
                     <Route path="/verify-otp" element={<VerifyOtpPage />} />
                     <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="/search-results" element={<SearchResultsPage />} />
                     <Route path="/ferries" element={<FerriesPage />} />
                     <Route path="/routes" element={<RoutesPage />} />
                     <Route path="/contact" element={<ContactPage />} />
@@ -87,7 +88,6 @@ export default function AppRouter() {
                     }
                 >
                     <Route path="dashboard" element={<PassengerDashboardPage />} />
-                    <Route path="search-results" element={<SearchResultsPage />} />
                     <Route path="booking" element={<BookingPage />} />
                     <Route path="payment" element={<PaymentPage />} />
                     <Route path="payment-success" element={<PaymentSuccessPage />} />
