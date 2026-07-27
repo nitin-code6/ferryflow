@@ -66,6 +66,24 @@ const initSocket = (httpServer) => {
         }
     });
 
+    eventBus.on("alert:created", (alert) => {
+        if (io) {
+            io.emit("alert:created", alert);
+        }
+    });
+
+    eventBus.on("alert:updated", (alert) => {
+        if (io) {
+            io.emit("alert:updated", alert);
+        }
+    });
+
+    eventBus.on("alert:deleted", ({ id }) => {
+        if (io) {
+            io.emit("alert:deleted", { id });
+        }
+    });
+
     return io;
 };
 
