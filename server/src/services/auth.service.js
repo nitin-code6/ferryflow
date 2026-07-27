@@ -3,6 +3,7 @@ const { sendEmail } = require("../utils/sendEmail");
 const User = require("../models/user.model");
 const bcrypt = require('bcrypt');
 const Otp = require('../models/otp.model');
+const createAndSendOtp = require("../utils/createAndSendOtp");
 const { generateAccessToken, generateRefreshToken } = require('../utils/generateToken');
 const client = require('../config/redis');
 const jwt = require('jsonwebtoken');
