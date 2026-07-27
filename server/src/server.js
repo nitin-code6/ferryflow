@@ -2,7 +2,9 @@ require('dotenv').config();
 const cors = require('cors');
 const connectDB = require('./config/db.js');
 const client = require('./config/redis');
-const app = require('./app.js')
+const app = require('./app.js');
+const http = require('http');
+const { initSocket } = require('./config/socket');
 
 
 const port = process.env.PORT || 8000;
@@ -11,13 +13,17 @@ client.connect().catch((err) => {
     console.error("Redis connection failed! Server startup aborted.", err);
 });
 console.log("redis Connected");
+
+const server = http.createServer(app);
+initSocket(server);
+
 connectDB()
     .then(() => {
-        app.on("error", (error) => {
+        server.on("error", (error) => {
             console.error(" Express server error: ", error);
         });
 
-        app.listen(port, () => {
+        server.listen(port, () => {
             console.log(`Server is running at http://localhost:${port}`);
         });
     })
