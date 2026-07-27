@@ -138,12 +138,18 @@ const LandingPage = () => {
 
         socket.on("ferry:statusChanged", handleRealtimeUpdate);
         socket.on("schedule:reviewRequired", handleRealtimeUpdate);
+        socket.on("schedule:created", handleRealtimeUpdate);
+        socket.on("schedule:updated", handleRealtimeUpdate);
+        socket.on("schedule:deleted", handleRealtimeUpdate);
         socket.on("seat:booked", handleRealtimeUpdate);
         socket.on("seat:released", handleRealtimeUpdate);
 
         return () => {
             socket.off("ferry:statusChanged", handleRealtimeUpdate);
             socket.off("schedule:reviewRequired", handleRealtimeUpdate);
+            socket.off("schedule:created", handleRealtimeUpdate);
+            socket.off("schedule:updated", handleRealtimeUpdate);
+            socket.off("schedule:deleted", handleRealtimeUpdate);
             socket.off("seat:booked", handleRealtimeUpdate);
             socket.off("seat:released", handleRealtimeUpdate);
         };
@@ -412,24 +418,24 @@ const LandingPage = () => {
                                 >
                                     <div className="space-y-4">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-[10px] font-black text-sky-600 dark:text-sky-400 uppercase tracking-widest">Popular Route</span>
+                                            <span className="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase tracking-widest">Popular Route</span>
                                         </div>
-                                        <div className="py-2 text-left space-y-2">
-                                            <p className="text-lg font-black text-[#071426] dark:text-white leading-tight">{route.origin}</p>
+                                        <div className="py-2 text-left space-y-1.5">
+                                            <p className="text-base font-bold text-[#071426] dark:text-white leading-tight">{route.origin}</p>
                                             <div className="flex items-center pl-2">
                                                 <div className="h-4 w-[2px] bg-[#2563EB]/30 dark:bg-sky-500/20" />
-                                                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold ml-2">Direct Link</span>
+                                                <span className="text-[10px] text-slate-450 dark:text-slate-500 font-medium ml-2">Direct Link</span>
                                             </div>
-                                            <p className="text-lg font-black text-[#071426] dark:text-white leading-tight">{route.destination}</p>
+                                            <p className="text-base font-bold text-[#071426] dark:text-white leading-tight">{route.destination}</p>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-sky-950/40 pt-4 text-xs font-semibold">
+                                        <div className="grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-sky-950/40 pt-4 text-xs font-medium">
                                             <div>
-                                                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Duration</p>
-                                                <p className="text-slate-800 dark:text-slate-200 mt-0.5 font-bold">{route.estimatedDuration} min</p>
+                                                <p className="text-slate-400 text-[10px] uppercase font-semibold tracking-wider">Duration</p>
+                                                <p className="text-slate-800 dark:text-slate-200 mt-0.5 font-semibold">{route.estimatedDuration} min</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-wider">Starting Fare</p>
-                                                <p className="text-[#2563EB] dark:text-[#00A8FF] mt-0.5 font-black">From ₹{route.fare}</p>
+                                                <p className="text-slate-400 text-[10px] uppercase font-semibold tracking-wider">Starting Fare</p>
+                                                <p className="text-[#2563EB] dark:text-[#00A8FF] mt-0.5 font-bold">From ₹{route.fare}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -438,7 +444,7 @@ const LandingPage = () => {
                                             const today = new Date().toISOString().split("T")[0];
                                             navigate(`/search-results?from=${route.origin}&to=${route.destination}&date=${today}&passengers=1`);
                                         }}
-                                        className="btn btn-sm btn-primary w-full mt-5 rounded-xl font-bold bg-[#2563EB] hover:bg-[#2563EB]/90 border-0 text-white h-10 shadow-sm transition-transform active:scale-[0.98]"
+                                        className="btn btn-sm btn-primary w-full mt-5 rounded-xl font-semibold bg-[#2563EB] hover:bg-[#2563EB]/90 border-0 text-white h-10 shadow-sm transition-transform active:scale-[0.98]"
                                     >
                                         Check Availability
                                     </button>

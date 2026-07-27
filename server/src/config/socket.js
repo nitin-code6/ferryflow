@@ -84,6 +84,24 @@ const initSocket = (httpServer) => {
         }
     });
 
+    eventBus.on("schedule:created", (schedule) => {
+        if (io) {
+            io.emit("schedule:created", schedule);
+        }
+    });
+
+    eventBus.on("schedule:updated", (schedule) => {
+        if (io) {
+            io.emit("schedule:updated", schedule);
+        }
+    });
+
+    eventBus.on("schedule:deleted", ({ id }) => {
+        if (io) {
+            io.emit("schedule:deleted", { id });
+        }
+    });
+
     return io;
 };
 
