@@ -60,23 +60,7 @@ const AdminTopbar = ({
 
             {/* Right Section */}
             <div className="flex items-center gap-4">
-                {/* Search */}
-                <div className="relative hidden md:block">
-                    <Search
-                        size={16}
-                        className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-                    />
-                    <input
-                        type="text"
-                        placeholder="Type to search..."
-                        className="w-64 pl-9 pr-4 h-10 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-sky-950/80 rounded-xl text-sm transition-all duration-300 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-4 focus:ring-[#2563EB]/10 text-slate-800 dark:text-white"
-                    />
-                </div>
 
-                {/* Notifications */}
-                <button className="btn btn-ghost btn-circle text-slate-650 dark:text-slate-350 hover:text-slate-800 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-sky-950/30 transition-all">
-                    <Bell size={18} />
-                </button>
 
                 {/* Theme Toggle */}
                 <button 
