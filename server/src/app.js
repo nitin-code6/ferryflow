@@ -13,6 +13,10 @@ const alertRouter = require("./routes/alert.route.js");
 const dashboardRouter = require("./routes/dashboard.route.js");
 const adminRouter = require("./routes/admin.routes.js");
 const supportRouter = require("./routes/support.routes.js");
+
+// Trust Render's proxy to allow secure cookies over HTTPS
+app.set("trust proxy", 1);
+
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 // Secure Headers Middleware
