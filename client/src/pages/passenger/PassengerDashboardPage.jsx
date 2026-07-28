@@ -103,14 +103,14 @@ const PassengerDashboardPage = () => {
             </div>
 
             {/* 2. Main Search Ferry Section (Primary Focus) */}
-            <div id="search-section" className="space-y-4">
+            <div id="search-section" className="space-y-4 relative z-50">
                 <SearchCard onSearch={handleSearch} />
             </div>
 
             {/* Content Columns */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* 3. Your Upcoming Trips (Left Column) */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 flex flex-col space-y-6">
                     <div className="flex justify-between items-center text-left">
                         <h3 className="font-bold text-lg text-[#071426] dark:text-white">
                             Your Upcoming Trips
@@ -123,7 +123,7 @@ const PassengerDashboardPage = () => {
                     </div>
 
                     {upcomingTrips.length === 0 ? (
-                        <div className="p-10 text-center bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-[32px] shadow-sm hover:shadow-md transition-all space-y-4">
+                        <div className="flex-1 flex flex-col items-center justify-center p-10 text-center bg-white/80 dark:bg-[#0F1D36]/80 backdrop-blur-md border border-slate-200/60 dark:border-sky-950/50 rounded-[32px] shadow-sm hover:shadow-md transition-all space-y-4 min-h-[300px]">
                             <div className="h-16 w-16 bg-[#2563EB]/10 rounded-full flex items-center justify-center text-2xl mx-auto">
                                 🚢
                             </div>
@@ -133,7 +133,7 @@ const PassengerDashboardPage = () => {
                             </div>
                             <button
                                 onClick={scrollToSearch}
-                                className="px-5 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#2563EB]/95 text-white font-bold text-xs shadow-md shadow-[#2563EB]/10 active:scale-[0.98] transition-all"
+                                className="px-5 py-2.5 mt-2 rounded-xl bg-[#2563EB] hover:bg-[#2563EB]/95 text-white font-bold text-xs shadow-md shadow-[#2563EB]/10 active:scale-[0.98] transition-all"
                             >
                                 Book Your First Ferry
                             </button>

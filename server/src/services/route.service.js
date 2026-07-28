@@ -185,7 +185,7 @@ const getPopularRoutesService = async () => {
 
     const allActiveRoutes = await Route.find({ status: "active" }).lean();
     const popularMap = new Map(popularRoutes.map(pr => [pr._id.toString(), pr]));
-    
+
     const resultRoutes = await Promise.all(allActiveRoutes.map(async (r) => {
         const pr = popularMap.get(r._id.toString());
         const schedules = await Schedule.find({ route: r._id }).select("fare").lean();

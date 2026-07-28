@@ -276,8 +276,7 @@ const ResetPasswordPage = () => {
                             dark:text-slate-400
                             "
                         >
-                            Enter the OTP sent to your
-                            email and create a new password.
+                            Enter the verification code sent to <span className="font-semibold text-[#0EA5E9] break-all">{formData.email}</span>. If it doesn't appear within a few minutes, check your spam folder.
                         </p>
 
                     </div>

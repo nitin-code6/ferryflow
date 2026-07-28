@@ -162,7 +162,7 @@ const PassengerLayout = () => {
                             </button>
                             <div
                                 tabIndex={0}
-                                className="dropdown-content p-3 shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-base-300/30 dark:border-slate-800 bg-base-100/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl w-80 sm:w-96 mt-2 space-y-2.5 z-50 text-base-content"
+                                className="dropdown-content p-3 shadow-[0_15px_40px_rgba(0,0,0,0.12)] border border-base-300/30 dark:border-slate-800 bg-base-100/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl w-[320px] -right-16 sm:right-0 sm:w-96 mt-2 space-y-2.5 z-50 text-base-content"
                             >
                                 <div className="flex justify-between items-center pb-2 border-b border-base-300/30 dark:border-slate-800">
                                     <h4 className="font-bold text-sm">Notifications</h4>

@@ -75,7 +75,7 @@ const VerifyOtpPage = () => {
 
                 setResendLoading(true);
 
-                await resendOtp(email);
+                await resendOtp({ email, purpose });
 
                 setTimer(30);
 
@@ -83,10 +83,8 @@ const VerifyOtpPage = () => {
 
                 setError(
 
-                    error?.response
-                        ?.data
-                        ?.message ||
-
+                    error?.response?.data?.errors?.[0] ||
+                    error?.response?.data?.message ||
                     "Failed to resend OTP"
 
                 );
@@ -142,10 +140,8 @@ const VerifyOtpPage = () => {
 
                 setError(
 
-                    error?.response
-                        ?.data
-                        ?.message ||
-
+                    error?.response?.data?.errors?.[0] ||
+                    error?.response?.data?.message ||
                     "OTP verification failed"
 
                 );
@@ -210,18 +206,7 @@ const VerifyOtpPage = () => {
     dark:text-slate-400
     "
                     >
-                        We've sent a verification code to
-                    </p>
-
-                    <p
-                        className="
-    mt-1
-    font-semibold
-    text-[#0EA5E9]
-    break-all
-    "
-                    >
-                        {email}
+                        Enter the verification code sent to <span className="font-semibold text-[#0EA5E9] break-all">{email}</span>. If it doesn't appear within a few minutes, check your spam folder.
                     </p>
 
                     <form

@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router";
 import { FiAnchor, FiSearch, FiCompass, FiShield, FiCpu, FiTrendingUp, FiArrowRight, FiArrowLeft, FiAlertTriangle, FiCheckCircle, FiInfo } from "react-icons/fi";
+import { useAuth } from "../../context/AuthContext";
 import { getAllRoutes, getPopularRoutes } from "../../services/routeService";
 import { getAllAlerts } from "../../services/alertService";
 import { getAllFerries } from "../../services/ferryService";
@@ -39,6 +40,7 @@ const useScrollReveal = () => {
 
 const LandingPage = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [ports, setPorts] = useState([]);
     const [activeRoutes, setActiveRoutes] = useState([]);
     const [fromTerminal, setFromTerminal] = useState("");
@@ -235,15 +237,36 @@ const LandingPage = () => {
                                 onClick={() => scrollToSection("search-section")}
                                 className="btn btn-primary bg-gradient-to-r from-[#2563EB] to-[#00A8FF] hover:opacity-95 text-white rounded-xl font-bold border-0 px-6 h-12 shadow-lg shadow-[#2563EB]/25 transition-all flex items-center justify-center gap-1.5"
                             >
-                                Search Ferries <FiArrowRight />
+                                Explore Ferries <FiArrowRight />
                             </button>
                             <button
                                 onClick={() => scrollToSection("popular-routes")}
-                                className="btn btn-outline border-[#071426]/20 text-[#071426] hover:bg-[#071426]/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10 rounded-xl font-bold px-6 h-12 flex items-center justify-center"
+                                className="hidden sm:flex btn btn-outline border-[#071426]/20 text-[#071426] hover:bg-[#071426]/5 dark:border-white/20 dark:text-white dark:hover:bg-white/10 rounded-xl font-bold px-6 h-12 items-center justify-center"
                             >
                                 Explore Routes
                             </button>
                         </div>
+                        
+                        {!user && (
+                            <div className="md:hidden flex flex-col gap-5 mt-8 pt-8 border-t border-slate-200/60 dark:border-sky-500/20 w-full max-w-sm mx-auto">
+                                <div className="space-y-2">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                        Already have an account?
+                                    </div>
+                                    <Link to="/login" className="btn btn-outline border-[#2563EB]/40 text-[#2563EB] dark:border-[#00A8FF]/30 dark:text-[#00A8FF] w-full rounded-xl font-bold h-12">
+                                        Login
+                                    </Link>
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                        New to FerryFlow?
+                                    </div>
+                                    <Link to="/register" className="btn border-0 bg-gradient-to-r from-[#2563EB] to-[#00A8FF] hover:opacity-95 text-white shadow-md shadow-[#2563EB]/20 w-full rounded-xl font-bold h-12">
+                                        Register
+                                    </Link>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Right SaaS Visualization Column */}
