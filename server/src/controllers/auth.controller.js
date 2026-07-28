@@ -1,10 +1,15 @@
 const { registerUser, verifyEmailService, LoginService, LogoutService, forgotPasswordService, resetPasswordService, changePasswordService, resendOTPService, refreshTokenService, deleteAccountService, updateProfileService } = require("../services/auth.service");
 const { googleLoginService } = require("../services/googleLoginService");
 const User = require("../models/user.model");
+// In cross-origin deployments (like Render + Netlify), we must explicitly set
+// sameSite: "none" and secure: true. Relying purely on NODE_ENV is sometimes fragile if not set.
+// A more robust check for production is checking if CLIENT_URL is a remote domain.
+const isProduction = process.env.NODE_ENV === "production" || (process.env.CLIENT_URL && !process.env.CLIENT_URL.includes("localhost"));
+
 const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax"
 };
 
 const register = async (req, res) => {
