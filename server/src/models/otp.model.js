@@ -27,6 +27,10 @@ const otpSchema = new mongoose.Schema(
             type: Date,
             required: true,
             expires: 0
+        },
+        attempts: {
+            type: Number,
+            default: 0
         }
     },
     {

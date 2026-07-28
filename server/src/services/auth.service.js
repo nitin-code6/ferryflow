@@ -7,6 +7,7 @@ const createAndSendOtp = require("../utils/createAndSendOtp");
 const { generateAccessToken, generateRefreshToken } = require('../utils/generateToken');
 const client = require('../config/redis');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const registerUser = async (userData) => {
     const { name, email, password, role } = userData;
@@ -47,7 +48,7 @@ const registerUser = async (userData) => {
         const user = users[0];
 
         // Generate and Hash OTP within the session transaction context
-        const otp = Math.floor(100000 + Math.random() * 900000);
+        const otp = crypto.randomInt(100000, 999999);
         const hashedOtp = await bcrypt.hash(otp.toString(), 10);
 
         // Delete any existing OTP for this user in same session
@@ -64,9 +65,12 @@ const registerUser = async (userData) => {
             expiresAt: new Date(Date.now() + 5 * 60 * 1000)
         }], { session });
 
-        // Send OTP email BEFORE committing transaction. If this fails, the transaction aborts.
-        console.log("OTP:", otp);
-        await sendEmail({
+        // Commit transaction after database operations succeed
+        await session.commitTransaction();
+        session.endSession();
+
+        // Send OTP email AFTER committing transaction to prevent blocking or aborts from SMTP failures
+        sendEmail({
             to: email,
             subject: "Verify Your FerryFlow Account",
             html: `
@@ -91,11 +95,7 @@ const registerUser = async (userData) => {
                     <p>If you did not request this, please ignore this email.</p>
                 </div>
             `
-        });
-
-        // Commit transaction after database operations AND email succeed
-        await session.commitTransaction();
-        session.endSession();
+        }).catch(err => console.error("Failed to send OTP email:", err));
 
         return {
             success: true,
@@ -154,10 +154,19 @@ const verifyEmailService = async (userData) => {
     const isOtpValid = await bcrypt.compare(
         otp,
         otpEntry.otp
-
     );
 
     if (!isOtpValid) {
+        otpEntry.attempts = (otpEntry.attempts || 0) + 1;
+        if (otpEntry.attempts >= 5) {
+            await Otp.findByIdAndDelete(otpEntry._id);
+            return {
+                success: false,
+                statusCode: 400,
+                message: "Maximum OTP attempts reached. Please request a new OTP."
+            };
+        }
+        await otpEntry.save();
         return {
             success: false,
             statusCode: 400,
@@ -165,11 +174,19 @@ const verifyEmailService = async (userData) => {
         };
     }
 
-
-    user.isVerified = true;
-
-    await Otp.findByIdAndDelete(otpEntry._id);
-    await user.save();
+    const verifySession = await mongoose.startSession();
+    verifySession.startTransaction();
+    try {
+        user.isVerified = true;
+        await user.save({ session: verifySession });
+        await Otp.findByIdAndDelete(otpEntry._id).session(verifySession);
+        await verifySession.commitTransaction();
+        verifySession.endSession();
+    } catch (err) {
+        await verifySession.abortTransaction();
+        verifySession.endSession();
+        throw err;
+    }
 
     const accessToken = generateAccessToken(
         user._id,
@@ -380,6 +397,15 @@ const resetPasswordService = async (userData) => {
     );
 
     if (!isOtpValid) {
+        otpEntry.attempts = (otpEntry.attempts || 0) + 1;
+        if (otpEntry.attempts >= 5) {
+            await Otp.findByIdAndDelete(otpEntry._id);
+            return {
+                success: false,
+                message: "Maximum OTP attempts reached. Please request a new OTP."
+            };
+        }
+        await otpEntry.save();
         return {
             success: false,
             message: "Invalid OTP"
@@ -610,7 +636,7 @@ const updateProfileService = async (userId, updateData) => {
     if (name) user.name = name;
     if (email) user.email = email;
     await user.save();
-    
+
     const updatedUser = {
         _id: user._id,
         name: user.name,
@@ -618,7 +644,7 @@ const updateProfileService = async (userId, updateData) => {
         role: user.role,
         accountStatus: user.accountStatus
     };
-    
+
     return {
         success: true,
         statusCode: 200,

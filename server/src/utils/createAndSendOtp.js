@@ -13,17 +13,14 @@ const createAndSendOtp = async (
         purpose
     });
 
-    const otp = Math.floor(
-        100000 + Math.random() * 900000
-    );
+    const crypto = require("crypto");
+    const otp = crypto.randomInt(100000, 999999);
 
     const hashedOtp =
         await bcrypt.hash(
             otp.toString(),
             10
         );
-
-    console.log("OTP:", otp);
 
     await Otp.create({
 
