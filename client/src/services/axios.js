@@ -49,9 +49,9 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                // Call correct refresh-token endpoint
-                await axios.post(
-                    "http://localhost:8000/api/v1/auth/refresh-token",
+                // Call correct refresh-token endpoint using configured baseURL
+                await api.post(
+                    "/auth/refresh-token",
                     {},
                     { withCredentials: true }
                 );
