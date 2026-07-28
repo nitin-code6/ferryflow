@@ -1,4 +1,4 @@
-const razorpay = require("../config/razorpay");
+const getRazorpay = require("../config/razorpay");
 
 
 const mongoose = require("mongoose");
@@ -80,7 +80,7 @@ const createPaymentOrderService = async (
 
 
     const order =
-        await razorpay.orders.create(options);
+        await getRazorpay().orders.create(options);
 
 
 

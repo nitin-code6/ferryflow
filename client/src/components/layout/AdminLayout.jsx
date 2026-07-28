@@ -4,7 +4,7 @@ import { Outlet } from "react-router";
 import AdminSidebar from "./AdminSidebar";
 import AdminTopbar from "./AdminTopbar";
 
-import backLight from "../../assets/backLight3.png";
+import backLight from "../../assets/backlight3.png";
 import backDark from "../../assets/backdark2.png";
 
 const AdminLayout = () => {

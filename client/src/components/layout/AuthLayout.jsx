@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import Navbar from "../navbar/Navbar";
 
-import backLight from "../../assets/backLight3.png"
+import backLight from "../../assets/backlight3.png"
 import backDark from "../../assets/backdark2.png";
 import {
     Ship,
