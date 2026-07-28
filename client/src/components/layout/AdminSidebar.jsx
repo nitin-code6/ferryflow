@@ -1,5 +1,6 @@
 import { NavLink, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
+import { usePermission } from "../../hooks/usePermission";
 import { logoutAPI } from "../../services/authService";
 import toast from "react-hot-toast";
 import {
@@ -27,37 +28,43 @@ const menuItems = [
         name: "Ferries",
         icon: Ship,
         path: "/admin/ferries",
+        permission: "ferryView"
     },
     {
         name: "Routes",
         icon: Map,
         path: "/admin/routes",
+        permission: "routeView"
     },
     {
         name: "Schedules",
         icon: CalendarDays,
         path: "/admin/schedules",
+        permission: "scheduleView"
     },
     {
         name: "Bookings",
         icon: Ticket,
         path: "/admin/bookings",
+        permission: "bookingManagement"
     },
     {
         name: "Alerts",
         icon: Bell,
         path: "/admin/alerts",
+        permission: "alerts"
     },
     {
         name: "Inquiries",
         icon: MessageSquare,
         path: "/admin/inquiries",
+        permission: "inquiries"
     },
     {
         name: "User Management",
         icon: Users,
         path: "/admin/register",
-        role: "admin",
+        permission: "userManagement"
     },
     {
         name: "Settings",
@@ -74,6 +81,7 @@ const AdminSidebar = ({
 }) => {
     const navigate = useNavigate();
     const { user, setUser } = useAuth();
+    const { can } = usePermission();
 
     const handleLogout = async () => {
         try {
@@ -88,7 +96,7 @@ const AdminSidebar = ({
     };
 
     const filteredMenuItems = menuItems.filter(
-        (item) => !item.role || item.role === user?.role
+        (item) => !item.permission || can(item.permission)
     );
 
     return (

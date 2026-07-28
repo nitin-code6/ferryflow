@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import toast from "react-hot-toast";
 import { CalendarDays, Play, Ship, XCircle } from "lucide-react";
 
+import { usePermission } from "../../../hooks/usePermission";
 import { getAllSchedules, deleteSchedule } from "../../../services/scheduleService";
 import AdminPageHeader from "../../../components/ui/AdminPageHeader";
 import StatsCard from "../../../components/ui/StatsCard";
@@ -21,6 +22,9 @@ const ScheduleListPage = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const { can } = usePermission();
+    const canManageSchedule = can("scheduleManagement");
 
     useEffect(() => {
         fetchSchedules();
@@ -88,8 +92,8 @@ const ScheduleListPage = () => {
                 <AdminPageHeader
                     title="Schedule Management"
                     description="Plan, authorize, and edit timetables and departure schedules."
-                    buttonText="Create Schedule"
-                    buttonLink="/admin/schedules/create"
+                    buttonText={canManageSchedule ? "Create Schedule" : null}
+                    buttonLink={canManageSchedule ? "/admin/schedules/create" : null}
                 />
                 <TableSkeleton rows={5} />
             </div>
@@ -101,8 +105,8 @@ const ScheduleListPage = () => {
             <AdminPageHeader
                 title="Schedule Management"
                 description="Plan, authorize, and edit timetables and departure schedules."
-                buttonText="Create Schedule"
-                buttonLink="/admin/schedules/create"
+                buttonText={canManageSchedule ? "Create Schedule" : null}
+                buttonLink={canManageSchedule ? "/admin/schedules/create" : null}
             />
 
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">

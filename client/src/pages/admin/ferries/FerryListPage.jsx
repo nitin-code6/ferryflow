@@ -12,6 +12,8 @@ import {
     Trash2,
 } from "lucide-react";
 
+import { usePermission } from "../../../hooks/usePermission";
+
 import {
     getAllFerries,
     deleteFerry,
@@ -34,6 +36,9 @@ const FerryListPage = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const { can } = usePermission();
+    const canManageFerries = can("ferryManagement");
 
     useEffect(() => {
         fetchFerries();
@@ -151,8 +156,8 @@ const FerryListPage = () => {
                 <AdminPageHeader
                     title="Ferry Management"
                     description="Manage ferries and monitor operational status."
-                    buttonText="Add Ferry"
-                    buttonLink="/admin/ferries/new"
+                    buttonText={canManageFerries ? "Add Ferry" : null}
+                    buttonLink={canManageFerries ? "/admin/ferries/new" : null}
                 />
 
                 <TableSkeleton rows={5} />
@@ -170,8 +175,8 @@ const FerryListPage = () => {
             <AdminPageHeader
                 title="Ferry Management"
                 description="Manage ferries and monitor operational status."
-                buttonText="Add Ferry"
-                buttonLink="/admin/ferries/new"
+                buttonText={canManageFerries ? "Add Ferry" : null}
+                buttonLink={canManageFerries ? "/admin/ferries/new" : null}
             />
 
             <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
@@ -368,49 +373,30 @@ const FerryListPage = () => {
 
                                                     <Link
                                                         to={`/admin/ferries/${ferry._id}`}
-                                                        className="
-                                                    btn
-                                                    btn-ghost
-                                                    btn-sm
-                                                    btn-square
-                                                    text-info
-                                                    "
-                                                        title="View"
+                                                        className="btn btn-sm btn-ghost text-slate-500 hover:text-[#2563EB] hover:bg-[#2563EB]/10 transition-colors"
+                                                        title="View Details"
                                                     >
                                                         <Eye size={18} />
                                                     </Link>
 
-                                                    <Link
-                                                        to={`/admin/ferries/edit/${ferry._id}`}
-                                                        className="
-                                                    btn
-                                                    btn-ghost
-                                                    btn-sm
-                                                    btn-square
-                                                    text-warning
-                                                    "
-                                                        title="Edit"
-                                                    >
-                                                        <Pencil size={18} />
-                                                    </Link>
-
-                                                    <button
-                                                        onClick={() =>
-                                                            triggerDeleteConfirm(
-                                                                ferry._id
-                                                            )
-                                                        }
-                                                        className="
-                                                    btn
-                                                    btn-ghost
-                                                    btn-sm
-                                                    btn-square
-                                                    text-error
-                                                    "
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
+                                                    {canManageFerries && (
+                                                        <>
+                                                            <Link
+                                                                to={`/admin/ferries/edit/${ferry._id}`}
+                                                                className="btn btn-sm btn-ghost text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                                                title="Edit"
+                                                            >
+                                                                <Pencil size={18} />
+                                                            </Link>
+                                                            <button
+                                                                onClick={() => triggerDeleteConfirm(ferry._id)}
+                                                                className="btn btn-sm btn-ghost text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                                                                title="Delete"
+                                                            >
+                                                                <Trash2 size={18} />
+                                                            </button>
+                                                        </>
+                                                    )}
 
                                                 </div>
 

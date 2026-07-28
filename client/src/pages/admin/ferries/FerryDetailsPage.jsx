@@ -5,12 +5,16 @@ import { Ship, ArrowLeft, Calendar, Hash, Users2, Info } from "lucide-react";
 import { getFerryById } from "../../../services/ferryService";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { DetailSkeleton } from "../../../components/ui/LoadingSkeleton";
+import { usePermission } from "../../../hooks/usePermission";
 
 const FerryDetailsPage = () => {
     const { id } = useParams();
 
     const [ferry, setFerry] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const { can } = usePermission();
+    const canManageFerries = can("ferryManagement");
 
     useEffect(() => {
         fetchFerry();
@@ -77,12 +81,14 @@ const FerryDetailsPage = () => {
                     </div>
                 </div>
 
-                <Link
-                    to={`/admin/ferries/edit/${ferry._id}`}
-                    className="btn border-0 rounded-xl px-5 text-white bg-gradient-to-r from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] hover:scale-[1.02] hover:shadow-xl transition-all duration-300 font-semibold"
-                >
-                    Edit Ferry
-                </Link>
+                {canManageFerries && (
+                    <Link
+                        to={`/admin/ferries/edit/${ferry._id}`}
+                        className="btn border-0 rounded-xl px-5 text-white bg-gradient-to-r from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] hover:scale-[1.02] hover:shadow-xl transition-all duration-300 font-semibold"
+                    >
+                        Edit Ferry
+                    </Link>
+                )}
             </div>
 
             {/* Premium Info Card */}

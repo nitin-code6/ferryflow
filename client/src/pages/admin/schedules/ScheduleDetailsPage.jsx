@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import toast from "react-hot-toast";
 import { CalendarDays, ArrowLeft, Calendar, Ship, Map, Clock, Info, DollarSign, Users, Compass } from "lucide-react";
+import { usePermission } from "../../../hooks/usePermission";
 import { getScheduleById } from "../../../services/scheduleService";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { DetailSkeleton } from "../../../components/ui/LoadingSkeleton";
@@ -18,6 +19,9 @@ const ScheduleDetailsPage = () => {
 
     const [schedule, setSchedule] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const { can } = usePermission();
+    const canManageSchedule = can("scheduleManagement");
 
     useEffect(() => {
         fetchSchedule();
@@ -86,19 +90,21 @@ const ScheduleDetailsPage = () => {
                     </div>
                 </div>
 
-                <Link
-                    to={`/admin/schedules/${schedule._id}/edit`}
-                    className="btn border-0 rounded-xl px-5 text-white bg-gradient-to-r from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] hover:scale-[1.02] hover:shadow-xl transition-all duration-300 font-semibold"
-                >
-                    Edit Schedule
-                </Link>
+                {canManageSchedule && (
+                    <Link
+                        to={`/admin/schedules/${schedule._id}/edit`}
+                        className="btn border-0 rounded-xl px-5 text-white bg-gradient-to-r from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] hover:scale-[1.02] hover:shadow-xl transition-all duration-300 font-semibold"
+                    >
+                        Edit Schedule
+                    </Link>
+                )}
             </div>
 
             {/* Main Content Layout */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Specs and Details */}
                 <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-base-100/90 backdrop-blur-xl rounded-[28px] border border-white/20 shadow-[0_25px_80px_rgba(0,0,0,0.18)] p-6 md:p-8">
+                    <div className="bg-base-100/90 backdrop-blur-xl rounded-[28px] border border-white/20 shadow-[0_25px_80px_rgba(0,0,0,0.18)] p-6 md:p-8 h-full">
                         <div className="flex items-center gap-4 pb-6 border-b border-base-300/40">
                             <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] flex items-center justify-center text-white shadow-md">
                                 <CalendarDays size={24} />

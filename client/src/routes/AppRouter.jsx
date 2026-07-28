@@ -11,6 +11,7 @@ import AdminLoginPage from "../pages/admin/auth/AdminLoginPage";
 import AdminRegisterPage from "../pages/admin/auth/AdminRegisterPage";
 
 import ProtectedRoute from "../components/protectedRoute";
+import RoleProtectedRoute from "../components/RoleProtectedRoute";
 
 import AdminLayout from "../components/layout/AdminLayout";
 import PassengerLayout from "../components/layout/PassengerLayout";
@@ -109,31 +110,31 @@ export default function AppRouter() {
                 >
                     <Route index element={<DashboardPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="register" element={<AdminRegisterPage />} />
+                    <Route path="register" element={<RoleProtectedRoute permission="userManagement"><AdminRegisterPage /></RoleProtectedRoute>} />
 
                     {/* Ferry Management */}
-                    <Route path="ferries" element={<FerryListPage />} />
-                    <Route path="ferries/new" element={<CreateFerryPage />} />
-                    <Route path="ferries/:id" element={<FerryDetailsPage />} />
+                    <Route path="ferries" element={<RoleProtectedRoute permission="ferryView"><FerryListPage /></RoleProtectedRoute>} />
+                    <Route path="ferries/new" element={<RoleProtectedRoute permission="ferryManagement"><CreateFerryPage /></RoleProtectedRoute>} />
+                    <Route path="ferries/:id" element={<RoleProtectedRoute permission="ferryView"><FerryDetailsPage /></RoleProtectedRoute>} />
                     <Route
                         path="ferries/edit/:id"
-                        element={<EditFerryPage />}
+                        element={<RoleProtectedRoute permission="ferryManagement"><EditFerryPage /></RoleProtectedRoute>}
                     />
 
                     {/* Route Management */}
-                    <Route path="routes" element={<RouteListPage />} />
-                    <Route path="routes/create" element={<CreateRoutePage />} />
-                    <Route path="routes/:id" element={<RouteDetailsPage />} />
-                    <Route path="routes/:id/edit" element={<EditRoutePage />} />
+                    <Route path="routes" element={<RoleProtectedRoute permission="routeView"><RouteListPage /></RoleProtectedRoute>} />
+                    <Route path="routes/create" element={<RoleProtectedRoute permission="routeManagement"><CreateRoutePage /></RoleProtectedRoute>} />
+                    <Route path="routes/:id" element={<RoleProtectedRoute permission="routeView"><RouteDetailsPage /></RoleProtectedRoute>} />
+                    <Route path="routes/:id/edit" element={<RoleProtectedRoute permission="routeManagement"><EditRoutePage /></RoleProtectedRoute>} />
 
                     {/* Schedule Management */}
-                    <Route path="schedules" element={<ScheduleListPage />} />
-                    <Route path="schedules/create" element={<CreateSchedulePage />} />
-                    <Route path="schedules/:id" element={<ScheduleDetailsPage />} />
-                    <Route path="schedules/:id/edit" element={<EditSchedulePage />} />
+                    <Route path="schedules" element={<RoleProtectedRoute permission="scheduleView"><ScheduleListPage /></RoleProtectedRoute>} />
+                    <Route path="schedules/create" element={<RoleProtectedRoute permission="scheduleManagement"><CreateSchedulePage /></RoleProtectedRoute>} />
+                    <Route path="schedules/:id" element={<RoleProtectedRoute permission="scheduleView"><ScheduleDetailsPage /></RoleProtectedRoute>} />
+                    <Route path="schedules/:id/edit" element={<RoleProtectedRoute permission="scheduleManagement"><EditSchedulePage /></RoleProtectedRoute>} />
 
                     {/* Booking Management */}
-                    <Route path="bookings" element={<BookingManagementPage />} />
+                    <Route path="bookings" element={<RoleProtectedRoute permission="bookingManagement"><BookingManagementPage /></RoleProtectedRoute>} />
 
                     {/* Alert Management */}
                     <Route path="alerts" element={<AlertManagementPage />} />

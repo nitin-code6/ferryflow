@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import toast from "react-hot-toast";
 import { Map, CheckCircle2, XCircle, Compass } from "lucide-react";
 
+import { usePermission } from "../../../hooks/usePermission";
 import { getAllRoutes, deleteRoute } from "../../../services/routeService";
 import AdminPageHeader from "../../../components/ui/AdminPageHeader";
 import StatsCard from "../../../components/ui/StatsCard";
@@ -21,6 +22,9 @@ const RouteListPage = () => {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteTargetId, setDeleteTargetId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    const { can } = usePermission();
+    const canManageRoutes = can("routeManagement");
 
     useEffect(() => {
         fetchRoutes();
@@ -78,8 +82,8 @@ const RouteListPage = () => {
                 <AdminPageHeader
                     title="Route Management"
                     description="Configure, monitor, and manage transit routes across ports."
-                    buttonText="Add Route"
-                    buttonLink="/admin/routes/create"
+                    buttonText={canManageRoutes ? "Add Route" : null}
+                    buttonLink={canManageRoutes ? "/admin/routes/create" : null}
                 />
                 <TableSkeleton rows={5} />
             </div>
@@ -91,8 +95,8 @@ const RouteListPage = () => {
             <AdminPageHeader
                 title="Route Management"
                 description="Configure, monitor, and manage transit routes across ports."
-                buttonText="Add Route"
-                buttonLink="/admin/routes/create"
+                buttonText={canManageRoutes ? "Add Route" : null}
+                buttonLink={canManageRoutes ? "/admin/routes/create" : null}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

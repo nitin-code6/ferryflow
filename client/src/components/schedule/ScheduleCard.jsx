@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { Eye, Pencil, Trash2, Calendar, DollarSign, Users, ArrowRight } from "lucide-react";
 import StatusBadge from "../ui/StatusBadge";
+import { usePermission } from "../../hooks/usePermission";
 
 const formatDateTime = (dateString) => {
     return new Date(dateString).toLocaleString(undefined, {
@@ -10,6 +11,9 @@ const formatDateTime = (dateString) => {
 };
 
 const ScheduleCard = ({ schedule, onDelete }) => {
+    const { can } = usePermission();
+    const canManageSchedule = can("scheduleManagement");
+
     const ferryName = schedule.ferry?.name || "Unknown Ferry";
     const routeName = schedule.route?.name || "Unknown Route";
     const origin = schedule.route?.origin || "?";
@@ -84,20 +88,24 @@ const ScheduleCard = ({ schedule, onDelete }) => {
                 >
                     <Eye size={18} />
                 </Link>
-                <Link
-                    to={`/admin/schedules/${schedule._id}/edit`}
-                    className="btn btn-ghost btn-sm btn-square text-warning"
-                    title="Edit schedule"
-                >
-                    <Pencil size={18} />
-                </Link>
-                <button
-                    onClick={() => onDelete(schedule._id)}
-                    className="btn btn-ghost btn-sm btn-square text-error"
-                    title="Delete schedule"
-                >
-                    <Trash2 size={18} />
-                </button>
+                {canManageSchedule && (
+                    <>
+                        <Link
+                            to={`/admin/schedules/${schedule._id}/edit`}
+                            className="btn btn-ghost btn-sm btn-square text-warning"
+                            title="Edit schedule"
+                        >
+                            <Pencil size={18} />
+                        </Link>
+                        <button
+                            onClick={() => onDelete(schedule._id)}
+                            className="btn btn-ghost btn-sm btn-square text-error"
+                            title="Delete schedule"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );

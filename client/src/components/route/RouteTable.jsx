@@ -1,8 +1,11 @@
 import { Link } from "react-router";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import StatusBadge from "../ui/StatusBadge";
+import { usePermission } from "../../hooks/usePermission";
 
 const RouteTable = ({ routes, onDelete }) => {
+    const { can } = usePermission();
+    const canManageRoutes = can("routeManagement");
     return (
         <div className="overflow-x-auto">
             <table className="table w-full">
@@ -62,20 +65,24 @@ const RouteTable = ({ routes, onDelete }) => {
                                     >
                                         <Eye size={18} />
                                     </Link>
-                                    <Link
-                                        to={`/admin/routes/${route._id}/edit`}
-                                        className="btn btn-ghost btn-sm btn-square text-warning"
-                                        title="Edit"
-                                    >
-                                        <Pencil size={18} />
-                                    </Link>
-                                    <button
-                                        onClick={() => onDelete(route._id)}
-                                        className="btn btn-ghost btn-sm btn-square text-error"
-                                        title="Delete"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
+                                    {canManageRoutes && (
+                                        <>
+                                            <Link
+                                                to={`/admin/routes/${route._id}/edit`}
+                                                className="btn btn-ghost btn-sm btn-square text-warning"
+                                                title="Edit"
+                                            >
+                                                <Pencil size={18} />
+                                            </Link>
+                                            <button
+                                                onClick={() => onDelete(route._id)}
+                                                className="btn btn-ghost btn-sm btn-square text-error"
+                                                title="Delete"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </td>
                         </tr>

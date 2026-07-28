@@ -5,12 +5,16 @@ import { Map, ArrowLeft, Calendar, Navigation, Clock, Info, MapPin } from "lucid
 import { getRouteById } from "../../../services/routeService";
 import StatusBadge from "../../../components/ui/StatusBadge";
 import { DetailSkeleton } from "../../../components/ui/LoadingSkeleton";
+import { usePermission } from "../../../hooks/usePermission";
 
 const RouteDetailsPage = () => {
     const { id } = useParams();
 
     const [route, setRoute] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const { can } = usePermission();
+    const canManageRoutes = can("routeManagement");
 
     useEffect(() => {
         fetchRoute();
@@ -76,12 +80,14 @@ const RouteDetailsPage = () => {
                     </div>
                 </div>
 
-                <Link
-                    to={`/admin/routes/${route._id}/edit`}
-                    className="btn border-0 rounded-xl px-5 text-white bg-gradient-to-r from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] hover:scale-[1.02] hover:shadow-xl transition-all duration-300 font-semibold"
-                >
-                    Edit Route
-                </Link>
+                {canManageRoutes && (
+                    <Link
+                        to={`/admin/routes/${route._id}/edit`}
+                        className="btn border-0 rounded-xl px-5 text-white bg-gradient-to-r from-[#2563EB] via-[#0EA5E9] to-[#22D3EE] hover:scale-[1.02] hover:shadow-xl transition-all duration-300 font-semibold"
+                    >
+                        Edit Route
+                    </Link>
+                )}
             </div>
 
             {/* Premium Info Card */}

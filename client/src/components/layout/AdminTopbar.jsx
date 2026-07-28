@@ -54,7 +54,7 @@ const AdminTopbar = ({
                 </button>
 
                 <h1 className="text-lg font-bold tracking-tight text-slate-800 dark:text-white">
-                    Admin Dashboard
+                    {user?.role === "staff" ? "Staff Dashboard" : "Admin Dashboard"}
                 </h1>
             </div>
 
