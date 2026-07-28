@@ -431,7 +431,7 @@ transition-colors
                                         </button>
                                     </>
                                 ) : (
-                                    <div className="space-y-2 pt-2 border-t border-[#2563EB]/10 dark:border-sky-950/80">
+                                    <div className="space-y-2">
                                         <p className="text-[10px] font-bold uppercase tracking-wider text-[#071426]/50 dark:text-[#F8FAFC]/50">Passenger Portal</p>
                                         <div className="flex gap-2">
                                             <Link to="/login" onClick={() => setOpen(false)} className="btn btn-sm border border-[#2563EB]/25 text-[#2563EB] dark:border-[#00A8FF]/20 dark:text-[#00A8FF] flex-1 font-bold rounded-xl bg-transparent hover:bg-[#2563EB]/5">
@@ -450,7 +450,25 @@ transition-colors
                                     </div>
                                 )
                             }
+
+                            {/* Mobile Theme Toggle */}
+                            <div className="flex items-center justify-between pt-2 border-t border-[#2563EB]/10 dark:border-sky-950/80">
+                                <span className="text-xs font-semibold text-[#071426]/60 dark:text-[#F8FAFC]/60">
+                                    {theme === "light" ? "Light Mode" : "Dark Mode"}
+                                </span>
+                                <button
+                                    onClick={() => {
+                                        setTheme(theme === "light" ? "dark" : "light");
+                                        setOpen(false);
+                                    }}
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#2563EB]/10 dark:bg-[#00A8FF]/10 text-[#2563EB] dark:text-[#00A8FF] font-semibold text-xs transition-all hover:bg-[#2563EB]/20 dark:hover:bg-[#00A8FF]/20"
+                                >
+                                    {theme === "light" ? <FiMoon size={14} /> : <FiSun size={14} />}
+                                    {theme === "light" ? "Switch to Dark" : "Switch to Light"}
+                                </button>
+                            </div>
                         </div>
+
                     </div>
                 )
 
