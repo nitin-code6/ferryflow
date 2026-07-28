@@ -70,7 +70,23 @@ const PassengerDashboardPage = () => {
     // Calculate active trips
     const upcomingTrips = bookings.filter((b) => {
         const status = (b.bookingStatus || b.status)?.toLowerCase();
-        return status === "scheduled" || status === "boarding" || status === "confirmed" || status === "pending";
+        
+        // Exclude cancelled explicitly
+        if (status === "cancelled") return false;
+        
+        let isTimeOver = false;
+        if (b.schedule?.departureTime) {
+            const departureTime = new Date(b.schedule.departureTime).getTime();
+            const durationMins = b.schedule.route?.duration || 60;
+            const arrivalTime = departureTime + (durationMins * 60 * 1000);
+            
+            if (Date.now() > arrivalTime) {
+                isTimeOver = true;
+            }
+        }
+
+        // Only include if it's not dynamically completed
+        return !isTimeOver && ["scheduled", "boarding", "confirmed", "pending", "pending_payment"].includes(status);
     });
 
     const scrollToSearch = () => {

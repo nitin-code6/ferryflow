@@ -40,7 +40,7 @@ const MyBookingsPage = () => {
     const handleCancelBooking = (bookingId) => {
         toast((t) => (
             <div className="flex flex-col gap-2">
-                <p className="text-xs font-bold text-base-content">Cancel this ferry booking?</p>
+                <p className="text-sm font-bold text-slate-800 dark:text-white">Cancel this ferry booking?</p>
                 <div className="flex gap-2">
                     <button
                         onClick={() => {
@@ -82,15 +82,37 @@ const MyBookingsPage = () => {
     // Filter by active tabs — pending_payment bookings show in upcoming
     const filteredBookings = bookings.filter((b) => {
         const rawStatus = (b.bookingStatus || b.status)?.toLowerCase();
-        if (activeTab === "upcoming") {
-            return ["scheduled", "boarding", "departed", "confirmed", "pending", "pending_payment"].includes(rawStatus);
+        
+        // Calculate dynamic completion based on time
+        let isTimeOver = false;
+        if (b.schedule?.departureTime) {
+            const departureTime = new Date(b.schedule.departureTime).getTime();
+            // Get duration in minutes, default to 60 if missing
+            const durationMins = b.schedule.route?.duration || 60;
+            const arrivalTime = departureTime + (durationMins * 60 * 1000);
+            
+            // If current time is past arrival time, the trip is considered completed
+            if (Date.now() > arrivalTime) {
+                isTimeOver = true;
+            }
         }
+
+        // If the booking is explicitly cancelled, it stays cancelled
+        if (rawStatus === "cancelled") {
+            return activeTab === "cancelled";
+        }
+
+        // If it's explicitly completed OR dynamically completed
+        const isCompleted = rawStatus === "completed" || isTimeOver;
+
         if (activeTab === "completed") {
-            return rawStatus === "completed";
+            return isCompleted;
         }
-        if (activeTab === "cancelled") {
-            return rawStatus === "cancelled";
+
+        if (activeTab === "upcoming") {
+            return !isCompleted && ["scheduled", "boarding", "departed", "confirmed", "pending", "pending_payment"].includes(rawStatus);
         }
+
         return false;
     });
 

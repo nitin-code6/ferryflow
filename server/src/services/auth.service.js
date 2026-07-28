@@ -65,12 +65,8 @@ const registerUser = async (userData) => {
             expiresAt: new Date(Date.now() + 5 * 60 * 1000)
         }], { session });
 
-        // Commit transaction after database operations succeed
-        await session.commitTransaction();
-        session.endSession();
-
-        // Send OTP email AFTER committing transaction to prevent blocking or aborts from SMTP failures
-        sendEmail({
+        // Send OTP email before committing transaction so failure aborts the flow
+        await sendEmail({
             to: email,
             subject: "Verify Your FerryFlow Account",
             html: `
@@ -95,7 +91,11 @@ const registerUser = async (userData) => {
                     <p>If you did not request this, please ignore this email.</p>
                 </div>
             `
-        }).catch(err => console.error("Failed to send OTP email:", err));
+        });
+
+        // Commit transaction after database and email operations succeed
+        await session.commitTransaction();
+        session.endSession();
 
         return {
             success: true,
