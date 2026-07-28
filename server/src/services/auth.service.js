@@ -14,11 +14,17 @@ const registerUser = async (userData) => {
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-        return {
-            success: false,
-            statusCode: 409,
-            message: "User already exists"
-        };
+        if (!existingUser.isVerified) {
+            // Delete the old unverified user and their OTPs so they can try registering again
+            await User.findByIdAndDelete(existingUser._id);
+            await Otp.deleteMany({ userId: existingUser._id });
+        } else {
+            return {
+                success: false,
+                statusCode: 409,
+                message: "User already exists"
+            };
+        }
     }
 
     // Force public registration role to be citizen or tourist only (defaults to citizen)
@@ -58,13 +64,9 @@ const registerUser = async (userData) => {
             expiresAt: new Date(Date.now() + 5 * 60 * 1000)
         }], { session });
 
-        // Commit transaction after both database operations succeed
-        await session.commitTransaction();
-        session.endSession();
-
-        // Send OTP email after transaction commits successfully
+        // Send OTP email BEFORE committing transaction. If this fails, the transaction aborts.
         console.log("OTP:", otp);
-        sendEmail({
+        await sendEmail({
             to: email,
             subject: "Verify Your FerryFlow Account",
             html: `
@@ -89,7 +91,11 @@ const registerUser = async (userData) => {
                     <p>If you did not request this, please ignore this email.</p>
                 </div>
             `
-        }).catch(err => console.error("Email verification failed to send:", err));
+        });
+
+        // Commit transaction after database operations AND email succeed
+        await session.commitTransaction();
+        session.endSession();
 
         return {
             success: true,
