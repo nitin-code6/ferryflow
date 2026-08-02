@@ -385,10 +385,15 @@ const searchSchedulesService = async ({ origin, destination, date }) => {
             const endOfDay = new Date(date);
             endOfDay.setHours(23, 59, 59, 999);
             
+            const now = new Date();
+            const lowerBound = startOfDay > now ? startOfDay : now;
+            
             scheduleQuery.departureTime = {
-                $gte: startOfDay,
+                $gte: lowerBound,
                 $lte: endOfDay
             };
+        } else {
+            scheduleQuery.departureTime = { $gte: new Date() };
         }
 
         const schedules = await Schedule.find(scheduleQuery)
