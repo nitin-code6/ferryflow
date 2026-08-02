@@ -113,10 +113,10 @@ const seedDatabase = async () => {
         // 4. SCHEDULES
         // ==========================================
         console.log("Creating Schedules...");
-        
+
         // Base Date: 02 August 2026
         const baseDate = new Date("2026-08-02T00:00:00Z");
-        
+
         const timings = [
             { hour: 8, minute: 0 },   // 08:00 AM
             { hour: 10, minute: 30 }, // 10:30 AM
@@ -126,24 +126,24 @@ const seedDatabase = async () => {
         ];
 
         const schedules = [];
-        
+
         // Generate for today, tomorrow, and next 7 days
         for (let dayOffset = 0; dayOffset <= 8; dayOffset++) {
             const currentDate = new Date(baseDate);
             currentDate.setDate(currentDate.getDate() + dayOffset);
-            
+
             // Assign a couple of routes per day
             for (let routeIdx = 0; routeIdx < routes.length; routeIdx++) {
                 const route = routes[routeIdx];
                 const ferry = ferries[routeIdx % ferries.length]; // cycle through ferries
-                
+
                 // Skip inactive ferries
                 if (ferry.status !== "available") continue;
 
                 for (let time of timings) {
                     const departureTime = new Date(currentDate);
                     departureTime.setUTCHours(time.hour, time.minute, 0, 0);
-                    
+
                     const arrivalTime = new Date(departureTime);
                     arrivalTime.setUTCMinutes(arrivalTime.getUTCMinutes() + route.estimatedDuration);
 
@@ -151,7 +151,7 @@ const seedDatabase = async () => {
                     // For today, let's make some early ones departed/completed
                     if (dayOffset === 0 && time.hour < 12) status = "completed";
                     else if (dayOffset === 0 && time.hour === 14) status = "boarding";
-                    
+
                     // Cancel a random few
                     if (Math.random() < 0.05) status = "cancelled";
 
@@ -177,15 +177,15 @@ const seedDatabase = async () => {
         console.log("Creating Bookings...");
         const bookings = [];
         let ticketCounter = 1;
-        
+
         for (let i = 0; i < 50; i++) {
             // Pick random user and random future schedule
             const user = passengerUsers[Math.floor(Math.random() * passengerUsers.length)];
             const schedule = createdSchedules[Math.floor(Math.random() * createdSchedules.length)];
-            
+
             const seatsBooked = Math.floor(Math.random() * 3) + 1; // 1 to 3 seats
-            const seatNumbers = Array.from({length: seatsBooked}, (_, i) => `S${Math.floor(Math.random() * 100) + 1}`);
-            
+            const seatNumbers = Array.from({ length: seatsBooked }, (_, i) => `S${Math.floor(Math.random() * 100) + 1}`);
+
             bookings.push({
                 user: user._id,
                 schedule: schedule._id,
@@ -258,7 +258,7 @@ const seedDatabase = async () => {
         console.log(`Total Bookings: ${bookings.length}`);
         console.log(`Total Alerts: ${alertsData.length}`);
         console.log(`Total Inquiries: ${inquiries.length}`);
-        
+
         mongoose.connection.close();
     } catch (error) {
         console.error("Error seeding database:", error);

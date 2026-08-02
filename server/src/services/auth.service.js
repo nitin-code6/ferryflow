@@ -633,8 +633,16 @@ const updateProfileService = async (userId, updateData) => {
             message: "User not found"
         };
     }
+    if (email && email !== user.email) {
+        return {
+            success: false,
+            statusCode: 400,
+            message: "Email address cannot be updated currently."
+        };
+    }
+
     if (name) user.name = name;
-    if (email) user.email = email;
+    
     await user.save();
 
     const updatedUser = {
