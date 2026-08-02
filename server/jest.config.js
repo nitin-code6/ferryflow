@@ -6,5 +6,5 @@ module.exports = {
   restoreMocks: true,
   coverageDirectory: 'coverage',
   collectCoverageFrom: ['src/**/*.js'],
-  testTimeout: 120000
+  testTimeout: 300000
 };

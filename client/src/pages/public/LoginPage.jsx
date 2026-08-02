@@ -71,12 +71,14 @@ duration-200
 
             if (result.success) {
 
+                await checkAuth();
+
                 toast.success(
                     result.message ||
                     "Login successful"
                 );
 
-                navigate("/");
+                // The useEffect at the top of the file will handle the redirect once checkAuth updates the state
             }
 
         } catch (error) {

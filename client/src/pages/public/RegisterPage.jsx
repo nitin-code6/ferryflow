@@ -5,9 +5,11 @@ import { registerAPI, googleLoginAPI } from "../../services/authService";
 import AuthLayout from "../../components/layout/AuthLayout";
 import { GoogleLogin } from "@react-oauth/google";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthContext";
 
 const RegisterPage = () => {
     const navigate = useNavigate();
+    const { checkAuth, isAuthenticated, user } = useAuth();
 
     const [formData, setFormData] = useState({
         name: "",
@@ -36,8 +38,10 @@ const RegisterPage = () => {
         try {
             const result = await googleLoginAPI(credentialResponse.credential);
             if (result.success) {
+                await checkAuth();
                 toast.success("Welcome to FerryFlow!");
-                navigate("/");
+                // Let a similar logic to LoginPage or a top-level route guard handle the redirect, or manually navigate
+                navigate("/dashboard");
             }
         } catch (error) {
             toast.error(error?.response?.data?.message || "Google login failed");

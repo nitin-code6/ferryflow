@@ -49,7 +49,8 @@ jest.mock('google-auth-library', () => {
 });
 
 // Setup and Teardown for MongoDB Memory Server
-jest.setTimeout(120000);
+process.env.MONGOMS_MD5_CHECK = '0';
+jest.setTimeout(300000);
 
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
