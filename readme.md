@@ -1,202 +1,263 @@
-# FerryFlow: Real-Time Ferry Operations & Passenger Management System
-
-**Internship Project Report**
-**Student Name:** Nitin Kumar  
-**Organization:** [Company/Organization Name]  
-**Duration:** [Internship Duration]  
-
----
-
-## ABSTRACT
-
-FerryFlow addresses the logistical challenges and communication gaps present in traditional maritime transit systems. Historically, ferry operations rely on manual updates, resulting in delayed schedules, passenger confusion, and administrative overhead. FerryFlow solves this by providing a unified platform where passengers can view real-time schedules and book tickets, while administrators can seamlessly manage fleets, routes, and operations.
-
-The system is developed using the MERN stack (MongoDB, Express.js, React.js, Node.js). Real-time communication is facilitated by Socket.IO, pushing live updates and alerts instantly to users. Security is maintained through a robust authentication system utilizing JSON Web Tokens (JWT) stored in HTTP-only cookies, paired with a Redis caching layer for refresh tokens and role-based access control (RBAC). Finally, the application is deployed using Netlify for the frontend and Render for the backend, ensuring a highly available and scalable cloud environment.
+<div align="center">
+  <img src="client/src/assets/ferry-logo.png" alt="FerryFlow Logo" width="120" />
+  <h1>⛴️ FerryFlow</h1>
+  <p><strong>Real-Time Ferry Operations & Passenger Management System</strong></p>
+  
+  [![React](https://img.shields.io/badge/React-19.2-blue?logo=react&logoColor=white)](https://react.dev)
+  [![Node.js](https://img.shields.io/badge/Node.js-Express-green?logo=node.js&logoColor=white)](https://nodejs.org)
+  [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)](https://mongodb.com)
+  [![Socket.IO](https://img.shields.io/badge/Socket.IO-Real%20Time-black?logo=socket.io)](https://socket.io)
+  [![Netlify](https://img.shields.io/badge/Deployed-Netlify-00C7B7?logo=netlify)](https://ferryflow.netlify.app)
+</div>
 
 ---
 
-## CHAPTER 1: INTRODUCTION
+FerryFlow is a full-stack, real-time web platform built to modernize maritime transportation. It bridges the gap between passengers and operational staff by offering live schedule tracking, secure ticket booking, instant operational alerts, and a comprehensive administrative dashboard. 
 
-### 1.1 Project Overview
-FerryFlow is a comprehensive, full-stack MERN web application designed to digitize and modernize ferry operations. By integrating real-time communication protocols with a robust administrative dashboard, FerryFlow bridges the gap between operational staff and passengers, creating a seamless, transparent travel experience.
-
-### 1.2 Problem Statement
-Traditional ferry systems suffer from significant inefficiencies:
-- **Lack of Real-Time Data:** Passengers are often unaware of delays or cancellations until they arrive at the terminal.
-- **Manual Booking & Management:** Paper-based ticketing and static scheduling create administrative bottlenecks.
-- **Poor Accessibility:** Essential transit information is difficult to access on mobile devices, deterring modern user engagement.
-- **Fragmented Operations:** Fleet, route, and schedule management exist in separate, disconnected silos.
-
-### 1.3 Objectives
-1. Digitize the ferry ticketing and booking process to eliminate manual intervention.
-2. Provide a modern, responsive, and accessible user interface for all devices.
-3. Implement real-time notifications and live ferry status updates.
-4. Establish a secure, role-based authentication and authorization system.
-5. Create a centralized dashboard for administrators to manage routes, schedules, and fleet data.
-6. Deploy a scalable, cloud-hosted infrastructure capable of handling concurrent users.
-
-### 1.4 Scope
-
-**Passenger Side:**
-- **Search Ferries:** Users can query available ferries based on origin, destination, and date.
-- **View Schedules:** Access dynamic, up-to-date departure and arrival timelines.
-- **Booking:** Securely reserve seats and view past booking history.
-- **Alerts:** Receive live broadcast alerts regarding delays or emergencies.
-
-**Admin Side:**
-- **Manage Ferries:** Register new vessels, update capacities, and change operational status.
-- **Routes:** Create and configure terminal connections and transit distances.
-- **Schedules:** Assign ferries to specific routes with accurate timing and fare data.
-- **Operations:** Monitor system-wide analytics and broadcast real-time announcements.
+## 🌐 Live Demo
+- **Production Build:** [https://ferryflow.netlify.app/](https://ferryflow.netlify.app/)
 
 ---
 
-## CHAPTER 2: TECHNOLOGY STACK & LITERATURE REVIEW
+## 📸 Screenshots
 
-### 2.1 Frontend Technologies
-- **React:** Chosen for its component-based architecture, enabling reusable UI elements and efficient state management.
-- **Vite:** Utilized as the build tool for its extremely fast Hot Module Replacement (HMR) and optimized production bundling.
-- **Tailwind CSS:** Selected for utility-first styling, allowing rapid UI development without writing custom CSS files.
-- **DaisyUI:** Integrated as a plugin for Tailwind to provide accessible, pre-built component classes like buttons and modals.
+| Landing Page | Authentication & Login | User Dashboard |
+| :---: | :---: | :---: |
+| <img src="client/src/assets/landing.png" alt="Landing Page" width="300" /> | <img src="client/src/assets/auth.png" alt="Authentication" width="300" /> | <img src="client/src/assets/dashboard.png" alt="Dashboard" width="300" /> |
 
-### 2.2 Backend Technologies
-- **Node.js:** Provides a fast, non-blocking, event-driven runtime ideal for handling concurrent real-time requests.
-- **Express.js:** A minimalist web framework used to structure RESTful API routes and middleware securely.
-- **MongoDB:** A NoSQL database chosen for its flexible schema design, handling diverse operational data seamlessly.
-- **Mongoose:** An Object Data Modeling (ODM) library used to enforce schema validation and query MongoDB efficiently.
-
-### 2.3 Additional Services & Integrations
-- **JWT Authentication:** JSON Web Tokens are used for stateless, secure user authorization across requests.
-- **Redis:** An in-memory data store utilized to manage and validate long-lived refresh tokens securely.
-- **Socket.IO:** Enables bi-directional, event-based communication between the server and clients for live status updates.
-- **Nodemailer:** Handles automated outgoing communications, specifically for OTP email verification.
-- **Google OAuth:** Provides a frictionless, secure single sign-on (SSO) alternative for passenger registration and login.
+| System Architecture | Automated E2E Testing |
+| :---: | :---: |
+| <img src="client/src/assets/systemArchitecture.png" alt="System Architecture" width="300" /> | <img src="client/src/assets/playright.png" alt="Playwright Tests" width="300" /> |
 
 ---
 
-## CHAPTER 3: SYSTEM DESIGN & ARCHITECTURE
+## ✨ Features
 
-### 3.1 High Level Architecture
-FerryFlow utilizes a decoupled client-server architecture. The React Frontend acts as the presentation layer, consuming data via a REST API. The Express Backend processes these HTTP requests, applies business logic, and interacts with MongoDB.
+### 🛡️ Authentication & Security
+- **JWT & HTTP-Only Cookies:** Secure, stateless session management.
+- **Refresh Token Rotation:** Handled via Redis for seamless and secure session renewal.
+- **Google OAuth Integration:** One-click registration and login.
+- **Email OTP Verification:** Validates user identity using Nodemailer.
+- **Role-Based Access Control (RBAC):** Strict permissions separating `Passenger`, `Staff`, and `Admin`.
 
-```text
-[ React Frontend ]  --->  [ REST API ]  --->  [ Express Backend ]  --->  [ MongoDB ]
+### 👨‍💼 Administrative & Staff Capabilities
+- **Fleet Management:** Register new ferries, update vessel capacities, and manage operational status.
+- **Route Definitions:** Establish physical terminals and geographic transit paths.
+- **Schedule Orchestration:** Pair specific vessels to routes and assign accurate departure/arrival timelines.
+- **Global Broadcasts:** Dispatch live, system-wide alerts to passengers.
+
+### ⛴️ Passenger Services
+- **Dynamic Search:** Filter and find ferries based on origin, destination, and dates.
+- **Real-Time Dashboards:** Live tracking of ferry operational status ("Boarding", "Delayed", etc.).
+- **Secure Ticketing:** Multi-step ticket reservation workflow (with Razorpay integration readiness).
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework:** React 19 (via Vite)
+- **Styling:** Tailwind CSS 4 & DaisyUI
+- **Routing:** React Router 7
+- **Forms & Validation:** React Hook Form & Zod
+- **Icons:** Lucide React & React Icons
+
+### Backend
+- **Runtime & Framework:** Node.js & Express.js 5
+- **Database:** MongoDB (using Mongoose ODM)
+- **Caching & Sessions:** Redis
+- **Authentication:** JSON Web Tokens (JWT), Google Auth Library, bcrypt
+- **Real-Time Communication:** Socket.IO
+- **Email Service:** Nodemailer
+
+### Deployment & Tools
+- **Frontend Hosting:** Netlify
+- **Backend Hosting:** Render
+- **Testing:** Playwright (E2E), Jest & Supertest (API)
+- **Package Manager:** npm
+
+---
+
+## 🏗️ Architecture
+
+FerryFlow implements a **decoupled Client-Server architecture**. 
+The React frontend acts as a Single Page Application (SPA) consuming RESTful JSON APIs exposed by the Node/Express backend. 
+
+### Request Flow
+1. **Client Request:** The user interacts with the React UI.
+2. **API Call:** Axios dispatches an HTTP request to the Express Backend.
+3. **Middleware Interception:** Requests pass through CORS, Rate Limiting, and JWT Validation middleware.
+4. **Controller Logic:** Business logic is processed, interacting with Mongoose for MongoDB reads/writes or Redis for token validation.
+5. **Real-Time Push:** If an operational state changes, Socket.IO bypasses the traditional HTTP response cycle and emits a real-time event directly to all connected React clients.
+
+---
+
+## 🚀 Installation & Local Development
+
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [MongoDB](https://www.mongodb.com/) (Local or Atlas URL)
+- [Redis](https://redis.io/) (Local or Cloud instance)
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/nitin-code6/ferryflow.git
+cd ferryflow
 ```
 
-**Additional Services:**
-- **Redis:** Sits alongside the backend to validate refresh tokens instantly.
-- **Socket.IO:** Bypasses standard HTTP request-response cycles, maintaining open WebSocket connections to push data to the React Frontend.
-- **Email Service:** Triggered by the backend to dispatch SMTP messages via Nodemailer.
+### 2. Backend Setup
+```bash
+cd server
+npm install
+```
+Create a `.env` file in the `server` directory (see Environment Variables table below).
+Start the backend development server:
+```bash
+npm run dev
+```
 
-*(Suggested Architecture Diagram)*  
-`![System Architecture](screenshots/system_architecture.png)`
-
-### 3.2 Database Design
-The MongoDB database is normalized into several core collections to maintain data integrity.
-
-| Collection | Purpose | Important Fields |
-| :--- | :--- | :--- |
-| **User** | Manages accounts and authentication | `name`, `email`, `password`, `role`, `isVerified` |
-| **Ferry** | Stores vessel specifications | `name`, `registrationNumber`, `capacity`, `status` |
-| **Route** | Defines transit paths | `name`, `origin`, `destination`, `distance` |
-| **Schedule**| Maps ferries to routes over time | `ferryId`, `routeId`, `departureTime`, `fare` |
-| **Booking** | Records passenger reservations | `userId`, `scheduleId`, `seats`, `paymentStatus` |
-| **Alert** | Stores system broadcasts | `title`, `message`, `type`, `isActive` |
-| **OTP** | Handles email verification tokens | `email`, `otp`, `expiresAt` |
-
-### 3.3 Authentication Architecture
-The authentication flow is designed for high security and seamless user experience:
-1. **Registration:** Users sign up with an email and password.
-2. **OTP Verification:** A 6-digit OTP is generated, hashed, and emailed. The user must submit it to verify their account.
-3. **Password Hashing:** Passwords are mathematically hashed using bcrypt before database insertion.
-4. **JWT Access Token:** Upon login, a short-lived access token is generated and stored in an HTTP-only cookie.
-5. **Refresh Token & Redis:** A cryptographically secure refresh token is generated, stored in Redis, and attached to a long-lived HTTP-only cookie to silently renew expired access tokens.
-
-### 3.4 Role Based Access Control (RBAC)
-System resources are strictly protected at both the UI and API levels based on user roles:
-- **Admin:** Has complete management access. Can create, read, update, and delete all entities across the platform.
-- **Staff:** Granted specialized access to handle customer support, view operational data, and trigger alerts without the ability to mutate core structural data.
-- **Passenger:** Restricted to public-facing services including viewing schedules, booking tickets, and managing their own profile.
+### 3. Frontend Setup
+```bash
+cd client
+npm install
+```
+Create a `.env` file in the `client` directory (see Environment Variables table below).
+Start the frontend development server:
+```bash
+npm run dev
+```
 
 ---
 
-## CHAPTER 4: IMPLEMENTATION DETAILS
+## 🔐 Environment Variables
 
-### 4.1 User Authentication
-FerryFlow provides a comprehensive authentication suite:
-- **Register & Login:** Secure standard credential flows.
-- **Email Verification:** Mandates email ownership confirmation before granting booking privileges.
-- **Forgot Password:** Secure account recovery via OTP.
-- **Google OAuth:** One-click onboarding utilizing Google's identity services.
+### Backend (`server/.env`)
+| Variable | Description | Required |
+| :--- | :--- | :---: |
+| `PORT` | The port the Express server runs on (e.g., 8000) | ✅ |
+| `MONGO_URI` | MongoDB connection string | ✅ |
+| `REDIS_URL` | Redis connection URL | ✅ |
+| `JWT_SECRET` | Secret key for signing Access Tokens | ✅ |
+| `JWT_REFRESH_SECRET` | Secret key for signing Refresh Tokens | ✅ |
+| `GOOGLE_CLIENT_ID` | OAuth Client ID from Google Cloud Console | ✅ |
+| `EMAIL_USER` | SMTP email address for Nodemailer | ✅ |
+| `EMAIL_PASS` | SMTP app password for Nodemailer | ✅ |
+| `RAZORPAY_KEY_ID` | Razorpay API Key ID (for payments) | ❌ |
+| `RAZORPAY_KEY_SECRET`| Razorpay API Secret (for payments) | ❌ |
+| `CLIENT_URL` | Allowed CORS origin (e.g., `http://localhost:5173`) | ✅ |
 
-`![Register Page](screenshots/01_register_page.png)`  
-`![Email Verification](screenshots/02_email_verification.png)`  
-`![Login Page](screenshots/03_login_page.png)`  
-
-### 4.2 Passenger Module
-The passenger interface is optimized for discovery and conversion:
-- **Landing Page:** A visually engaging entry point highlighting services and urgent alerts.
-- **Ferry Search:** A dynamic search engine filtering routes by origin, destination, and dates.
-- **Schedule Viewing:** Clear, chronological presentation of available transit options.
-- **Booking Process:** A streamlined, multi-step flow to select seats and confirm reservations.
-
-`![Landing Page](screenshots/04_landing_page.png)`  
-`![Ferry Search](screenshots/05_ferry_search.png)`  
-`![Booking Page](screenshots/06_booking_page.png)`  
-
-### 4.3 Admin Dashboard
-Administrators utilize a protected, analytical dashboard for operational oversight:
-- **Dashboard:** High-level metrics aggregating user counts, revenue, and active routes.
-- **Ferry CRUD:** Interface to manage the physical fleet.
-- **Route Management:** Tools to establish and edit geographic terminal connections.
-- **Schedule Management:** Complex forms to pair ferries and routes with precise timeframes.
-
-`![Admin Dashboard](screenshots/07_admin_dashboard.png)`  
-`![Ferry Management](screenshots/08_ferry_management.png)`  
-`![Schedule Management](screenshots/09_schedule_management.png)`  
-
-### 4.4 Real-Time Features
-Socket.IO is implemented to eliminate the need for manual page refreshes:
-- **Live Ferry Status:** Any administrative change to a ferry's status (e.g., "Boarding", "Delayed") is immediately broadcasted to all active clients viewing that schedule.
-- **Admin Broadcast:** Global alerts triggered by admins appear instantly as toast notifications across passenger screens.
-
-`![Live Status](screenshots/10_live_status.png)`  
-
-### 4.5 Security Implementation
-- **JWT Cookies:** Tokens are flagged as `HttpOnly` to prevent Cross-Site Scripting (XSS) attacks.
-- **Password Hashing:** Ensures database breaches do not expose plaintext user passwords.
-- **Rate Limiting:** IP-based throttling is applied to authentication endpoints to mitigate brute-force and DDoS attempts.
-- **Validation:** Extensive request payload validation using libraries like Joi/Zod to prevent injection attacks.
-- **RBAC:** Backend middleware actively rejects requests from unauthorized role levels.
+### Frontend (`client/.env`)
+| Variable | Description | Required |
+| :--- | :--- | :---: |
+| `VITE_API_URL` | URL of the backend REST API | ✅ |
+| `VITE_SOCKET_URL` | URL of the backend for Socket.IO | ✅ |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID (must match backend) | ✅ |
 
 ---
 
-## CHAPTER 5: TESTING AND DEPLOYMENT
+## 📡 API Overview
 
-### 5.1 Testing
-To ensure system reliability, FerryFlow relies on End-to-End (E2E) testing powered by Playwright.
-- **Authentication Flow Test:** Simulates user interactions from registration, OTP input, to successful dashboard redirection.
-- **Admin Flow Test:** Verifies that administrators can successfully create new entities (e.g., routes) and that these entities correctly populate in the database.
-- **Realtime Socket Test:** Confirms that an alert dispatched from an admin session successfully renders on a simulated passenger session concurrently.
+The backend exposes grouped RESTful resources. All protected routes require a valid HTTP-Only JWT Cookie.
 
-### 5.2 Deployment
-The application is deployed across specialized cloud infrastructure for maximum uptime:
+### Authentication (`/api/v1/auth`)
+- `POST /register` - Create a new user account.
+- `POST /login` - Authenticate and receive HttpOnly cookies.
+- `POST /google` - Handle Google OAuth credential exchange.
+- `POST /verify-email` - Verify user via OTP.
+- `POST /refresh-token` - Rotate JWT access tokens via Redis.
 
-- **Frontend:** Deployed on **Netlify**, leveraging its global CDN for rapid delivery of static React assets.
-- **Backend:** Hosted on **Render**, providing a scalable Node.js environment with automated deployments triggered by GitHub pushes.
-- **Database:** Hosted on **MongoDB Atlas**, offering a secure, managed database cluster with automated backups.
-- **Cache:** Utilizes a managed **Redis** instance to handle high-throughput token validation.
+### Ferries & Routes (`/api/v1/ferries`, `/api/v1/routes`)
+- `GET /` - Retrieve available entities.
+- `POST /` - (Admin Only) Create new vessels or terminal routes.
+- `PUT /:id` - (Admin/Staff) Update statuses or capacities.
+
+*(Schedules, Bookings, and Alerts follow similar CRUD patterns).*
 
 ---
 
-## CHAPTER 6: CONCLUSION AND FUTURE SCOPE
+## 🔑 Authentication Flow
 
-### 6.1 Conclusion
-FerryFlow successfully addresses the core inefficiencies of traditional ferry operations. By delivering a modern, responsive web application backed by real-time infrastructure, the project bridges the gap between administrators and passengers. The implementation of robust authentication, role-based access control, and dynamic booking flows proves the viability of MERN-stack architectures in modernizing public transit systems.
+1. **Standard Login:** User submits email/password. Server hashes input, validates against DB, and generates a short-lived `AccessToken` and a long-lived `RefreshToken`.
+2. **Token Storage:** The `AccessToken` is set as an `HttpOnly` cookie. The `RefreshToken` is saved to **Redis** and also sent as an `HttpOnly` cookie.
+3. **Session Renewal:** When the `AccessToken` expires, the frontend calls `/refresh-token`. The server validates the cookie against Redis and issues a new access token seamlessly.
+4. **Google OAuth:** React utilizes `@react-oauth/google` popup flow. The credential token is sent to the backend, validated via `google-auth-library`, and immediately integrated into the standard JWT flow above.
 
-### 6.2 Future Scope
-To further enhance the platform, several features are earmarked for future iterations:
-- **Mobile Application:** Developing native iOS and Android clients using React Native to capture the mobile-first demographic.
-- **GPS Based Live Tracking:** Integrating geographic APIs to display real-time ferry vessel movements on an interactive map.
-- **QR Ticket Verification:** Generating scannable QR codes for passenger tickets to automate physical terminal boarding gates.
-- **Advanced Analytics:** Implementing machine learning models to predict route demand and optimize scheduling efficiency.
+---
+
+## 🗄️ Database Design
+
+The schema is built in Mongoose with tight relational references:
+- **User:** Defines identity, hashed passwords, and RBAC `role` (passenger, staff, admin).
+- **Ferry:** Stores vessel data (`name`, `capacity`, `registrationNumber`).
+- **Route:** Stores geometric representations of origin to destination paths.
+- **Schedule:** The pivot collection connecting `Ferry` + `Route` + Time.
+- **Booking:** Connects `User` + `Schedule` + Seat allocations.
+- **OTP:** Temporary records with TTL (Time-To-Live) indexes for email verification.
+
+---
+
+## 📁 Project Structure
+
+```text
+ferryflow/
+├── client/                     # React / Vite Frontend
+│   ├── src/
+│   │   ├── components/         # Reusable atomic UI parts
+│   │   ├── context/            # React Context (Auth State)
+│   │   ├── pages/              # Route-level views (Login, Dashboards)
+│   │   ├── services/           # Axios network calls
+│   │   └── Validations/        # Zod schemas for forms
+│   └── .env
+└── server/                     # Express / Node.js Backend
+    ├── src/
+    │   ├── config/             # DB & 3rd Party init (Redis, Google)
+    │   ├── controllers/        # Route logic and HTTP responses
+    │   ├── middleware/         # Auth verification, Error Handling
+    │   ├── models/             # Mongoose schemas
+    │   ├── routes/             # Express router definitions
+    │   └── utils/              # Nodemailer helpers, JWT signers
+    ├── tests/                  # Jest & Supertest suites
+    └── .env
+```
+
+---
+
+## 📖 Usage
+
+1. **Passenger Registration:** Navigate to the site, register via Email or Google, and verify your OTP.
+2. **Find a Ferry:** Enter your departure and arrival locations to view live schedules.
+3. **Book a Ticket:** Select an available schedule, choose your seats, and complete the reservation workflow.
+4. **Admin Testing:** Log into an Admin account to manage the fleet, assign schedules, and push live Socket.IO alerts to active passengers.
+
+---
+
+## 🌍 Deployment
+
+- **Frontend (Netlify):** Connected directly to the GitHub repository. Vite's build command (`npm run build`) is executed automatically, and static files are served via Netlify's global CDN. Environment variables are set in the Netlify Dashboard.
+- **Backend (Render):** Deployed as a Web Service on Render. The server starts via `node src/server.js`. Secrets are managed in Render's Environment settings.
+
+---
+
+## 🔮 Future Improvements
+- **Live GPS Tracking:** Integrating physical IoT GPS sensors to visually track ferries on an interactive web map.
+- **Mobile Native Apps:** Porting the React codebase to React Native for iOS/Android stores with native push notifications.
+- **QR Code Ticketing:** Generating unique QR codes upon booking for automated scanning at physical boarding gates.
+
+---
+
+## 🤝 Contributing
+Contributions are welcome! Please follow these steps:
+1. Fork the repository.
+2. Create a new feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+---
+
+## 📄 License
+This project is licensed under the ISC License.
+
+## 👤 Author
+**Nitin Kumar**
+- GitHub: [nitin-code6](https://github.com/nitin-code6)
