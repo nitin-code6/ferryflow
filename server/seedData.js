@@ -11,7 +11,7 @@ const Booking = require("./src/models/booking.model");
 const Alert = require("./src/models/alert.model");
 const Inquiry = require("./src/models/inquiry.model");
 
-const MONGODB_URI = process.env.MONGO_URI || "mongodb://localhost:27017/ferryflow";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/ferryflow";
 
 const seedDatabase = async () => {
     try {
