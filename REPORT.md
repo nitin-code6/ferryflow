@@ -89,7 +89,7 @@ FerryFlow utilizes a decoupled client-server architecture. The React Frontend ac
 - **Email Service:** Triggered by the backend to dispatch SMTP messages via Nodemailer.
 
 *(Suggested Architecture Diagram)*  
-`![System Architecture](assets/system_architecture.png)`
+![System Architecture](client/src/assets/systemArchitecture.png)
 
 ### 3.2 Database Design
 The MongoDB database is normalized into several core collections to maintain data integrity.
@@ -103,7 +103,7 @@ The MongoDB database is normalized into several core collections to maintain dat
 | **Booking** | Records passenger reservations | `userId`, `scheduleId`, `seats`, `paymentStatus` |
 | **Alert** | Stores system broadcasts | `title`, `message`, `type`, `isActive` |
 | **OTP** | Handles email verification tokens | `email`, `otp`, `expiresAt` |
-
+![  Authentication](client/src/assets/auth.png)  
 ### 3.3 Authentication Architecture
 The authentication flow is designed for high security and seamless user experience:
 1. **Registration:** Users sign up with an email and password.
@@ -112,6 +112,8 @@ The authentication flow is designed for high security and seamless user experien
 4. **JWT Access Token:** Upon login, a short-lived access token is generated and stored in an HTTP-only cookie.
 5. **Refresh Token & Redis:** A cryptographically secure refresh token is generated, stored in Redis, and attached to a long-lived HTTP-only cookie to silently renew expired access tokens.
 
+
+
 ### 3.4 Role Based Access Control (RBAC)
 System resources are strictly protected at both the UI and API levels based on user roles:
 - **Admin:** Has complete management access. Can create, read, update, and delete all entities across the platform.
@@ -119,7 +121,7 @@ System resources are strictly protected at both the UI and API levels based on u
 - **Passenger:** Restricted to public-facing services including viewing schedules, booking tickets, and managing their own profile.
 
 ---
-
+![ Dashboard](client/src/assets/dashboard.png)  
 ## CHAPTER 4: IMPLEMENTATION DETAILS
 
 ### 4.1 User Authentication
@@ -129,10 +131,6 @@ FerryFlow provides a comprehensive authentication suite:
 - **Forgot Password:** Secure account recovery via OTP.
 - **Google OAuth:** One-click onboarding utilizing Google's identity services.
 
-`![Register Page](assets/01_register_page.png)`  
-`![Email Verification](assets/02_email_verification.png)`  
-`![Login Page](assets/03_login_page.png)`  
-
 ### 4.2 Passenger Module
 The passenger interface is optimized for discovery and conversion:
 - **Landing Page:** A visually engaging entry point highlighting services and urgent alerts.
@@ -140,9 +138,8 @@ The passenger interface is optimized for discovery and conversion:
 - **Schedule Viewing:** Clear, chronological presentation of available transit options.
 - **Booking Process:** A streamlined, multi-step flow to select seats and confirm reservations.
 
-`![Landing Page](assets/04_landing_page.png)`  
-`![Ferry Search](assets/05_ferry_search.png)`  
-`![Booking Page](assets/06_booking_page.png)`  
+![Landing Page](client/src/assets/landing.png)  
+
 
 ### 4.3 Admin Dashboard
 Administrators utilize a protected, analytical dashboard for operational oversight:
@@ -151,16 +148,13 @@ Administrators utilize a protected, analytical dashboard for operational oversig
 - **Route Management:** Tools to establish and edit geographic terminal connections.
 - **Schedule Management:** Complex forms to pair ferries and routes with precise timeframes.
 
-`![Admin Dashboard](assets/07_admin_dashboard.png)`  
-`![Ferry Management](assets/08_ferry_management.png)`  
-`![Schedule Management](assets/09_schedule_management.png)`  
 
 ### 4.4 Real-Time Features
 Socket.IO is implemented to eliminate the need for manual page refreshes:
 - **Live Ferry Status:** Any administrative change to a ferry's status (e.g., "Boarding", "Delayed") is immediately broadcasted to all active clients viewing that schedule.
 - **Admin Broadcast:** Global alerts triggered by admins appear instantly as toast notifications across passenger screens.
 
-`![Live Status](assets/10_live_status.png)`  
+
 
 ### 4.5 Security Implementation
 - **JWT Cookies:** Tokens are flagged as `HttpOnly` to prevent Cross-Site Scripting (XSS) attacks.
@@ -234,7 +228,8 @@ Playwright was used to validate complete user workflows from the browser perspec
 5. Accessing protected pages (Dashboard).
 6. Logging out.
 
-`![Playwright E2E Test](screenshots/playwright-test.png)`
+![Playwright E2E Test](client/src/assets/playright.png)
+
 
 ### 6.5 Overall Test Results
 | Test Scenario | Result |
