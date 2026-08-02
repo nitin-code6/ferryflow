@@ -112,6 +112,8 @@ FerryFlow is built on a Service-Oriented Architecture decoupling RESTful HTTP en
   <img src="client/src/assets/databaseArchitecture.png" width="900" alt="Database Architecture Overview"/>
 </p>
 
+
+
 ---
 
 ## 📁 Folder Structure
