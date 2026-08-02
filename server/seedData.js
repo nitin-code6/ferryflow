@@ -221,7 +221,7 @@ const seedDatabase = async () => {
             { title: "Safety Announcement", message: "Please ensure you wear life jackets during the monsoon season.", type: "warning", priority: "high", status: "active", createdBy: staffUsers[1]._id },
             { title: "Route Update", message: "Mandwa Express will operate from Gate 2 today.", type: "info", priority: "low", status: "active", createdBy: staffUsers[2]._id },
             { title: "Boarding Information", message: "Boarding for Kochi Commuter starts 15 mins prior to departure.", type: "info", priority: "low", status: "active", createdBy: staffUsers[3]._id },
-            { title: "Service Cancellation", message: "Sunrise Ferry is out of service for the week.", type: "cancellation", priority: "critical", status: "active", createdBy: admin._id },
+            { title: "Service Cancellation", message: "Sunrise Ferry is out of service for the week.", type: "cancellation", priority: "high", status: "active", createdBy: admin._id },
             { title: "Heavy Traffic at Terminal", message: "Expect delays at Mumbai Harbour due to tourist rush.", type: "delay", priority: "medium", status: "active", createdBy: staffUsers[0]._id },
             { title: "Lost & Found", message: "A black wallet was found on Ocean Pearl. Contact staff desk.", type: "info", priority: "low", status: "active", createdBy: staffUsers[4]._id },
             { title: "Welcome to FerryFlow", message: "Book your tickets online seamlessly with our new app!", type: "info", priority: "low", status: "active", createdBy: admin._id }
